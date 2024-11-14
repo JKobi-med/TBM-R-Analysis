@@ -1,0 +1,5 @@
+---
+title: "Generalized Linear Models"
+author: "Jonas J.R. Koberschinski"
+---
+
