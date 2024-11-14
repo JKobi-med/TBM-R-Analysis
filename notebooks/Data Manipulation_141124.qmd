@@ -3,48 +3,77 @@ title: "Data Manipulation"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
 ---
-
+## Data import
 ```{r}
+#|include: FALSE
+
 # load librarys
-library(readxl)
-library(RColorBrewer)
-#library(lme4)
+library(tidyverse)
 library(tidyr)
 library(dplyr)
-library(reticulate)
-use_virtualenv("~/myenv", required = TRUE)
-#py_config()
-
-# set working directory
-setwd('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin')
+ ## library(RColorBrewer)
+ ## library(lme4)
 
 # load data
  ## BDNF
-bdnf <- read_excel("Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig.xlsx")
-bdnf[1:5,]
+ ###bdnf <- read_excel("Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig.xlsx")
+bdnf <- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/bdnf.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(bdnf)
 
+write.table(bdnf, 
+            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/bdnf.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
  ##Tau
-tau <- read_excel("Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29.xlsx")
-tau[1:5,]
+ ### tau <- read_excel("Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29.xlsx")
+tau <- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/tau.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(tau)
 
- ## PSD95
-psd95 <- read_excel("Rohdaten/PSD95_CpGs_mit_verhalten_gr̨ößer.xlsx")
-psd95[1:5,]
-
-
-#data set with all CpGs in columns for EDA and PCA
-cpg <- read_excel("Excel seit Martin/031024_All_Genes_Explorative Datenanylse.xlsx")
-cpg[1:5,]
-
-#TBM <- list(BDNFα, Tauα, PSD95α)
-
-write.table(cpg, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/cpg.txt", 
+write.table(tau, 
+            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/tau.txt", 
             sep = "\t", 
             row.names = FALSE, 
             quote = FALSE)
 
 
+ ## PSD95
+ ### psd95 <- read_excel("Rohdaten/PSD95_CpGs_mit_verhalten_gr̨ößer.xlsx")
+psd95 <- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/psd95.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(psd95)
+
+write.table(psd95, 
+            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/psd95.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#data set with all CpGs in columns for EDA and PCA
+ ##cpg <- read_excel("Excel seit Martin/031024_All_Genes_Explorative Datenanylse.xlsx")
+cpg <- as_tibble(read.table(file = '/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/cpg.txt', 
+                  sep = "\t", 
+                  header = TRUE, 
+                  row.names = NULL, 
+                  quote = ""))
+head(cpg)
+
+write.table(cpg, 
+            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/cpg.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
 ```
 
 ## Subset of the essential variables
