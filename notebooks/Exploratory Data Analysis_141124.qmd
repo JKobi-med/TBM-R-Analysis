@@ -3,9 +3,10 @@ title: "Exploratory Data Analysis"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
 ---
-
+## Data import
 ```{r}
 #| include: false
+
 # load mean&median data
 # List of file names (without paths and extension)
 file_names <- c(
@@ -33,10 +34,12 @@ for (file_name in file_names) {
   # Read the table and assign it to a variable with the same name
   assign(var_name, read.table(file_path, sep = "\t", header = TRUE, row.names = NULL, quote = ""))
 }
-```
 
-```{r}
-#| include: false
+
+# load cpg-data
+cpg <- read.table(file = '/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/cpg.txt', sep = "\t", header = TRUE, row.names = NULL, quote = "")
+
+
 # load wide data
 # List of file names (without paths and extension)
 file_names_wide <- c(
@@ -151,8 +154,6 @@ describe(psd95_median_wide)
 
 ### Boxplots
 ```{r}
-cpg <- read.table(file = '/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/cpg.txt', sep = "\t", header = TRUE, row.names = NULL, quote = "")
-
 eda_bdnf <- cpg
 bdnfcols_to_modify <- 5:14
 

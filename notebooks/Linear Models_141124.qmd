@@ -3,8 +3,10 @@ title: "Linear models"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
 ---
+## Data import
 ```{r}
 #| include: false
+
 # List of file names (without paths and extension)
 file_names <- c(
   "bdnf_mean_T2T0.txt",
