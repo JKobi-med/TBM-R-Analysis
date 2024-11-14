@@ -1,6 +1,7 @@
 ---
 title: "Linear models"
 author: "Jonas J.R. Koberschinski"
+date: "14-11-2024"
 ---
 ```{r}
 #| include: false
