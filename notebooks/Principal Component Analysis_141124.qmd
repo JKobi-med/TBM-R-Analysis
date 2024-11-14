@@ -1,0 +1,175 @@
+---
+title: "Principal Component Analysis"
+author: "Jonas J.R. Koberschinski"
+---
+
+```{r}
+#| include: false
+# set working directory
+setwd('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin')
+
+#data set with all CpGs in columns for EDA and PCA
+library(readxl)
+
+# load data
+ ## BDNF
+bdnf <- read_excel("Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig.xlsx")
+bdnf[1:5,]
+
+ ##Tau
+tau <- read_excel("Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29.xlsx")
+tau[1:5,]
+
+ ## PSD95
+psd95 <- read_excel("Rohdaten/PSD95_CpGs_mit_verhalten_gr̨ößer.xlsx")
+psd95[1:5,]
+```
+
+## BDNF
+```{r}
+cpg_bdnf <- bdnf[11:20]
+pca_bdnf <- prcomp(na.omit(cpg_bdnf), scale = TRUE)
+
+## plot pc1 and pc2
+plot(pca_bdnf$x[,1], pca_bdnf$x[,2])
+
+## make a scree plot
+pca_bdnf_var <- pca_bdnf$sdev^2
+pca_bdnf_var_per <- round(pca_bdnf_var/sum(pca_bdnf_var)*100, 1)
+
+barplot(pca_bdnf_var_per, main="BDNF Scree Plot", xlab="Principal Component", ylab="Percent Variation")
+
+
+## now make a fancy looking plot that shows the PCs and the variation:
+library(ggplot2)
+
+
+pca_bdnf_data <- as.data.frame(pca_bdnf$x)
+pca_bdnf_data$ID <- rownames(pca_bdnf)
+
+str(pca_bdnf_data)
+
+ggplot(pca_bdnf_data, aes(PC1, PC2)) +
+  geom_point() +
+  xlab(paste("PC1 - ", pca_bdnf_var_per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca_bdnf_var_per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("BDNF PCA Graph")
+
+
+bdnf_loading_scores <- pca_bdnf$rotation[,1]
+bdnf_methylation_scores <- abs(bdnf_loading_scores) # what to do of bdnf_methylation_scores?
+  
+library(ggfortify)
+pca_bdnf_res <- prcomp(na.omit(bdnf[c(11:20)]), scale = TRUE)
+
+autoplot(pca_bdnf_res, data = na.omit(bdnf[c(1:20)]), colour = 'Zeitpunkt',
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+autoplot(pca_bdnf_res, data = na.omit(bdnf[c(1:20)]), colour = 'Gruppe', 
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+autoplot(pca_bdnf_res, data = na.omit(bdnf[c(1:22)]), colour = 'Sex', 
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+```
+
+
+## Tau
+```{r}
+cpg_tau <- tau[c(9:57)]
+pca_tau <- prcomp(na.omit(cpg_tau), scale = TRUE)
+
+## plot pc1 and pc2
+plot(pca_tau$x[,1], pca_tau$x[,2])
+
+## make a scree plot
+pca_tau_var <- pca_tau$sdev^2
+pca_tau_var_per <- round(pca_tau_var/sum(pca_tau_var)*100, 1)
+
+barplot(pca_tau_var_per, main="Tau Scree Plot", xlab="Principal Component", ylab="Percent Variation")
+
+
+## now make a fancy looking plot that shows the PCs and the variation:
+library(ggplot2)
+
+
+pca_tau_data <- as.data.frame(pca_tau$x)
+pca_tau_data$ID <- rownames(pca_tau)
+
+str(pca_tau_data)
+
+ggplot(pca_tau_data, aes(PC1, PC2)) +
+  geom_point() +
+  xlab(paste("PC1 - ", pca_tau_var_per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca_tau_var_per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("Tau PCA Graph")
+
+
+tau_loading_scores <- pca_tau$rotation[,1]
+tau_methylation_scores <- abs(tau_loading_scores) # what to do of tau_methylation_scores?
+  
+library(ggfortify)
+pca_tau_res <- prcomp(na.omit(tau[c(9:57)]), scale = TRUE)
+
+autoplot(pca_tau_res, data = na.omit(tau[c(1:57)]), colour = 'Zeit',
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+autoplot(pca_tau_res, data = na.omit(tau[c(1:57)]), colour = 'Gruppe', 
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+autoplot(pca_tau_res, data = na.omit(tau[c(1:57,357)]), colour = 'Sex', 
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+```
+
+
+## PSD95
+```{r}
+cpg_psd95 <- psd95[10:54]
+pca_psd95 <- prcomp(na.omit(cpg_psd95), scale = TRUE)
+
+## plot pc1 and pc2
+plot(pca_psd95$x[,1], pca_psd95$x[,2])
+
+## make a scree plot
+pca_psd95_var <- pca_psd95$sdev^2
+pca_psd95_var_per <- round(pca_psd95_var/sum(pca_psd95_var)*100, 1)
+
+barplot(pca_psd95_var_per, main="PSD95 Scree Plot", xlab="Principal Component", ylab="Percent Variation")
+
+
+## now make a fancy looking plot that shows the PCs and the variation:
+library(ggplot2)
+
+
+pca_psd95_data <- as.data.frame(pca_psd95$x)
+pca_psd95_data$ID <- rownames(pca_psd95)
+
+str(pca_psd95_data)
+
+ggplot(pca_psd95_data, aes(PC1, PC2)) +
+  geom_point() +
+  xlab(paste("PC1 - ", pca_psd95_var_per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca_psd95_var_per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("PSD95 PCA Graph")
+
+
+psd95_loading_scores <- pca_psd95$rotation[,1]
+psd95_methylation_scores <- abs(psd95_loading_scores) # what to do of tau_methylation_scores?
+  
+library(ggfortify)
+pca_psd95_res <- prcomp(na.omit(psd95[c(10:54)]), scale = TRUE)
+
+autoplot(pca_psd95_res, data = na.omit(psd95[c(1:54)]), colour = 'Zeitpunkt',
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+autoplot(pca_psd95_res, data = na.omit(psd95[c(1:54)]), colour = 'Gruppe', 
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+autoplot(pca_psd95_res, data = na.omit(psd95[c(1:54,353)]), colour = 'Sex', 
+         loadings = TRUE, loadings.colour = 'blue',
+         loadings.label = TRUE, loadings.label.size = 3)
+```

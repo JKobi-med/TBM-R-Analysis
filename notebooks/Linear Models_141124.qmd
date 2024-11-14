@@ -1,0 +1,484 @@
+---
+title: "Linear models"
+author: "Jonas J.R. Koberschinski"
+---
+```{r}
+#| include: false
+# List of file names (without paths and extension)
+file_names <- c(
+  "bdnf_mean_T2T0.txt",
+  "bdnf_mean_T1T0.txt",
+  "bdnf_mean_T2T1.txt",
+  
+  "bdnf_median_T2T0.txt",
+  "bdnf_median_T1T0.txt",
+  "bdnf_median_T2T1.txt",
+  
+  "tau_mean_T2T0.txt",
+  "tau_mean_T1T0.txt",
+  "tau_mean_T2T1.txt",
+  
+  "tau_median_T2T0.txt",
+  "tau_median_T1T0.txt",
+  "tau_median_T2T1.txt",
+  
+  "psd95_mean_T2T0.txt",
+  "psd95_mean_T1T0.txt",
+  "psd95_mean_T2T1.txt",
+  
+  "psd95_median_T2T0.txt",
+  "psd95_median_T1T0.txt",
+  "psd95_median_T2T1.txt"
+)
+
+# Folder where the files are located
+subfolder <- "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables"
+
+# Loop through the file names, read each table, and assign it to a variable
+for (file_name in file_names) {
+  # Construct the full file path by combining the subfolder and file name
+  file_path <- file.path(subfolder, file_name)
+  
+  # Remove the .txt extension to get the base name for the variable
+  var_name <- tools::file_path_sans_ext(file_name)
+  
+  # Read the table and assign it to a variable with the same name
+  assign(var_name, read.table(file_path, sep = "\t", header = TRUE, row.names = NULL, quote = ""))
+}
+
+# Example: access the 'bdnf_mean_T2T0' table
+head(bdnf_mean_T2T0)
+
+```
+
+## LM: Regression analysis (Bivariate/multivariate)
+
+### BDNF
+
+#### T2-T0
+
+##### All variables and step()
+
+```{r}
+# lm mean
+lm_bdnf_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_mean_T2T0)
+
+summary(lm_bdnf_mean_T2T0)
+anova(lm_bdnf_mean_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_mean_T2T0)
+step(lm_bdnf_mean_T2T0) # call: lm(formula = T2_T0 ~ T0, data = bdnf_mean_T2T0)
+
+# lm median
+lm_bdnf_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_median_T2T0)
+
+summary(lm_bdnf_median_T2T0)
+anova(lm_bdnf_median_T2T0)
+plot(lm_bdnf_median_T2T0)
+step(lm_bdnf_median_T2T0) # call: lm(formula = T2_T0 ~ T0, data = bdnf_median_T2T0)
+```
+
+##### AIC model recommendation
+
+```{r}
+#mean
+bdnf_aic_mean_T2T0 <- lm(formula = T2_T0 ~ T0, data = bdnf_mean_T2T0)
+summary(bdnf_aic_mean_T2T0)
+anova(bdnf_aic_mean_T2T0)
+par(mfrow = c(2,2))
+plot(bdnf_aic_mean_T2T0)
+
+#median
+bdnf_aic_median_T2T0 <- lm(formula = T2_T0 ~ T0, data = bdnf_median_T2T0)
+summary(bdnf_aic_median_T2T0)
+anova(bdnf_aic_median_T2T0)
+plot(bdnf_aic_median_T2T0)
+```
+
+#### T1 - T0
+
+##### All variables and step()
+
+```{r}
+# mean
+lm_bdnf_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_mean_T1T0)
+
+summary(lm_bdnf_mean_T1T0)
+anova(lm_bdnf_mean_T1T0)
+step(lm_bdnf_mean_T1T0)
+
+# median
+lm_bdnf_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_median_T1T0)
+
+summary(lm_bdnf_median_T1T0)
+anova(lm_bdnf_median_T1T0)
+step(lm_bdnf_median_T1T0)
+```
+
+##### AIC model recommendation
+
+```{r}
+#mean
+bdnf_aic_mean_T1T0 <- lm(formula = T1_T0 ~ Gruppe + T0, data = bdnf_mean_T1T0)
+summary(bdnf_aic_mean_T1T0)
+anova(bdnf_aic_mean_T1T0)
+par(mfrow = c(2,2))
+plot(bdnf_aic_mean_T1T0)
+
+#median
+bdnf_aic_median_T1T0 <- lm(formula = T1_T0 ~ Gruppe + CogTel + T0, data = bdnf_median_T1T0)
+summary(bdnf_aic_median_T1T0)
+anova(bdnf_aic_median_T1T0)
+plot(bdnf_aic_median_T1T0)
+```
+
+#### T2 - T1
+
+##### All variables and step()
+
+```{r}
+# with T1
+# mean
+lm_bdnf_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = bdnf_mean_T2T1)
+
+summary(lm_bdnf_mean_T2T1)
+anova(lm_bdnf_mean_T2T1)
+step(lm_bdnf_mean_T2T1)
+
+# median
+
+lm_bdnf_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = bdnf_median_T2T1)
+
+summary(lm_bdnf_median_T2T1)
+anova(lm_bdnf_median_T2T1)
+step(lm_bdnf_median_T2T1)
+```
+
+##### AIC model recommendation
+
+```{r}
+#mean
+bdnf_aic_mean_T2T1 <- lm(formula = T2_T1 ~ T1, data = bdnf_mean_T2T1)
+summary(bdnf_aic_mean_T2T1)
+anova(bdnf_aic_mean_T2T1)
+par(mfrow = c(2,2))
+plot(bdnf_aic_mean_T2T1)
+
+#median
+bdnf_aic_median_T2T1 <- lm(formula = T2_T1 ~ T1, data = bdnf_median_T2T1)
+summary(bdnf_aic_median_T2T1)
+anova(bdnf_aic_median_T2T1)
+plot(bdnf_aic_median_T2T1)
+```
+
+#### Plot models
+
+```{r}
+#?termplot
+
+library(visreg)
+
+#T2-T0
+visreg(bdnf_aic_mean_T2T0, type="conditional", gg = TRUE)
+visreg(bdnf_aic_median_T2T0, gg = TRUE)
+
+#T1-T0
+visreg(bdnf_aic_mean_T1T0, "Gruppe", gg = TRUE)
+visreg(bdnf_aic_median_T1T0, "CogTel", by = "Gruppe", gg = TRUE)
+
+#T2-T1
+visreg(bdnf_aic_mean_T2T1, gg = TRUE)
+visreg(bdnf_aic_median_T2T1, gg = TRUE)
+```
+
+### Tau
+
+#### T2-T0
+
+##### All variables and step()
+
+```{r}
+# lm mean
+lm_tau_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_mean_T2T0)
+
+summary(lm_tau_mean_T2T0)
+anova(lm_tau_mean_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_tau_mean_T2T0)
+step(lm_tau_mean_T2T0)
+
+# lm median
+lm_tau_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_median_T2T0)
+
+summary(lm_tau_median_T2T0)
+anova(lm_tau_median_T2T0)
+plot(lm_tau_median_T2T0)
+step(lm_tau_median_T2T0)
+
+```
+
+##### AIC model recommendation
+
+```{r}
+# mean
+tau_aic_mean_T2T0 <- lm(formula = T2_T0 ~ T0, data = tau_mean_T2T0)
+summary(tau_aic_mean_T2T0)
+anova(tau_aic_mean_T2T0)
+par(mfrow = c(2,2))
+plot(tau_aic_mean_T2T0)
+
+#median
+tau_aic_median_T2T0 <- lm(formula = T2_T0 ~ CogTel + T0, data = tau_median_T2T0)
+summary(tau_aic_median_T2T0)
+anova(tau_aic_median_T2T0)
+plot(tau_aic_median_T2T0)
+```
+
+#### T1 - T0
+
+##### All variables and step()
+
+```{r}
+# mean
+lm_tau_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_mean_T1T0)
+
+summary(lm_tau_mean_T1T0)
+anova(lm_tau_mean_T1T0)
+step(lm_tau_mean_T1T0)
+
+# median
+
+lm_tau_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_median_T1T0)
+
+summary(lm_tau_median_T1T0)
+anova(lm_tau_median_T1T0)
+step(lm_tau_median_T1T0)
+```
+
+##### AIC model recommendation
+
+```{r}
+#mean
+tau_aic_mean_T1T0 <- lm(formula = T1_T0 ~ Sex + Age_start + T0, data = tau_mean_T1T0)
+summary(tau_aic_mean_T1T0 )
+anova(tau_aic_mean_T1T0 )
+par(mfrow = c(2,2))
+plot(tau_aic_mean_T1T0 )
+
+#median
+tau_aic_median_T1T0 <- lm(formula = T1_T0 ~ Standort + T0, data = tau_median_T1T0)
+summary(tau_aic_median_T1T0)
+anova(tau_aic_median_T1T0)
+plot(tau_aic_median_T1T0)
+```
+
+#### T2 - T1
+
+##### All variables and step()
+
+```{r}
+# with T1
+# mean
+lm_tau_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = tau_mean_T2T1)
+
+summary(lm_tau_mean_T2T1)
+anova(lm_tau_mean_T2T1)
+step(lm_tau_mean_T2T1)
+
+# median
+
+lm_tau_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = tau_median_T2T1)
+
+summary(lm_tau_median_T2T1)
+anova(lm_tau_median_T2T1)
+step(lm_tau_median_T2T1)
+```
+
+##### AIC model recommendation
+
+```{r}
+#mean
+tau_aic_mean_T2T1 <- lm(formula = T2_T1 ~ T1, data = tau_mean_T2T1)
+summary(tau_aic_mean_T2T1)
+anova(tau_aic_mean_T2T1)
+par(mfrow = c(2,2))
+plot(tau_aic_mean_T2T1)
+
+#median
+tau_aic_median_T2T1 <- lm(formula = T2_T1 ~ Standort + CogTel + T1, data = tau_median_T2T1)
+summary(tau_aic_median_T2T1)
+anova(tau_aic_median_T2T1)
+plot(tau_aic_median_T2T1)
+```
+
+#### Plot models
+
+```{r}
+#T2-T0
+visreg(tau_aic_mean_T2T0, gg = T)
+visreg(tau_aic_median_T2T0, gg = T)
+
+#T1-T0
+visreg(tau_aic_mean_T1T0, gg = F)
+visreg(tau_aic_median_T1T0, gg = F)
+
+#T2-T1
+visreg(tau_aic_mean_T2T1, gg = F)
+visreg(tau_aic_median_T2T1, gg = F)
+```
+
+### PSD95
+
+#### T2-T0
+
+##### All variables and step()
+
+```{r}
+# lm mean
+lm_psd95_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_mean_T2T0)
+
+summary(lm_psd95_mean_T2T0)
+anova(lm_psd95_mean_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_mean_T2T0)
+step(lm_psd95_mean_T2T0)
+
+# lm median
+lm_psd95_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_median_T2T0)
+
+summary(lm_psd95_median_T2T0)
+anova(lm_psd95_median_T2T0)
+plot(lm_psd95_median_T2T0)
+step(lm_psd95_median_T2T0) # call: lm(formula = T2_T0 ~ T0, data = bdnf_median_T2T0)
+```
+
+##### AIC model recommendation
+
+```{r}
+#mean
+psd95_aic_mean_T2T0 <- lm(formula = T2_T0 ~ T0, data = psd95_mean_T2T0)
+summary(psd95_aic_mean_T2T0)
+anova(psd95_aic_mean_T2T0)
+par(mfrow = c(2,2))
+plot(psd95_aic_mean_T2T0)
+
+#median
+psd95_aic_median_T2T0 <- lm(formula = T2_T0 ~ Sex + T0, data = psd95_median_T2T0)
+summary(psd95_aic_median_T2T0)
+anova(psd95_aic_median_T2T0)
+plot(psd95_aic_median_T2T0)
+```
+
+#### T1 - T0
+
+##### All variables and step()
+
+```{r}
+# mean
+lm_psd95_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_mean_T1T0)
+
+summary(lm_psd95_mean_T1T0)
+anova(lm_psd95_mean_T1T0)
+step(lm_psd95_mean_T1T0)
+
+# median
+lm_psd95_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_median_T1T0)
+
+summary(lm_psd95_median_T1T0)
+anova(lm_psd95_median_T1T0)
+step(lm_psd95_median_T1T0)
+```
+
+##### AIC model recommendation
+
+```{r}
+#mean
+psd95_aic_mean_T1T0 <- lm(formula = T1_T0 ~ Standort + Sex + T0, data = psd95_mean_T1T0)
+summary(psd95_aic_mean_T1T0)
+anova(psd95_aic_mean_T1T0)
+par(mfrow = c(2,2))
+plot(psd95_aic_mean_T1T0)
+
+#median
+psd95_aic_median_T1T0 <- lm(formula = T1_T0 ~ Standort + Sex + CogTel + T0, data = psd95_median_T1T0)
+summary(psd95_aic_median_T1T0)
+anova(psd95_aic_median_T1T0)
+plot(psd95_aic_median_T1T0)
+```
+
+#### T2 - T1
+
+##### All variables and step()
+
+```{r}
+# with T1
+# mean
+lm_psd95_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = psd95_mean_T2T1)
+
+summary(lm_psd95_mean_T2T1)
+anova(lm_psd95_mean_T2T1)
+step(lm_psd95_mean_T2T1)
+
+# median
+
+lm_psd95_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = psd95_median_T2T1)
+
+summary(lm_psd95_median_T2T1)
+anova(lm_psd95_median_T2T1)
+step(lm_psd95_median_T2T1)
+```
+
+##### AIC model recommendation
+
+```{r}
+#mean
+psd95_aic_mean_T2T1 <- lm(formula = T2_T1 ~ Gruppe + T1, data = psd95_mean_T2T1)
+summary(psd95_aic_mean_T2T1)
+anova(psd95_aic_mean_T2T1)
+par(mfrow = c(2,2))
+plot(psd95_aic_mean_T2T1)
+
+#median
+psd95_aic_median_T2T1 <- lm(formula = T2_T1 ~ Sex + T1, data = psd95_median_T2T1)
+summary(psd95_aic_median_T2T1)
+anova(psd95_aic_median_T2T1)
+plot(psd95_aic_median_T2T1)
+```
+
+#### Plot models
+
+```{r}
+#T2-T0
+visreg(psd95_aic_mean_T2T0, gg = T)
+visreg(psd95_aic_median_T2T0, gg = T)
+
+#T1-T0
+visreg(psd95_aic_mean_T1T0, gg = F)
+visreg(psd95_aic_median_T1T0, gg = F)
+
+#T2-T1
+visreg(psd95_aic_mean_T2T1, gg = F)
+visreg(psd95_aic_median_T2T1, gg = F)
+```
+
