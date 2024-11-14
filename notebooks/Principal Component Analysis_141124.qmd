@@ -1,6 +1,7 @@
 ---
 title: "Principal Component Analysis"
 author: "Jonas J.R. Koberschinski"
+date: "14-11-2024"
 ---
 
 ```{r}
