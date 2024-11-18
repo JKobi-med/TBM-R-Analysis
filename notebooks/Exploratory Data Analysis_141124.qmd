@@ -70,35 +70,32 @@ for (file_name in file_names_wide) {
 
 ```
 
-# EDA \# Allgenes?
+# EDA (Exploratory Data Analysis)
 
-## Gruppendifferenz der Mittelwerte?
+## Group Differences in Mean Values
 
 ```{r}
 library(psych)
 library(DescTools)
 
-# Modes
-Mode(bdnf_mean$Mean, na.rm = TRUE) #  8x: 0 u. 0.063 -> bimodal
-Mode(tau_mean$Mean, na.rm = TRUE) # 6x 0.066875
-Mode(psd95_mean$Mean, na.rm = TRUE) # 3x: 0.02377778 u. 0.03177778 -> bimodal
+# Calculate the mode for each dataset
+Mode(bdnf_mean$Mean, na.rm = TRUE) # Bimodal: two modes at 0 and 0.063
+Mode(tau_mean$Mean, na.rm = TRUE) # Mode at 0.066875
+Mode(psd95_mean$Mean, na.rm = TRUE) # Bimodal: two modes at 0.02377778 and 0.03177778
 
-Mode(bdnf_median$Median, na.rm = TRUE) # 92x: 0
-Mode(tau_median$Median, na.rm = TRUE) # 65x: 0.02
-Mode(psd95_median$Median, na.rm = TRUE) # 317x: 0
+Mode(bdnf_median$Median, na.rm = TRUE) # Mode at 0 (92 occurrences)
+Mode(tau_median$Median, na.rm = TRUE) # Mode at 0.02 (65 occurrences)
+Mode(psd95_median$Median, na.rm = TRUE) # Mode at 0 (317 occurrences)
 
-#with tapply
-# Minimale Differenz
-tapply(bdnf_mean$Mean, bdnf_mean$Gruppe, summary, na.rm = TRUE)
-tapply(bdnf_median$Median, bdnf_median$Gruppe, summary, na.rm = TRUE)
+# Summarize data by group
+tapply(bdnf_mean$Mean, bdnf_mean$Gruppe, summary, na.rm = TRUE) # Minimal difference
+tapply(bdnf_median$Median, bdnf_median$Gruppe, summary, na.rm = TRUE) # Minimal difference
 
-# überhaupt keine Differenz
-tapply(tau_mean$Mean, tau_mean$Gruppe, summary, na.rm = TRUE)
-tapply(tau_median$Median, tau_median$Gruppe, summary, na.rm = TRUE)
+tapply(tau_mean$Mean, tau_mean$Gruppe, summary, na.rm = TRUE) # No difference
+tapply(tau_median$Median, tau_median$Gruppe, summary, na.rm = TRUE) # No difference
 
-# überhaupt keine Differenz
-tapply(psd95_mean$Mean, psd95_mean$Gruppe, summary, na.rm = TRUE)
-tapply(psd95_median$Median, psd95_median$Gruppe, summary, na.rm = TRUE)
+tapply(psd95_mean$Mean, psd95_mean$Gruppe, summary, na.rm = TRUE) # No difference
+tapply(psd95_median$Median, psd95_median$Gruppe, summary, na.rm = TRUE) # No difference
 
 ```
 
@@ -106,7 +103,7 @@ tapply(psd95_median$Median, psd95_median$Gruppe, summary, na.rm = TRUE)
 -   Weiterhin zeigen sich für die arithmetischen Mittel von BDNF und PSD95 zwei Modi.
 -   Tau war unimodal.
 
-## Zeitdifferenz der Mittelwerte?
+## Time Differences in Mean Values
 
 ```{r}
 # Methylierung: PSD95 < Tau < BDNF
@@ -130,13 +127,14 @@ tapply(psd95_median$Median, psd95_median$Zeitpunkt, median, na.rm = TRUE) # all 
 -   Bei Tau steigt das arithmetische Mittel der Methylierung leicht von T0 zu T1 und hält das Niveau bei T2.
 -   Bei PSD95 verbleibt der Median der Methylierun gleichbleibend bei 0, während das arithmetische Mittel der Methylierung von T0 zu T1 steigt aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
 
-## EDA for important point and interval estimators
+## Important Point and Interval Estimators
 
 
 ```{r}
 library(psych)
 library(psychTools)
 
+# Describe the wide format datasets
 ## BDNF
 describe(bdnf_mean_wide)
 describe(bdnf_median_wide)
