@@ -1,0 +1,1443 @@
+<sub-article article-type="notebook" id="nb-7">
+<front-stub>
+<title-group>
+<article-title>Data Manipulation</article-title>
+</title-group>
+<contrib-group>
+<contrib contrib-type="author">
+<name>
+<surname>Koberschinski</surname>
+<given-names>Jonas J. R.</given-names>
+</name>
+<string-name>Jonas J.R. Koberschinski</string-name>
+
+</contrib>
+</contrib-group>
+</front-stub>
+
+<body>
+<sec id="data-import">
+  <title>Data import</title>
+  <sec specific-use="notebook-content">
+  <code language="r script">
+# load librarys
+library(tidyverse)
+  </code>
+  <boxed-text>
+    <preformat>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+✔ dplyr     1.1.4     ✔ readr     2.1.5
+✔ forcats   1.0.0     ✔ stringr   1.5.1
+✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+✔ lubridate 1.9.3     ✔ tidyr     1.3.1
+✔ purrr     1.0.2     
+── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()
+ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</preformat>
+  </boxed-text>
+  <code language="r script">library(tidyr)
+library(dplyr)
+ ## library(RColorBrewer)
+ ## library(lme4)
+
+# load data
+ ## BDNF
+ ###bdnf &lt;- read_excel(&quot;Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig.xlsx&quot;)
+bdnf &lt;- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/bdnf.txt', 
+                   sep = &quot;\t&quot;, 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = &quot;&quot;))
+head(bdnf)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 44
+  TraceFileName     ID Standort Zeitpunkt_als_Zahl Zeitpunkt Platte Group Gruppe
+  &lt;chr&gt;          &lt;int&gt;    &lt;int&gt;              &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; 
+1 BDNF-C1_001_0…     1        0                  1 T0        Pl1    Cont… Contr…
+2 BDNF-C1_001_0…     1        0                  2 T1        Pl2    Cont… Contr…
+3 BDNF-C1_002_0…     2        0                  1 T0        Pl1    Piano Piano 
+4 BDNF-C1_002_0…     2        0                  2 T1        Pl2    Piano Piano 
+5 BDNF-C1_002_0…     2        0                  3 T2        Pl3    Piano Piano 
+6 BDNF-C1_003_0…     3        0                  1 T0        Pl1    Piano Piano 
+# ℹ 36 more variables: Gruppe_als_zahl &lt;int&gt;, Koordinate &lt;chr&gt;, m148 &lt;dbl&gt;,
+#   m111 &lt;dbl&gt;, m087 &lt;dbl&gt;, m066 &lt;dbl&gt;, m058 &lt;dbl&gt;, m039 &lt;dbl&gt;, m035 &lt;dbl&gt;,
+#   m024 &lt;dbl&gt;, p018 &lt;dbl&gt;, p020 &lt;dbl&gt;, Code &lt;chr&gt;, Sex &lt;chr&gt;, Age_start &lt;int&gt;,
+#   B03a_sleep_quality &lt;int&gt;, B03b_sleep_duration &lt;dbl&gt;,
+#   B03c_sleep_to_recover &lt;dbl&gt;, B09a_groesse &lt;int&gt;, B09b_gewicht &lt;dbl&gt;,
+#   B14a_rauchen &lt;int&gt;, rauchen &lt;int&gt;, B14d_wie_viele_zigaretten &lt;chr&gt;,
+#   B14b_rauchen_anfang &lt;int&gt;, B14c_raucherjahre &lt;dbl&gt;, …</preformat>
+  </boxed-text>
+  <code language="r script">write.table(bdnf, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/bdnf.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+ ##Tau
+ ### tau &lt;- read_excel(&quot;Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29.xlsx&quot;)
+tau &lt;- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/tau.txt', 
+                   sep = &quot;\t&quot;, 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = &quot;&quot;))
+head(tau)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 380
+  TraceFileName             ID Zeit  ID_Pl4_Zeit VP_plus_zeitpunkt Platte Gruppe
+  &lt;chr&gt;                  &lt;int&gt; &lt;chr&gt;       &lt;int&gt;             &lt;int&gt;  &lt;int&gt; &lt;chr&gt; 
+1 TAU-C1_1_T0_Pl1_Tau_C…     1 T0              1               101      1 Contr…
+2 TAU-C1_1_T1_Pl2_Tau_C…     1 T1              1               102      2 Contr…
+3 TAU-C1_2_T0_Pl1_Tau_P…     2 T0              2               201      1 Piano 
+4 TAU-C1_2_T1_Pl2_Tau_P…     2 T1              2               202      2 Piano 
+5 TAU-C1_2_T2_Pl3_Tau_P…     2 T2              2               203      3 Piano 
+6 TAU-C1_3_T0_Pl1_Tau_P…     3 T0              3               301      1 Piano 
+# ℹ 373 more variables: Koordinate &lt;chr&gt;, m337 &lt;dbl&gt;, m331 &lt;dbl&gt;, m323 &lt;dbl&gt;,
+#   m315 &lt;dbl&gt;, m310 &lt;dbl&gt;, m306 &lt;dbl&gt;, m300 &lt;dbl&gt;, m293 &lt;dbl&gt;, m287 &lt;dbl&gt;,
+#   m277 &lt;dbl&gt;, m249 &lt;dbl&gt;, m219 &lt;dbl&gt;, m210 &lt;dbl&gt;, m207 &lt;dbl&gt;, m187 &lt;dbl&gt;,
+#   m181 &lt;dbl&gt;, m172 &lt;dbl&gt;, m152 &lt;dbl&gt;, m147 &lt;dbl&gt;, m111 &lt;dbl&gt;, m109 &lt;dbl&gt;,
+#   m105 &lt;dbl&gt;, m100 &lt;dbl&gt;, m95 &lt;dbl&gt;, m93 &lt;dbl&gt;, m91 &lt;dbl&gt;, m87 &lt;dbl&gt;,
+#   m85 &lt;dbl&gt;, m80 &lt;dbl&gt;, m73 &lt;dbl&gt;, m70 &lt;dbl&gt;, m68 &lt;dbl&gt;, m58 &lt;dbl&gt;,
+#   m53 &lt;dbl&gt;, m41 &lt;dbl&gt;, m39 &lt;dbl&gt;, m28 &lt;dbl&gt;, m25 &lt;dbl&gt;, m16 &lt;dbl&gt;, …</preformat>
+  </boxed-text>
+  <code language="r script">write.table(tau, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/tau.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+
+ ## PSD95
+ ### psd95 &lt;- read_excel(&quot;Rohdaten/PSD95_CpGs_mit_verhalten_gr̨ößer.xlsx&quot;)
+psd95 &lt;- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/psd95.txt', 
+                   sep = &quot;\t&quot;, 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = &quot;&quot;))
+head(psd95)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 376
+  TraceFileName             ID Zeitpunkt_als_zahle VP_plus_zeitpunkt ID_Pl4_Zeit
+  &lt;chr&gt;                  &lt;int&gt;               &lt;int&gt;             &lt;int&gt;       &lt;int&gt;
+1 PSD95-C1_1_T0_Pl1_PSD…     1                   1               101           1
+2 PSD95-C1_1_T1_Pl2_PSD…     1                   2               102           1
+3 PSD95-C1_2_T0_Pl1_PSD…     2                   1               201           2
+4 PSD95-C1_2_T1_Pl2_PSD…     2                   2               202           2
+5 PSD95-C1_2_T2_Pl3_PSD…     2                   3               203           2
+6 PSD95-C1_3_T0_Pl1_PSD…     3                   1               301           3
+# ℹ 371 more variables: Zeitpunkt &lt;chr&gt;, Platte &lt;int&gt;, Gruppe &lt;chr&gt;,
+#   Koordinate &lt;chr&gt;, m465 &lt;dbl&gt;, m418 &lt;dbl&gt;, m405 &lt;dbl&gt;, m400 &lt;dbl&gt;,
+#   m395 &lt;dbl&gt;, m392 &lt;dbl&gt;, m349 &lt;dbl&gt;, m340 &lt;dbl&gt;, m329 &lt;dbl&gt;, m326 &lt;dbl&gt;,
+#   m294 &lt;dbl&gt;, m291 &lt;dbl&gt;, m284 &lt;dbl&gt;, m282 &lt;dbl&gt;, m254 &lt;dbl&gt;, m249 &lt;dbl&gt;,
+#   m236 &lt;dbl&gt;, m226 &lt;dbl&gt;, m199 &lt;dbl&gt;, m193 &lt;dbl&gt;, m176 &lt;dbl&gt;, m165 &lt;dbl&gt;,
+#   m163 &lt;dbl&gt;, m155 &lt;dbl&gt;, m150 &lt;dbl&gt;, m124 &lt;dbl&gt;, m113 &lt;dbl&gt;, m92 &lt;dbl&gt;,
+#   m83 &lt;dbl&gt;, m77 &lt;dbl&gt;, m69 &lt;dbl&gt;, m49 &lt;dbl&gt;, m35 &lt;dbl&gt;, m31 &lt;dbl&gt;, …</preformat>
+  </boxed-text>
+  <code language="r script">write.table(psd95, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/psd95.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#data set with all CpGs in columns for EDA and PCA
+ ##cpg &lt;- read_excel(&quot;Excel seit Martin/031024_All_Genes_Explorative Datenanylse.xlsx&quot;)
+cpg &lt;- as_tibble(read.table(file = '/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/cpg.txt', 
+                  sep = &quot;\t&quot;, 
+                  header = TRUE, 
+                  row.names = NULL, 
+                  quote = &quot;&quot;))
+head(cpg)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 116
+  TraceFileName.BDNF       ID.BDNF Zeitpunkt.BDNF Group.BDNF m148.BDNF m111.BDNF
+  &lt;chr&gt;                      &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;
+1 BDNF-C1_001_01_T0_Pl1_C…       1 T0             Controll        0.18      0.23
+2 BDNF-C1_001_02_T1_Pl2_C…       1 T1             Controll        0.07      0.08
+3 BDNF-C1_002_01_T0_Pl1_P…       2 T0             Piano           0.14      0.14
+4 BDNF-C1_002_02_T1_Pl2_P…       2 T1             Piano           0         0.1 
+5 BDNF-C1_002_03_T2_Pl3_P…       2 T2             Piano           0.16      0.07
+6 BDNF-C1_003_01_T0_Pl1_P…       3 T0             Piano          NA        NA   
+# ℹ 110 more variables: m087.BDNF &lt;dbl&gt;, m066.BDNF &lt;dbl&gt;, m058.BDNF &lt;dbl&gt;,
+#   m039.BDNF &lt;dbl&gt;, m035.BDNF &lt;dbl&gt;, m024.BDNF &lt;dbl&gt;, p018.BDNF &lt;dbl&gt;,
+#   p020.BDNF &lt;dbl&gt;, TraceFileName.Tau &lt;chr&gt;, ID.Tau &lt;int&gt;, Zeit.Tau &lt;chr&gt;,
+#   Gruppe.Tau &lt;chr&gt;, m337.Tau &lt;dbl&gt;, m331.Tau &lt;dbl&gt;, m323.Tau &lt;dbl&gt;,
+#   m315.Tau &lt;dbl&gt;, m310.Tau &lt;dbl&gt;, m306.Tau &lt;dbl&gt;, m300.Tau &lt;dbl&gt;,
+#   m293.Tau &lt;dbl&gt;, m287.Tau &lt;dbl&gt;, m277.Tau &lt;dbl&gt;, m249.Tau &lt;dbl&gt;,
+#   m219.Tau &lt;dbl&gt;, m210.Tau &lt;dbl&gt;, m207.Tau &lt;dbl&gt;, m187.Tau &lt;dbl&gt;, …</preformat>
+  </boxed-text>
+  <code language="r script">write.table(cpg, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/cpg.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+  </code>
+  </sec>
+</sec>
+<sec id="subset-of-the-essential-variables">
+  <title>Subset of the essential variables</title>
+  <sec specific-use="notebook-content">
+  <code language="r script"># Subsetting 
+ ## BDNF
+  ### subset(x=⟨Datensatz⟩, subset=⟨Auswahl Zeilen⟩, select=⟨Auswahl Spalten⟩)
+bdnf_subset &lt;- subset(bdnf, select = c(ID, Standort, Zeitpunkt, Gruppe, Sex, Age_start, CogTel))
+
+#Alternative, die eigentlich gehen müsste
+#bdnf_subset_v &lt;- bdnf[,c(&quot;ID&quot;, &quot;Standort&quot;, &quot;Zeitpunkt&quot;, &quot;Gruppe&quot;, &quot;Sex&quot;, &quot;Age_start&quot;, &quot;CogTel&quot;)]
+#as.data.frame(bdnf_subset_v)
+#bdnf[bdnf_subset_v]
+
+  ### Subset CpGs to calculate mean values for all rows
+bdnf_methylation &lt;- subset(bdnf, select = c(m148:p020)) #subset the CpGs
+
+bdnf_methylation_mean &lt;- apply(bdnf_methylation, 1, mean, na.rm=TRUE) # apply the mean on all rows (1 = per row)
+bdnf_methylation_median &lt;- apply(bdnf_methylation, 1, median, na.rm=TRUE)
+
+bdnf_mean &lt;- cbind(bdnf_subset, bdnf_methylation_mean)
+   colnames(bdnf_mean)[8] &lt;- &quot;Mean&quot;
+bdnf_median &lt;- cbind(bdnf_subset, bdnf_methylation_median)
+   colnames(bdnf_median)[8] &lt;- &quot;Median&quot;
+
+   ####bdnf_subset$mean &lt;- bdnf_methylation_mean #initial version before median
+   ####bdnf_subset$median &lt;- bdnf_methylation_median
+
+  ### delete 192 u. 193, because of an confusion in values (look at the code and sex variable)
+bdnf_mean &lt;- bdnf_mean[!(bdnf_mean$ID %in% c(192, 193)), ]
+bdnf_mean[bdnf_mean$ID &gt;= 190 &amp; bdnf_mean$ID &lt;= 196, ] #show if deleted
+  </code>
+  <boxed-text>
+    <preformat>     ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel    Mean
+337 190        1        T0    Piano   F        69   42.6 0.06300
+338 190        1        T1    Piano   F        69   42.6     NaN
+339 190        1        T2    Piano   F        69   42.6     NaN
+340 191        1        T0 Controll   M        77   36.9 0.05800
+341 191        1        T1 Controll   M        77   36.9 0.08600
+342 191        1        T2 Controll   M        77   36.9 0.08100
+348 194        1        T0 Controll   M        68   28.1 0.06100
+349 195        1        T0 Controll   M        62   37.4 0.01400
+350 195        1        T1 Controll   M        62   37.4 0.10000
+351 195        1        T2 Controll   M        62   37.4 0.10800
+352 196        1        T0 Controll   M        68   36.4 0.05800
+353 196        1        T1 Controll   M        68   36.4 0.06125
+354 196        1        T2 Controll   M        68   36.4 0.16100</preformat>
+  </boxed-text>
+  <code language="r script">bdnf_median &lt;- bdnf_median[!(bdnf_median$ID %in% c(192, 193)), ]
+bdnf_median[bdnf_median$ID &gt;= 190 &amp; bdnf_median$ID &lt;= 196, ] #show if deleted
+  </code>
+  <boxed-text>
+    <preformat>     ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel Median
+337 190        1        T0    Piano   F        69   42.6  0.000
+338 190        1        T1    Piano   F        69   42.6     NA
+339 190        1        T2    Piano   F        69   42.6     NA
+340 191        1        T0 Controll   M        77   36.9  0.030
+341 191        1        T1 Controll   M        77   36.9  0.075
+342 191        1        T2 Controll   M        77   36.9  0.050
+348 194        1        T0 Controll   M        68   28.1  0.000
+349 195        1        T0 Controll   M        62   37.4  0.000
+350 195        1        T1 Controll   M        62   37.4  0.065
+351 195        1        T2 Controll   M        62   37.4  0.080
+352 196        1        T0 Controll   M        68   36.4  0.010
+353 196        1        T1 Controll   M        68   36.4  0.045
+354 196        1        T2 Controll   M        68   36.4  0.205</preformat>
+  </boxed-text>
+  <code language="r script">   ####alternative way
+   ####bdnf_subset &lt;- bdnf_subset %&gt;%
+     ####filter(!(ID %in% c(192, 193)))
+bdnf_mean[1:5,]
+  </code>
+  <boxed-text>
+    <preformat>  ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel  Mean
+1  1        0        T0 Controll   F        67   38.9 0.075
+2  1        0        T1 Controll   F        67   38.9 0.037
+3  2        0        T0    Piano   F        76   34.6 0.102
+4  2        0        T1    Piano   F        76   34.6 0.060
+5  2        0        T2    Piano   F        76   34.6 0.084</preformat>
+  </boxed-text>
+  <code language="r script">bdnf_median[1:5,]
+  </code>
+  <boxed-text>
+    <preformat>  ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel Median
+1  1        0        T0 Controll   F        67   38.9  0.045
+2  1        0        T1 Controll   F        67   38.9  0.020
+3  2        0        T0    Piano   F        76   34.6  0.105
+4  2        0        T1    Piano   F        76   34.6  0.000
+5  2        0        T2    Piano   F        76   34.6  0.085</preformat>
+  </boxed-text>
+  <code language="r script"> ##Tau
+  ### Subset Tau
+tau_subset &lt;- subset(tau, select = c(ID, standort_aus_andere_quelle, Zeit, Gruppe, Sex, Age_start, CogTel))
+colnames(tau_subset)[c(2:3)] &lt;- c(&quot;Standort&quot;, &quot;Zeitpunkt&quot;) #rename column 2
+
+  ### Subset CpGs to calculate mean values for all rows
+tau_methylation &lt;- subset(tau, select = c(m331:p27))
+
+tau_methylation_mean &lt;- apply(tau_methylation, 1, mean, na.rm = TRUE)
+tau_methylation_median &lt;- apply(tau_methylation, 1, median, na.rm = TRUE)
+ 
+tau_mean &lt;- cbind(tau_subset, tau_methylation_mean)
+    colnames(tau_mean)[8] &lt;- &quot;Mean&quot;
+tau_median &lt;- cbind(tau_subset, tau_methylation_median)
+    colnames(tau_median)[8] &lt;- &quot;Median&quot;
+
+  ### delete 192 u. 193
+tau_mean &lt;- tau_mean[!(tau_mean$ID %in% c(192, 193)), ]
+tau_mean[tau_mean$ID &gt;= 190 &amp; tau_mean$ID &lt;= 196, ]
+  </code>
+  <boxed-text>
+    <preformat>     ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel       Mean
+337 190        2        T0    Piano   F        69   42.6 0.05187500
+338 190        2        T1    Piano   F        69   42.6 0.06750000
+339 190        2        T2    Piano   F        69   42.6 0.06125000
+340 191        2        T0 Controll   M        77   36.9 0.06416667
+341 191        2        T1 Controll   M        77   36.9 0.06276596
+342 191        2        T2 Controll   M        77   36.9 0.06302326
+348 194        2        T0 Controll   M        68   28.1 0.07666667
+349 195        2        T0 Controll   M        62   37.4 0.05000000
+350 195        2        T1 Controll   M        62   37.4 0.06583333
+351 195        2        T2 Controll   M        62   37.4 0.10500000
+352 196        2        T0 Controll   M        68   36.4 0.07895833
+353 196        2        T1 Controll   M        68   36.4 0.09020833
+354 196        2        T2 Controll   M        68   36.4 0.12541667</preformat>
+  </boxed-text>
+  <code language="r script">tau_median &lt;- tau_median[!(tau_median$ID %in% c(192, 193)), ]
+tau_median[tau_median$ID &gt;= 190 &amp; tau_median$ID &lt;= 196, ]
+  </code>
+  <boxed-text>
+    <preformat>     ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel Median
+337 190        2        T0    Piano   F        69   42.6  0.000
+338 190        2        T1    Piano   F        69   42.6  0.020
+339 190        2        T2    Piano   F        69   42.6  0.000
+340 191        2        T0 Controll   M        77   36.9  0.030
+341 191        2        T1 Controll   M        77   36.9  0.030
+342 191        2        T2 Controll   M        77   36.9  0.000
+348 194        2        T0 Controll   M        68   28.1  0.035
+349 195        2        T0 Controll   M        62   37.4  0.010
+350 195        2        T1 Controll   M        62   37.4  0.020
+351 195        2        T2 Controll   M        62   37.4  0.010
+352 196        2        T0 Controll   M        68   36.4  0.040
+353 196        2        T1 Controll   M        68   36.4  0.020
+354 196        2        T2 Controll   M        68   36.4  0.030</preformat>
+  </boxed-text>
+  <code language="r script">tau_mean[1:5,]
+  </code>
+  <boxed-text>
+    <preformat>  ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel       Mean
+1  1        1        T0 Controll   F        67   38.9 0.08437500
+2  1        1        T1 Controll   F        67   38.9 0.07791667
+3  2        1        T0    Piano   F        76   34.6 0.09645833
+4  2        1        T1    Piano   F        76   34.6 0.07250000
+5  2        1        T2    Piano   F        76   34.6 0.07170213</preformat>
+  </boxed-text>
+  <code language="r script">tau_median[1:5,]
+  </code>
+  <boxed-text>
+    <preformat>  ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel Median
+1  1        1        T0 Controll   F        67   38.9  0.040
+2  1        1        T1 Controll   F        67   38.9  0.035
+3  2        1        T0    Piano   F        76   34.6  0.040
+4  2        1        T1    Piano   F        76   34.6  0.020
+5  2        1        T2    Piano   F        76   34.6  0.020</preformat>
+  </boxed-text>
+  <code language="r script"> ## PSD95
+  ### Subset Tau
+psd95_subset &lt;- subset(psd95, select = c(ID, standort_aus_andere_quelle, Zeitpunkt, Gruppe, Sex, Age_start, CogTel))
+colnames(psd95_subset)[2] &lt;- &quot;Standort&quot; #rename column 2
+
+  ### Subset CpGs to calculate mean and median values for all rows
+psd95_methylation &lt;- subset(psd95, select = c(m465:p122))
+
+psd95_methylation_mean &lt;- apply(psd95_methylation, 1, mean, na.rm = TRUE)
+psd95_methylation_median &lt;- apply(psd95_methylation, 1, median, na.rm = TRUE)
+
+psd95_mean &lt;- cbind(psd95_subset, psd95_methylation_mean)
+    colnames(psd95_mean)[8] &lt;- &quot;Mean&quot; 
+psd95_median &lt;- cbind(psd95_subset, psd95_methylation_median)
+    colnames(psd95_median)[8] &lt;- &quot;Median&quot;
+
+  ### delete 192 u. 193
+psd95_mean &lt;- psd95_mean[!(psd95_mean$ID %in% c(192, 193)), ]
+psd95_mean[psd95_mean$ID &gt;= 190 &amp; psd95_mean$ID &lt;= 196, ]
+  </code>
+  <boxed-text>
+    <preformat>     ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel       Mean
+335 190        2        T0    Piano   F        69   42.6 0.02609756
+336 190        2        T1    Piano   F        69   42.6 0.02930233
+337 190        2        T2    Piano   F        69   42.6 0.03000000
+338 191        2        T0 Controll   M        77   36.9 0.02511111
+339 191        2        T1 Controll   M        77   36.9 0.01666667
+340 191        2        T2 Controll   M        77   36.9 0.02625000
+346 194        2        T0 Controll   M        68   28.1 0.00000000
+347 195        2        T0 Controll   M        62   37.4 0.01870968
+348 195        2        T1 Controll   M        62   37.4 0.04272727
+349 195        2        T2 Controll   M        62   37.4 0.02622222
+350 196        2        T0 Controll   M        68   36.4 0.01909091
+351 196        2        T1 Controll   M        68   36.4 0.03844444
+352 196        2        T2 Controll   M        68   36.4 0.03272727</preformat>
+  </boxed-text>
+  <code language="r script">psd95_median &lt;- psd95_median[!(psd95_median$ID %in% c(192, 193)), ]
+psd95_median[psd95_median$ID &gt;= 190 &amp; psd95_median$ID &lt;= 196, ]
+  </code>
+  <boxed-text>
+    <preformat>     ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel Median
+335 190        2        T0    Piano   F        69   42.6      0
+336 190        2        T1    Piano   F        69   42.6      0
+337 190        2        T2    Piano   F        69   42.6      0
+338 191        2        T0 Controll   M        77   36.9      0
+339 191        2        T1 Controll   M        77   36.9      0
+340 191        2        T2 Controll   M        77   36.9      0
+346 194        2        T0 Controll   M        68   28.1      0
+347 195        2        T0 Controll   M        62   37.4      0
+348 195        2        T1 Controll   M        62   37.4      0
+349 195        2        T2 Controll   M        62   37.4      0
+350 196        2        T0 Controll   M        68   36.4      0
+351 196        2        T1 Controll   M        68   36.4      0
+352 196        2        T2 Controll   M        68   36.4      0</preformat>
+  </boxed-text>
+  <code language="r script">psd95_mean[1:5,]
+  </code>
+  <boxed-text>
+    <preformat>  ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel       Mean
+1  1        1        T0 Controll   F        67   38.9 0.03977778
+2  1        1        T1 Controll   F        67   38.9 0.01931818
+3  2        1        T0    Piano   F        76   34.6 0.01512195
+4  2        1        T1    Piano   F        76   34.6 0.01155556
+5  2        1        T2    Piano   F        76   34.6 0.04454545</preformat>
+  </boxed-text>
+  <code language="r script">psd95_median[1:5,]
+  </code>
+  <boxed-text>
+    <preformat>  ID Standort Zeitpunkt   Gruppe Sex Age_start CogTel Median
+1  1        1        T0 Controll   F        67   38.9      0
+2  1        1        T1 Controll   F        67   38.9      0
+3  2        1        T0    Piano   F        76   34.6      0
+4  2        1        T1    Piano   F        76   34.6      0
+5  2        1        T2    Piano   F        76   34.6      0</preformat>
+  </boxed-text>
+  </sec>
+</sec>
+<sec id="write-mean-and-median-tables">
+  <title>Write mean and median Tables</title>
+  <sec specific-use="notebook-content">
+  <code language="r script"># Save Tables
+## BDNF
+
+### mean
+write.table(bdnf_mean, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&amp;median_tables/bdnf_mean.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+### median
+write.table(bdnf_median, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&amp;median_tables/bdnf_median.txt&quot;, 
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+
+
+## Tau
+### mean
+write.table(tau_mean,
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&amp;median_tables/tau_mean.txt&quot;,
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+
+### median
+write.table(tau_median, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&amp;median_tables/tau_median.txt&quot;, 
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+
+
+## PSD95
+### mean
+write.table(psd95_mean, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&amp;median_tables/psd95_mean.txt&quot;, 
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+
+### median
+write.table(psd95_median, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&amp;median_tables/psd95_median.txt&quot;, 
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+  </code>
+  </sec>
+</sec>
+<sec id="pivot-time-points-to-columns">
+  <title>Pivot time points to columns</title>
+  <sec specific-use="notebook-content">
+  <code language="r script"># Define the two split_zeitpunkt functions for mean and median
+split_zeitpunkt_mean &lt;- function(data) {
+  data %&gt;%
+    pivot_wider(id_cols = c(ID, Standort, Gruppe, Sex, Age_start, CogTel), # no doublets!
+                names_from = Zeitpunkt, # Zeitpunkt long -&gt; wide
+                values_from = Mean)
+}
+
+split_zeitpunkt_median &lt;- function(data) {
+  data %&gt;%
+    pivot_wider(id_cols = c(ID, Standort, Gruppe, Sex, Age_start, CogTel), # no doublets!
+                names_from = Zeitpunkt, # Zeitpunkt long -&gt; wide
+                values_from = Median)
+}
+
+# Run the function and check the first few rows
+ ## BNDF
+bdnf_mean_wide &lt;- split_zeitpunkt_mean(bdnf_mean)
+head(bdnf_mean_wide)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel      T0    T1     T2
+  &lt;int&gt;    &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1     1        0 Controll F            67   38.9   0.075 0.037 NA    
+2     2        0 Piano    F            76   34.6   0.102 0.06   0.084
+3     3        0 Piano    M            69   22.8 NaN     0.029 NA    
+4     4        0 Controll F            75   40.6   0.109 0.021  0.097
+5     5        0 Controll F            73   25.6   0.12  0.041  0.049
+6     8        0 Controll F            67   32.7   0.059 0.082 NA    </preformat>
+  </boxed-text>
+  <code language="r script">nrow(bdnf_mean_wide) # 144
+  </code>
+  <boxed-text>
+    <preformat>[1] 144</preformat>
+  </boxed-text>
+  <code language="r script">bdnf_median_wide &lt;- split_zeitpunkt_median(bdnf_median)
+head(bdnf_median_wide)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel     T0    T1     T2
+  &lt;int&gt;    &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1     1        0 Controll F            67   38.9  0.045  0.02 NA    
+2     2        0 Piano    F            76   34.6  0.105  0     0.085
+3     3        0 Piano    M            69   22.8 NA      0    NA    
+4     4        0 Controll F            75   40.6  0.05   0     0.08 
+5     5        0 Controll F            73   25.6  0.085  0.02  0.03 
+6     8        0 Controll F            67   32.7  0.06   0    NA    </preformat>
+  </boxed-text>
+  <code language="r script">nrow(bdnf_median_wide) # 144
+  </code>
+  <boxed-text>
+    <preformat>[1] 144</preformat>
+  </boxed-text>
+  <code language="r script"> ## Tau
+tau_mean_wide &lt;- split_zeitpunkt_mean(tau_mean)
+head(tau_mean_wide)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel     T0     T1      T2
+  &lt;int&gt;    &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+1     1        1 Controll F            67   38.9 0.0844 0.0779 NA     
+2     2        1 Piano    F            76   34.6 0.0965 0.0725  0.0717
+3     3        1 Piano    M            69   22.8 0.0542 0.0810 NA     
+4     4        1 Controll F            75   40.6 0.0598 0.0440  0.0492
+5     5        1 Controll F            73   25.6 0.0742 0.0979  0.0654
+6     8        1 Controll F            67   32.7 0.0917 0.146  NA     </preformat>
+  </boxed-text>
+  <code language="r script">nrow(tau_mean_wide) # 145
+  </code>
+  <boxed-text>
+    <preformat>[1] 145</preformat>
+  </boxed-text>
+  <code language="r script">tau_median_wide &lt;- split_zeitpunkt_median(tau_median)
+head(tau_median_wide)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T1     T2
+  &lt;int&gt;    &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1     1        1 Controll F            67   38.9 0.04  0.035 NA    
+2     2        1 Piano    F            76   34.6 0.04  0.02   0.02 
+3     3        1 Piano    M            69   22.8 0.01  0.04  NA    
+4     4        1 Controll F            75   40.6 0.015 0.015  0.01 
+5     5        1 Controll F            73   25.6 0.02  0.03   0.025
+6     8        1 Controll F            67   32.7 0.025 0.12  NA    </preformat>
+  </boxed-text>
+  <code language="r script">nrow(tau_median_wide) # 145
+  </code>
+  <boxed-text>
+    <preformat>[1] 145</preformat>
+  </boxed-text>
+  <code language="r script"> ## PSD95
+psd95_mean_wide &lt;- split_zeitpunkt_mean(psd95_mean)
+head(psd95_mean_wide)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel     T0     T1      T2
+  &lt;int&gt;    &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+1     1        1 Controll F            67   38.9 0.0398 0.0193 NA     
+2     2        1 Piano    F            76   34.6 0.0151 0.0116  0.0445
+3     3        1 Piano    M            69   22.8 0.0237 0.0133 NA     
+4     4        1 Controll F            75   40.6 0.0273 0.0169  0.0441
+5     5        1 Controll F            73   25.6 0.02   0.0302  0.0178
+6     8        1 Controll F            67   32.7 0.0187 0.0293 NA     </preformat>
+  </boxed-text>
+  <code language="r script">nrow(psd95_mean_wide) # 145
+  </code>
+  <boxed-text>
+    <preformat>[1] 145</preformat>
+  </boxed-text>
+  <code language="r script">psd95_median_wide &lt;- split_zeitpunkt_median(psd95_median)
+head(psd95_median_wide)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T1    T2
+  &lt;int&gt;    &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     1        1 Controll F            67   38.9     0     0 NA   
+2     2        1 Piano    F            76   34.6     0     0  0   
+3     3        1 Piano    M            69   22.8     0     0 NA   
+4     4        1 Controll F            75   40.6     0     0  0.02
+5     5        1 Controll F            73   25.6     0     0  0   
+6     8        1 Controll F            67   32.7     0     0 NA   </preformat>
+  </boxed-text>
+  <code language="r script">nrow(psd95_median_wide) # 145
+  </code>
+  <boxed-text>
+    <preformat>[1] 145</preformat>
+  </boxed-text>
+  <code language="r script">#names(bdnf_mean_wide)[1] &lt;- &quot;ID2&quot; # rename &quot;ID&quot; to &quot;ID2&quot; to delete it later
+#names(bdnf_mean_wide)
+  </code>
+  </sec>
+</sec>
+<sec id="write-wide-tables">
+  <title>Write Wide Tables</title>
+  <sec specific-use="notebook-content">
+  <code language="r script"># Save Tables
+## BDNF
+
+### mean
+write.table(bdnf_mean_wide, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/bdnf_mean_wide.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+### median
+write.table(bdnf_median_wide, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/bdnf_median_wide.txt&quot;, 
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+
+
+## Tau
+### mean
+write.table(tau_mean_wide,
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/tau_mean_wide.txt&quot;,
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+
+### median
+write.table(tau_median_wide, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/tau_median_wide.txt&quot;, 
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+
+
+## PSD95
+### mean
+write.table(psd95_mean_wide, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/psd95_mean_wide.txt&quot;, 
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+
+### median
+write.table(psd95_median_wide, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/psd95_median_wide.txt&quot;, 
+            sep = &quot;\t&quot;,
+            row.names = FALSE,
+            quote = FALSE)
+  </code>
+  </sec>
+</sec>
+<sec id="create-a-new-column-t2-t0">
+  <title>Create a new column ‘T2-T0’</title>
+  <sec specific-use="notebook-content">
+  <code language="r script">#BDNF
+##mean
+bdnf_mean_T2T0 &lt;- bdnf_mean_wide
+bdnf_mean_T2T0$T1 &lt;- NULL
+
+bdnf_mean_T2T0 &lt;- bdnf_mean_T2T0 %&gt;%
+  filter(!is.na(T2), !is.na(T0)) %&gt;%
+  mutate(`T2_T0` = T2 - T0) #does &quot;T2_T0&quot; also work?
+
+bdnf_mean_T2T0$CogTel &lt;- as.numeric(bdnf_mean_T2T0$CogTel)
+bdnf_mean_T2T0$Standort &lt;- as.character(bdnf_mean_T2T0$Standort)
+is.numeric(bdnf_mean_T2T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(bdnf_mean_T2T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(bdnf_mean_T2T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T2   T2_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+1     2 0        Piano    F            76   34.6 0.102 0.084 -0.0180
+2     4 0        Controll F            75   40.6 0.109 0.097 -0.012 
+3     5 0        Controll F            73   25.6 0.12  0.049 -0.071 
+4     9 0        Controll F            74   24.4 0.055 0.169  0.114 
+5    11 0        Piano    F            71   30.3 0.093 0.14   0.047 
+6    13 0        Controll F            65   42.4 0.06  0.077  0.017 </preformat>
+  </boxed-text>
+  <code language="r script">##median
+bdnf_median_T2T0 &lt;- bdnf_median_wide
+bdnf_median_T2T0$T1 &lt;- NULL
+
+bdnf_median_T2T0 &lt;- bdnf_median_T2T0 %&gt;%
+  filter(!is.na(T2), !is.na(T0)) %&gt;%
+  mutate(`T2_T0` = T2 - T0) #does &quot;T2_T0&quot; also work?
+
+bdnf_median_T2T0$CogTel &lt;- as.numeric(bdnf_median_T2T0$CogTel)
+bdnf_median_T2T0$Standort &lt;- as.character(bdnf_median_T2T0$Standort)
+is.numeric(bdnf_median_T2T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(bdnf_median_T2T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(bdnf_median_T2T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T2   T2_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+1     2 0        Piano    F            76   34.6 0.105 0.085 -0.02  
+2     4 0        Controll F            75   40.6 0.05  0.08   0.03  
+3     5 0        Controll F            73   25.6 0.085 0.03  -0.055 
+4     9 0        Controll F            74   24.4 0.02  0.175  0.155 
+5    11 0        Piano    F            71   30.3 0.065 0.085  0.0200
+6    13 0        Controll F            65   42.4 0.05  0.01  -0.04  </preformat>
+  </boxed-text>
+  <code language="r script">#Tau
+##mean
+tau_mean_T2T0 &lt;- tau_mean_wide
+tau_mean_T2T0$T1 &lt;- NULL
+
+tau_mean_T2T0 &lt;- tau_mean_T2T0 %&gt;%
+  filter(!is.na(T2), !is.na(T0)) %&gt;%
+  mutate(`T2_T0` = T2 - T0) #does &quot;T2_T0&quot; also work?
+
+tau_mean_T2T0$CogTel &lt;- as.numeric(tau_mean_T2T0$CogTel)
+tau_mean_T2T0$Standort &lt;- as.character(tau_mean_T2T0$Standort)
+is.numeric(tau_mean_T2T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(tau_mean_T2T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(tau_mean_T2T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel     T0     T2    T2_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+1     2 1        Piano    F            76   34.6 0.0965 0.0717 -0.0248 
+2     4 1        Controll F            75   40.6 0.0598 0.0492 -0.0106 
+3     5 1        Controll F            73   25.6 0.0742 0.0654 -0.00875
+4     9 1        Controll F            74   24.4 0.0977 0.0888 -0.00896
+5    11 1        Piano    F            71   30.3 0.0490 0.0656  0.0167 
+6    13 1        Controll F            65   42.4 0.0408 0.0288 -0.0121 </preformat>
+  </boxed-text>
+  <code language="r script">##median
+tau_median_T2T0 &lt;- tau_median_wide
+tau_median_T2T0$T1 &lt;- NULL
+
+tau_median_T2T0 &lt;- tau_median_T2T0 %&gt;%
+  filter(!is.na(T2), !is.na(T0)) %&gt;%
+  mutate(`T2_T0` = T2 - T0) #does &quot;T2_T0&quot; also work?
+
+tau_median_T2T0$CogTel &lt;- as.numeric(tau_median_T2T0$CogTel)
+tau_median_T2T0$Standort &lt;- as.character(tau_median_T2T0$Standort)
+is.numeric(tau_median_T2T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(tau_median_T2T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(tau_median_T2T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T2  T2_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1     2 1        Piano    F            76   34.6 0.04  0.02  -0.02 
+2     4 1        Controll F            75   40.6 0.015 0.01  -0.005
+3     5 1        Controll F            73   25.6 0.02  0.025  0.005
+4     9 1        Controll F            74   24.4 0.025 0.02  -0.005
+5    11 1        Piano    F            71   30.3 0.01  0.015  0.005
+6    13 1        Controll F            65   42.4 0     0      0    </preformat>
+  </boxed-text>
+  <code language="r script">#PSD95
+##mean
+psd95_mean_T2T0 &lt;- psd95_mean_wide
+psd95_mean_T2T0$T1 &lt;- NULL
+
+psd95_mean_T2T0 &lt;- psd95_mean_T2T0 %&gt;%
+  filter(!is.na(T2), !is.na(T0)) %&gt;%
+  mutate(`T2_T0` = T2 - T0) #does &quot;T2_T0&quot; also work?
+
+psd95_mean_T2T0$CogTel &lt;- as.numeric(psd95_mean_T2T0$CogTel)
+psd95_mean_T2T0$Standort &lt;- as.character(psd95_mean_T2T0$Standort)
+is.numeric(psd95_mean_T2T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(psd95_mean_T2T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(psd95_mean_T2T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel      T0     T2    T2_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+1     2 1        Piano    F            76   34.6 0.0151  0.0445  0.0294 
+2     4 1        Controll F            75   40.6 0.0273  0.0441  0.0168 
+3     5 1        Controll F            73   25.6 0.02    0.0178 -0.00222
+4     9 1        Controll F            74   24.4 0.0244  0.0278  0.00333
+5    11 1        Piano    F            71   30.3 0.0163  0.0273  0.0110 
+6    13 1        Controll F            65   42.4 0.00591 0.04    0.0341 </preformat>
+  </boxed-text>
+  <code language="r script">##median
+psd95_median_T2T0 &lt;- psd95_median_wide
+psd95_median_T2T0$T1 &lt;- NULL
+
+psd95_median_T2T0 &lt;- psd95_median_T2T0 %&gt;%
+  filter(!is.na(T2), !is.na(T0)) %&gt;%
+  mutate(`T2_T0` = T2 - T0) #does &quot;T2_T0&quot; also work?
+
+psd95_median_T2T0$CogTel &lt;- as.numeric(psd95_median_T2T0$CogTel)
+psd95_median_T2T0$Standort &lt;- as.character(psd95_median_T2T0$Standort)
+is.numeric(psd95_median_T2T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(psd95_median_T2T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(psd95_median_T2T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T2 T2_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     2 1        Piano    F            76   34.6     0  0     0   
+2     4 1        Controll F            75   40.6     0  0.02  0.02
+3     5 1        Controll F            73   25.6     0  0     0   
+4     9 1        Controll F            74   24.4     0  0     0   
+5    11 1        Piano    F            71   30.3     0  0     0   
+6    13 1        Controll F            65   42.4     0  0     0   </preformat>
+  </boxed-text>
+  </sec>
+</sec>
+<sec id="create-a-new-column-t1-t0">
+  <title>Create a new column ‘T1-T0’</title>
+  <sec specific-use="notebook-content">
+  <code language="r script">#BDNF
+##mean
+bdnf_mean_T1T0 &lt;- bdnf_mean_wide
+bdnf_mean_T1T0$T2 &lt;- NULL
+
+bdnf_mean_T1T0 &lt;- bdnf_mean_T1T0 %&gt;%
+  filter(!is.na(T1), !is.na(T0)) %&gt;%
+  mutate(`T1_T0` = T1 - T0)
+
+bdnf_mean_T1T0$CogTel &lt;- as.numeric(bdnf_mean_T1T0$CogTel)
+bdnf_mean_T1T0$Standort &lt;- as.character(bdnf_mean_T1T0$Standort)
+is.numeric(bdnf_mean_T1T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(bdnf_mean_T1T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(bdnf_mean_T1T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T1  T1_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1     1 0        Controll F            67   38.9 0.075 0.037 -0.038
+2     2 0        Piano    F            76   34.6 0.102 0.06  -0.042
+3     4 0        Controll F            75   40.6 0.109 0.021 -0.088
+4     5 0        Controll F            73   25.6 0.12  0.041 -0.079
+5     8 0        Controll F            67   32.7 0.059 0.082  0.023
+6     9 0        Controll F            74   24.4 0.055 0.072  0.017</preformat>
+  </boxed-text>
+  <code language="r script">##median
+bdnf_median_T1T0 &lt;- bdnf_median_wide
+bdnf_median_T1T0$T2 &lt;- NULL
+
+bdnf_median_T1T0 &lt;- bdnf_median_T1T0 %&gt;%
+  filter(!is.na(T1), !is.na(T0)) %&gt;%
+  mutate(`T1_T0` = T1 - T0)
+
+bdnf_median_T1T0$CogTel &lt;- as.numeric(bdnf_median_T1T0$CogTel)
+bdnf_median_T1T0$Standort &lt;- as.character(bdnf_median_T1T0$Standort)
+is.numeric(bdnf_median_T1T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(bdnf_median_T1T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(bdnf_median_T1T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T1  T1_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1     1 0        Controll F            67   38.9 0.045 0.02  -0.025
+2     2 0        Piano    F            76   34.6 0.105 0     -0.105
+3     4 0        Controll F            75   40.6 0.05  0     -0.05 
+4     5 0        Controll F            73   25.6 0.085 0.02  -0.065
+5     8 0        Controll F            67   32.7 0.06  0     -0.06 
+6     9 0        Controll F            74   24.4 0.02  0.045  0.025</preformat>
+  </boxed-text>
+  <code language="r script">#Tau
+##mean
+tau_mean_T1T0 &lt;- tau_mean_wide
+tau_mean_T1T0$T2 &lt;- NULL
+
+tau_mean_T1T0 &lt;- tau_mean_T1T0 %&gt;%
+  filter(!is.na(T1), !is.na(T0)) %&gt;%
+  mutate(`T1_T0` = T1 - T0)
+
+tau_mean_T1T0$CogTel &lt;- as.numeric(tau_mean_T1T0$CogTel)
+tau_mean_T1T0$Standort &lt;- as.character(tau_mean_T1T0$Standort)
+is.numeric(tau_mean_T1T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(tau_mean_T1T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(tau_mean_T1T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel     T0     T1    T1_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+1     1 1        Controll F            67   38.9 0.0844 0.0779 -0.00646
+2     2 1        Piano    F            76   34.6 0.0965 0.0725 -0.0240 
+3     3 1        Piano    M            69   22.8 0.0542 0.0810  0.0269 
+4     4 1        Controll F            75   40.6 0.0598 0.0440 -0.0158 
+5     5 1        Controll F            73   25.6 0.0742 0.0979  0.0238 
+6     8 1        Controll F            67   32.7 0.0917 0.146   0.0541 </preformat>
+  </boxed-text>
+  <code language="r script">##median
+tau_median_T1T0 &lt;- tau_median_wide
+tau_median_T1T0$T2 &lt;- NULL
+
+tau_median_T1T0 &lt;- tau_median_T1T0 %&gt;%
+  filter(!is.na(T1), !is.na(T0)) %&gt;%
+  mutate(`T1_T0` = T1 - T0)
+
+tau_median_T1T0$CogTel &lt;- as.numeric(tau_median_T1T0$CogTel)
+tau_median_T1T0$Standort &lt;- as.character(tau_median_T1T0$Standort)
+is.numeric(tau_median_T1T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(tau_median_T1T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(tau_median_T1T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T1   T1_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+1     1 1        Controll F            67   38.9 0.04  0.035 -0.0050
+2     2 1        Piano    F            76   34.6 0.04  0.02  -0.02  
+3     3 1        Piano    M            69   22.8 0.01  0.04   0.03  
+4     4 1        Controll F            75   40.6 0.015 0.015  0     
+5     5 1        Controll F            73   25.6 0.02  0.03   0.01  
+6     8 1        Controll F            67   32.7 0.025 0.12   0.095 </preformat>
+  </boxed-text>
+  <code language="r script">#PSD95
+##mean
+psd95_mean_T1T0 &lt;- psd95_mean_wide
+psd95_mean_T1T0$T2 &lt;- NULL
+
+psd95_mean_T1T0 &lt;- psd95_mean_T1T0 %&gt;%
+  filter(!is.na(T1), !is.na(T0)) %&gt;%
+  mutate(`T1_T0` = T1 - T0)
+
+psd95_mean_T1T0$CogTel &lt;- as.numeric(psd95_mean_T1T0$CogTel)
+psd95_mean_T1T0$Standort &lt;- as.character(psd95_mean_T1T0$Standort)
+is.numeric(psd95_mean_T1T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(psd95_mean_T1T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(psd95_mean_T1T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel     T0     T1    T1_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+1     1 1        Controll F            67   38.9 0.0398 0.0193 -0.0205 
+2     2 1        Piano    F            76   34.6 0.0151 0.0116 -0.00357
+3     3 1        Piano    M            69   22.8 0.0237 0.0133 -0.0103 
+4     4 1        Controll F            75   40.6 0.0273 0.0169 -0.0104 
+5     5 1        Controll F            73   25.6 0.02   0.0302  0.0102 
+6     8 1        Controll F            67   32.7 0.0187 0.0293  0.0107 </preformat>
+  </boxed-text>
+  <code language="r script">##median
+psd95_median_T1T0 &lt;- psd95_median_wide
+psd95_median_T1T0$T2 &lt;- NULL
+
+psd95_median_T1T0 &lt;- psd95_median_T1T0 %&gt;%
+  filter(!is.na(T1), !is.na(T0)) %&gt;%
+  mutate(`T1_T0` = T1 - T0)
+
+psd95_median_T1T0$CogTel &lt;- as.numeric(psd95_median_T1T0$CogTel)
+psd95_median_T1T0$Standort &lt;- as.character(psd95_median_T1T0$Standort)
+is.numeric(psd95_median_T1T0$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(psd95_median_T1T0$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(psd95_median_T1T0)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T0    T1 T1_T0
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     1 1        Controll F            67   38.9     0     0     0
+2     2 1        Piano    F            76   34.6     0     0     0
+3     3 1        Piano    M            69   22.8     0     0     0
+4     4 1        Controll F            75   40.6     0     0     0
+5     5 1        Controll F            73   25.6     0     0     0
+6     8 1        Controll F            67   32.7     0     0     0</preformat>
+  </boxed-text>
+  </sec>
+</sec>
+<sec id="create-a-new-column-t2-t1">
+  <title>Create a new column ‘T2-T1’</title>
+  <sec specific-use="notebook-content">
+  <code language="r script">#BDNF
+##mean
+bdnf_mean_T2T1 &lt;- bdnf_mean_wide
+bdnf_mean_T2T1$T0 &lt;- NULL
+
+bdnf_mean_T2T1 &lt;- bdnf_mean_T2T1 %&gt;%
+  filter(!is.na(T2), !is.na(T1)) %&gt;%
+  mutate(`T2_T1` = T2 - T1)
+
+bdnf_mean_T2T1$CogTel &lt;- as.numeric(bdnf_mean_T2T1$CogTel)
+bdnf_mean_T2T1$Standort &lt;- as.character(bdnf_mean_T2T1$Standort)
+is.numeric(bdnf_mean_T2T1$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(bdnf_mean_T2T1$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(bdnf_mean_T2T1)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T1    T2   T2_T1
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+1     2 0        Piano    F            76   34.6 0.06  0.084  0.024 
+2     4 0        Controll F            75   40.6 0.021 0.097  0.076 
+3     5 0        Controll F            73   25.6 0.041 0.049  0.008 
+4     9 0        Controll F            74   24.4 0.072 0.169  0.097 
+5    11 0        Piano    F            71   30.3 0.059 0.14   0.081 
+6    13 0        Controll F            65   42.4 0.089 0.077 -0.0120</preformat>
+  </boxed-text>
+  <code language="r script">##median
+bdnf_median_T2T1 &lt;- bdnf_median_wide
+bdnf_median_T2T1$T0 &lt;- NULL
+
+bdnf_median_T2T1 &lt;- bdnf_median_T2T1 %&gt;%
+  filter(!is.na(T2), !is.na(T1)) %&gt;%
+  mutate(`T2_T1` = T2 - T1)
+
+bdnf_median_T2T1$CogTel &lt;- as.numeric(bdnf_median_T2T1$CogTel)
+bdnf_median_T2T1$Standort &lt;- as.character(bdnf_median_T2T1$Standort)
+is.numeric(bdnf_median_T2T1$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(bdnf_median_T2T1$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(bdnf_median_T2T1)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T1    T2 T2_T1
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     2 0        Piano    F            76   34.6 0     0.085 0.085
+2     4 0        Controll F            75   40.6 0     0.08  0.08 
+3     5 0        Controll F            73   25.6 0.02  0.03  0.01 
+4     9 0        Controll F            74   24.4 0.045 0.175 0.13 
+5    11 0        Piano    F            71   30.3 0.015 0.085 0.07 
+6    13 0        Controll F            65   42.4 0     0.01  0.01 </preformat>
+  </boxed-text>
+  <code language="r script">#Tau
+##mean
+tau_mean_T2T1 &lt;- tau_mean_wide
+tau_mean_T2T1$T0 &lt;- NULL
+
+tau_mean_T2T1 &lt;- tau_mean_T2T1 %&gt;%
+  filter(!is.na(T2), !is.na(T1)) %&gt;%
+  mutate(`T2_T1` = T2 - T1)
+
+tau_mean_T2T1$CogTel &lt;- as.numeric(tau_mean_T2T1$CogTel)
+tau_mean_T2T1$Standort &lt;- as.character(tau_mean_T2T1$Standort)
+is.numeric(tau_mean_T2T1$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(tau_mean_T2T1$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(tau_mean_T2T1)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel     T1     T2     T2_T1
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;
+1     2 1        Piano    F            76   34.6 0.0725 0.0717 -0.000798
+2     4 1        Controll F            75   40.6 0.0440 0.0492  0.00521 
+3     5 1        Controll F            73   25.6 0.0979 0.0654 -0.0325  
+4     9 1        Controll F            74   24.4 0.0976 0.0888 -0.00881 
+5    11 1        Piano    F            71   30.3 0.127  0.0656 -0.0616  
+6    13 1        Controll F            65   42.4 0.0669 0.0288 -0.0381  </preformat>
+  </boxed-text>
+  <code language="r script">##median
+tau_median_T2T1 &lt;- tau_median_wide
+tau_median_T2T1$T0 &lt;- NULL
+
+tau_median_T2T1 &lt;- tau_median_T2T1 %&gt;%
+  filter(!is.na(T2), !is.na(T1)) %&gt;%
+  mutate(`T2_T1` = T2 - T1)
+
+tau_median_T2T1$CogTel &lt;- as.numeric(tau_median_T2T1$CogTel)
+tau_median_T2T1$Standort &lt;- as.character(tau_median_T2T1$Standort)
+is.numeric(tau_median_T2T1$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(tau_median_T2T1$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(tau_median_T2T1)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T1    T2   T2_T1
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+1     2 1        Piano    F            76   34.6 0.02  0.02   0     
+2     4 1        Controll F            75   40.6 0.015 0.01  -0.005 
+3     5 1        Controll F            73   25.6 0.03  0.025 -0.0050
+4     9 1        Controll F            74   24.4 0.05  0.02  -0.03  
+5    11 1        Piano    F            71   30.3 0.065 0.015 -0.05  
+6    13 1        Controll F            65   42.4 0.03  0     -0.03  </preformat>
+  </boxed-text>
+  <code language="r script">#PSD95
+##mean
+psd95_mean_T2T1 &lt;- psd95_mean_wide
+psd95_mean_T2T1$T0 &lt;- NULL
+
+psd95_mean_T2T1 &lt;- psd95_mean_T2T1 %&gt;%
+  filter(!is.na(T2), !is.na(T1)) %&gt;%
+  mutate(`T2_T1` = T2 - T1)
+
+psd95_mean_T2T1$CogTel &lt;- as.numeric(psd95_mean_T2T1$CogTel)
+psd95_mean_T2T1$Standort &lt;- as.character(psd95_mean_T2T1$Standort)
+is.numeric(psd95_mean_T2T1$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(psd95_mean_T2T1$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(psd95_mean_T2T1)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel      T1     T2    T2_T1
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;
+1     2 1        Piano    F            76   34.6 0.0116  0.0445  0.0330 
+2     4 1        Controll F            75   40.6 0.0169  0.0441  0.0272 
+3     5 1        Controll F            73   25.6 0.0302  0.0178 -0.0124 
+4     9 1        Controll F            74   24.4 0.0316  0.0278 -0.00378
+5    11 1        Piano    F            71   30.3 0.00708 0.0273  0.0202 
+6    13 1        Controll F            65   42.4 0.0124  0.04    0.0276 </preformat>
+  </boxed-text>
+  <code language="r script">##median
+psd95_median_T2T1 &lt;- psd95_median_wide
+psd95_median_T2T1$T0 &lt;- NULL
+
+psd95_median_T2T1 &lt;- psd95_median_T2T1 %&gt;%
+  filter(!is.na(T2), !is.na(T1)) %&gt;%
+  mutate(`T2_T1` = T2 - T1)
+
+psd95_median_T2T1$CogTel &lt;- as.numeric(psd95_median_T2T1$CogTel)
+psd95_median_T2T1$Standort &lt;- as.character(psd95_median_T2T1$Standort)
+is.numeric(psd95_median_T2T1$CogTel)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">is.character(psd95_median_T2T1$Standort)
+  </code>
+  <boxed-text>
+    <preformat>[1] TRUE</preformat>
+  </boxed-text>
+  <code language="r script">head(psd95_median_T2T1)
+  </code>
+  <boxed-text>
+    <preformat># A tibble: 6 × 9
+     ID Standort Gruppe   Sex   Age_start CogTel    T1    T2 T2_T1
+  &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1     2 1        Piano    F            76   34.6     0  0     0   
+2     4 1        Controll F            75   40.6     0  0.02  0.02
+3     5 1        Controll F            73   25.6     0  0     0   
+4     9 1        Controll F            74   24.4     0  0     0   
+5    11 1        Piano    F            71   30.3     0  0     0   
+6    13 1        Controll F            65   42.4     0  0     0   </preformat>
+  </boxed-text>
+  </sec>
+</sec>
+<sec id="write-time-point-tables">
+  <title>Write Time-point Tables</title>
+  <sec specific-use="notebook-content">
+  <code language="r script"># Save Time-Tables
+## BDNF
+
+### mean
+#### T2-T0
+write.table(bdnf_mean_T2T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T2T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(bdnf_mean_T1T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T1T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(bdnf_mean_T2T1, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T2T1.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+
+### median
+#### T2-T0
+write.table(bdnf_median_T2T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T2T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(bdnf_median_T1T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T1T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(bdnf_median_T2T1, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T2T1.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+
+## Tau
+
+### mean
+#### T2-T0
+write.table(tau_mean_T2T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T2T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(tau_mean_T1T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T1T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(tau_mean_T2T1, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T2T1.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+
+### median
+#### T2-T0
+write.table(tau_median_T2T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T2T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(tau_median_T1T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T1T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(tau_median_T2T1, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T2T1.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+
+## PSD95
+
+### mean
+#### T2-T0
+write.table(psd95_mean_T2T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T2T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(psd95_mean_T1T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T1T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(psd95_mean_T2T1, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T2T1.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+
+### median
+#### T2-T0
+write.table(psd95_median_T2T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T2T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(psd95_median_T1T0, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T1T0.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+
+#### T1-T0
+write.table(psd95_median_T2T1, 
+            file = &quot;/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T2T1.txt&quot;, 
+            sep = &quot;\t&quot;, 
+            row.names = FALSE, 
+            quote = FALSE)
+  </code>
+  </sec>
+</sec>
+</body>
+
+
+
+<back>
+</back>
+
+
+</sub-article>
