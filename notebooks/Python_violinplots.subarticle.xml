@@ -1,0 +1,77 @@
+<sub-article article-type="notebook" id="nb-3">
+<front-stub>
+<title-group>
+<article-title>Violin plots with Python</article-title>
+</title-group>
+</front-stub>
+
+<body>
+<sec id="cell-7a149ad3-e2d1-4409-89a9-0001e43fcb38" specific-use="notebook-content">
+<code language="python">import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np</code>
+</sec>
+<sec id="cell-7c0de81e-b801-42f4-80b2-6bda2814da28" specific-use="notebook-content">
+<code language="python">Bdf = pd.read_excel('Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx')
+
+Tdf = pd.read_excel('Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx')
+
+Pdf = pd.read_excel(&quot;Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx&quot;)</code>
+</sec>
+<sec id="cell-486ebe03-7fc8-4d5c-b039-a4263ba7ea46" specific-use="notebook-content">
+<code language="python">type(Bdf)</code>
+<boxed-text>
+  <preformat>pandas.core.frame.DataFrame</preformat>
+</boxed-text>
+</sec>
+<sec id="cell-24fb6cd5-6bc0-4045-9e27-9451323bf989" specific-use="notebook-content">
+<sec id="violinplots">
+  <title>violinplots</title>
+  </sec>
+  <sec id="cell-3019f17d-ad3c-44e4-9384-04fd6af0b018" specific-use="notebook-content">
+  <code language="python">plt.figure(figsize = [10,5])
+sns.violinplot(data = Bdf, x = &quot;CpG_position&quot;, y = 'methylierung', 
+               hue = 'Gruppe', split = True)
+plt.title('BDNF CpG methylation by Group')
+plt.xlabel('CpG-Position')
+plt.ylabel('Methylation-Values')
+plt.savefig('BDNF_CpG_methylation_by_group.png', dpi = 300)</code>
+  <boxed-text>
+    <graphic mimetype="image" mime-subtype="png" xlink:href="Python_violinplots_files/figure-jats/cell-5-output-1.png" />
+  </boxed-text>
+  </sec>
+  <sec id="cell-11949fbf-692c-4ac6-b505-88524f9d9047" specific-use="notebook-content">
+  <code language="python">plt.figure(figsize = [25,5])
+sns.violinplot(data = Tdf, x = &quot;CpG_position&quot;, y = &quot;methylation&quot;, 
+               hue = &quot;Gruppe&quot;, split = True)
+plt.title('Tau CpG methylation by Group')
+plt.xlabel('CpG-Position')
+plt.ylabel('Tau-Methylation-Values')
+plt.savefig('Tau_CpG_methylation_by_group.png', dpi = 300)</code>
+  <boxed-text>
+    <graphic mimetype="image" mime-subtype="png" xlink:href="Python_violinplots_files/figure-jats/cell-6-output-1.png" />
+  </boxed-text>
+  </sec>
+  <sec id="cell-5ea61b9e-c2d6-4547-b0a0-5916d8da01e6" specific-use="notebook-content">
+  <code language="python">plt.figure(figsize = [24,5])
+sns.violinplot(data = Pdf, x = &quot;CpG_Position&quot;, y = &quot;methylation&quot;, 
+               hue = &quot;Gruppe&quot;, split = True)
+plt.title('Tau CpG methylation by Group')
+plt.xlabel('CpG-Position')
+plt.ylabel('PSD95-Methylation-Values')
+plt.savefig('PSD95_CpG_methylation_by_group.png', dpi = 300)</code>
+  <boxed-text>
+    <graphic mimetype="image" mime-subtype="png" xlink:href="Python_violinplots_files/figure-jats/cell-7-output-1.png" />
+  </boxed-text>
+  </sec>
+</sec>
+</body>
+
+
+
+<back>
+</back>
+
+
+</sub-article>
