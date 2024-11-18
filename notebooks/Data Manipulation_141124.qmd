@@ -1,5 +1,5 @@
 ---
-title: "Exploratory Data Analysis"
+title: "Data Manipulation and Export"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
 ---
