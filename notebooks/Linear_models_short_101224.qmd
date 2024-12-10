@@ -1,0 +1,302 @@
+---
+title: "Linear_models_short_101224"
+author: "Jonas J.R. Koberschinski"
+date: "14-11-2024"
+output: html
+---
+
+## Data import
+```{r}
+#| echo: true
+#| include: false
+
+# List of file names (without paths and extension)
+file_names <- c(
+  "bdnf_mean_T2T0.txt",
+  "bdnf_mean_T1T0.txt",
+  "bdnf_mean_T2T1.txt",
+  
+  "bdnf_median_T2T0.txt",
+  "bdnf_median_T1T0.txt",
+  "bdnf_median_T2T1.txt",
+  
+  "tau_mean_T2T0.txt",
+  "tau_mean_T1T0.txt",
+  "tau_mean_T2T1.txt",
+  
+  "tau_median_T2T0.txt",
+  "tau_median_T1T0.txt",
+  "tau_median_T2T1.txt",
+  
+  "psd95_mean_T2T0.txt",
+  "psd95_mean_T1T0.txt",
+  "psd95_mean_T2T1.txt",
+  
+  "psd95_median_T2T0.txt",
+  "psd95_median_T1T0.txt",
+  "psd95_median_T2T1.txt"
+)
+
+# Folder where the files are located
+subfolder <- "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables"
+
+# Loop through the file names, read each table, and assign it to a variable
+for (file_name in file_names) {
+  # Construct the full file path by combining the subfolder and file name
+  file_path <- file.path(subfolder, file_name)
+  
+  # Remove the .txt extension to get the base name for the variable
+  var_name <- tools::file_path_sans_ext(file_name)
+  
+  # Read the table and assign it to a variable with the same name
+  assign(var_name, read.table(file_path, sep = "\t", header = TRUE, row.names = NULL, quote = ""))
+}
+
+# Example: access the 'bdnf_mean_T2T0' table
+head(bdnf_mean_T2T0)
+
+```
+
+## LM: Regression analysis (Bivariate/multivariate)
+
+### BDNF
+
+#### T2-T0
+
+##### mean
+```{r}
+lm_bdnf_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_mean_T2T0)
+
+summary(lm_bdnf_mean_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_mean_T2T0)
+```
+
+##### median
+
+```{r}
+lm_bdnf_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_median_T2T0)
+
+summary(lm_bdnf_median_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_median_T2T0)
+```
+
+
+#### T1 - T0
+##### mean
+
+```{r}
+lm_bdnf_mean_T1T0 <- lm(T1_T0 ~ as.factor(Standort) + as.factor(Gruppe) + as.factor(Sex) + Age_start + CogTel + T0, 
+                  data = bdnf_mean_T1T0)
+
+summary(lm_bdnf_mean_T1T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_mean_T1T0)
+```
+
+Gruppendifferenz!
+
+##### median
+
+Gruppendifferenz bei mean nicht mehr vorhanden beim Median
+```{r}
+lm_bdnf_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_median_T1T0)
+
+summary(lm_bdnf_median_T1T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_median_T1T0)
+```
+
+
+#### T2 - T1
+##### mean
+
+```{r}
+lm_bdnf_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = bdnf_mean_T2T1)
+
+summary(lm_bdnf_mean_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_mean_T2T1)
+```
+
+##### median
+
+```{r}
+lm_bdnf_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = bdnf_median_T2T1)
+
+summary(lm_bdnf_median_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_median_T2T1)
+```
+
+
+### Tau
+
+#### T2-T0
+
+##### mean
+```{r}
+lm_tau_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_mean_T2T0)
+
+summary(lm_tau_mean_T2T0)
+
+
+par(mfrow = c(2,2))
+plot(lm_tau_mean_T2T0)
+```
+
+##### median
+
+```{r}
+lm_tau_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_median_T2T0)
+
+summary(lm_tau_median_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_tau_median_T2T0)
+```
+
+
+#### T1 - T0
+
+##### mean
+```{r}
+lm_tau_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_mean_T1T0)
+
+summary(lm_tau_mean_T1T0)
+
+par(mfrow = c(2,2))
+plot(lm_tau_mean_T1T0)
+```
+
+##### median
+
+```{r}
+lm_tau_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_median_T1T0)
+
+summary(lm_tau_median_T1T0)
+
+par(mfrow = c(2,2))
+plot(lm_tau_median_T1T0)
+```
+Standortdifferenz im Median?
+
+#### T2 - T1
+##### mean
+
+```{r}
+lm_tau_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = tau_mean_T2T1)
+
+summary(lm_tau_mean_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_tau_mean_T2T1)
+```
+
+##### median
+
+```{r}
+lm_tau_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = tau_median_T2T1)
+
+summary(lm_tau_median_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_tau_median_T2T1)
+```
+
+### PSD95
+
+#### T2-T0
+
+##### mean
+
+```{r}
+lm_psd95_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_mean_T2T0)
+
+summary(lm_psd95_mean_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_mean_T2T0)
+```
+
+##### median
+
+```{r}
+lm_psd95_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_median_T2T0)
+
+summary(lm_psd95_median_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_median_T2T0)
+```
+
+#### T1 - T0
+
+##### mean
+
+```{r}
+lm_psd95_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_mean_T1T0)
+
+summary(lm_psd95_mean_T1T0)
+```
+Standortdifferenz im Mean?
+##### median
+
+```{r}
+lm_psd95_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_median_T1T0)
+
+summary(lm_psd95_median_T1T0)
+```
+Keine Standortdifferenz im Mean? Dafür Geschlechtsdifferenz?!
+
+#### T2 - T1
+##### mean
+```{r}
+lm_psd95_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = psd95_mean_T2T1)
+
+summary(lm_psd95_mean_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_mean_T2T1)
+
+```
+
+##### median
+
+```{r}
+lm_psd95_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = psd95_median_T2T1)
+
+summary(lm_psd95_median_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_median_T2T1)
+```
+
+
+
+
+
