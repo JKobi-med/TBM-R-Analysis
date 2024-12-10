@@ -2,9 +2,12 @@
 title: "Exploratory Data Analysis"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
+output: html
 ---
+
 ## Data import
 ```{r}
+#| echo: true
 #| include: false
 
 # load mean&median data

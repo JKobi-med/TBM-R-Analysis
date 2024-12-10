@@ -1,0 +1,204 @@
+---
+title: "Plots: Time + Metyhlation"
+author: "Jonas J.R. Koberschinski"
+date: "09-12-2024"
+output: html
+---
+
+## Data import
+
+```{r, echo=FALSE}
+#| echo: false      # Hide the code
+#| include: false   # Exclude the output
+#| warning: false   # Suppress warnings
+#| message: false   # Suppress messages#
+
+ ## Set working directory
+setwd("/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Rohdaten/")
+print(getwd())
+
+ ## Load necessary packages
+library(haven)
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(writexl)
+
+
+BDNF <- read_xlsx("BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+
+TAU <- suppressWarnings(read_xlsx("TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+
+PSD95 <- suppressWarnings(read_xlsx("PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+```
+
+```{r}
+#| echo: true
+#| include: false
+
+#BDNF
+# Remove rows with NA values in the 'methylierung' column
+BDNF2 <- BDNF %>% drop_na(methylierung)
+
+# Summarize the number of NA values in the 'methylierung' column (commented out)
+# sum(is.na(BDNF$methylierung))
+
+# without NA
+#summary(BDNF2)
+
+
+
+# TAu
+
+# Remove rows with NA values in the 'methylierung' column
+TAU2 <- TAU %>% drop_na(methylation)
+
+# Summarize the number of NA values in the 'methylierung' column (commented out)
+# sum(is.na(TAU$methylierung))
+
+# without NA
+#summary(TAU2)
+
+
+#PSD95
+# Remove rows with NA values in the 'methylierung' column
+PSD952 <- PSD95 %>% drop_na(methylation)
+
+# Summarize the number of NA values in the 'methylierung' column (commented out)
+# sum(is.na(BDNF$methylierung))
+
+# without NA
+#summary(PSD952)
+
+
+```
+
+## BDNF
+
+```{r}
+# Interaction plot showing methylation levels by group and time
+interaction_plot_bdnf <- ggplot(BDNF2, aes(x = Zeitpunkt, y = methylierung, group = Group, colour = Group)) +
+  geom_line(stat = "summary", fun = mean) +
+  geom_point(stat = "summary", fun = mean) +
+  theme_classic() +
+  labs(title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+       x = "Time Point",
+       y = "Mean Methylation Levels")
+
+print(interaction_plot_bdnf)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Calculate summary statistics for BDNF
+summary_stats_bdnf <- BDNF2 %>%
+  group_by(Zeitpunkt, Group) %>%
+  summarise(
+    mean_methylierung_bdnf = mean(methylierung, na.rm = TRUE),
+    se_methylierung_bdnf = sd(methylierung, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# Interaction plot with error bars for BDNF
+interaction_plot_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = Group, colour = Group)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = mean_methylierung_bdnf - se_methylierung_bdnf, 
+                    ymax = mean_methylierung_bdnf + se_methylierung_bdnf), 
+                width = 0.2) +
+  theme_classic() +
+  labs(title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+       x = "Time Point",
+       y = "Mean Methylation Levels")
+
+print(interaction_plot_bdnf)
+
+```
+
+## Tau
+
+```{r}
+# Interaction plot showing methylation levels by group and time
+interaction_plot_tau <- ggplot(TAU2, aes(x = Zeitpunkt, y = methylation, group = Gruppe, colour = Gruppe)) +
+  geom_line(stat = "summary", fun = mean) +
+  geom_point(stat = "summary", fun = mean) +
+  theme_classic() +
+  labs(title = "Interaction Plot of Tau Methylation Levels by Group and Time",
+       x = "Time Point",
+       y = "Mean Methylation Levels")
+
+print(interaction_plot_tau)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Calculate summary statistics
+summary_stats_tau <- TAU2 %>%
+  group_by(Zeitpunkt, Gruppe) %>%
+  summarise(
+    mean_methylation_tau = mean(methylation, na.rm = TRUE),
+    se_methylation_tau = sd(methylation, na.rm = TRUE) / sqrt(n()),
+  )
+
+# Interaction plot with error bars
+interaction_plot_tau_error <- ggplot(summary_stats_tau, aes(x = as.factor(Zeitpunkt), y = mean_methylation_tau, group = Gruppe, colour = Gruppe)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = mean_methylation_tau - se_methylation_tau, 
+                    ymax = mean_methylation_tau + se_methylation_tau), 
+                width = 0.2) +
+  theme_classic() +
+  labs(title = "Interaction Plot of Tau Methylation Levels by Group and Time",
+       x = "Time Point",
+       y = "Mean Methylation Levels")
+
+print(interaction_plot_tau_error)
+```
+
+## PSD95
+
+```{r}
+# Interaction plot showing methylation levels by group and time
+interaction_plot_psd95 <- ggplot(PSD952, aes(x = Zeitpunkt, y = methylation, group = Gruppe, colour = Gruppe)) +
+  geom_line(stat = "summary", fun = mean) +
+  geom_point(stat = "summary", fun = mean) +
+  theme_classic() +
+  labs(title = "Interaction Plot of PSD95 Methylation Levels by Group and Time",
+       x = "Time Point",
+       y = "Mean Methylation Levels")
+
+print(interaction_plot_psd95)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Calculate summary statistics for PSD95
+summary_stats_psd95 <- PSD952 %>%
+  group_by(Zeitpunkt, Gruppe) %>%
+  summarise(
+    mean_methylation_psd95 = mean(methylation, na.rm = TRUE),
+    se_methylation_psd95 = sd(methylation, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# Interaction plot with error bars for PSD95
+interaction_plot_psd95 <- ggplot(summary_stats_psd95, aes(x = Zeitpunkt, y = mean_methylation_psd95, group = Gruppe, colour = Gruppe)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(aes(ymin = mean_methylation_psd95 - se_methylation_psd95, 
+                    ymax = mean_methylation_psd95 + se_methylation_psd95), 
+                width = 0.2) +
+  theme_classic() +
+  labs(title = "Interaction Plot of PSD95 Methylation Levels by Group and Time",
+       x = "Time Point",
+       y = "Mean Methylation Levels")
+
+print(interaction_plot_psd95)
+
+```

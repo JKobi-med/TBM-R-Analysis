@@ -1,0 +1,42 @@
+---
+title: "Linear models - Tau"
+author: "Jonas J.R. Koberschinski"
+date: "18-11-2024"
+output: html
+---
+## Data import
+```{r}
+#| echo: true
+#| include: false
+
+# List of file names (without paths and extension)
+file_names <- c(
+  "tau_mean_T2T0.txt",
+  "tau_mean_T1T0.txt",
+  "tau_mean_T2T1.txt",
+  
+  "tau_median_T2T0.txt",
+  "tau_median_T1T0.txt",
+  "tau_median_T2T1.txt"
+)
+
+# Folder where the files are located
+subfolder <- "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables"
+
+# Loop through the file names, read each table, and assign it to a variable
+for (file_name in file_names) {
+  # Construct the full file path by combining the subfolder and file name
+  file_path <- file.path(subfolder, file_name)
+  
+  # Remove the .txt extension to get the base name for the variable
+  var_name <- tools::file_path_sans_ext(file_name)
+  
+  # Read the table and assign it to a variable with the same name
+  assign(var_name, read.table(file_path, sep = "\t", header = TRUE, row.names = NULL, quote = ""))
+}
+
+# Example: access the 'tau_mean_T2T0' table
+head(tau_mean_T2T0)
+```
+
+

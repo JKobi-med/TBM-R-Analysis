@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.15)  14 NOV 2024 22:15
+This is XeTeX, Version 3.141592653-2.6-0.999996 (TeX Live 2024) (preloaded format=xelatex 2024.10.15)  9 DEC 2024 23:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -587,30 +587,30 @@ File: bkm-dvipdfm.def 2023-12-10 v1.31 bookmark driver for dvipdfm (HO)
 )) (/usr/local/texlive/2024/texmf-dist/tex/latex/xurl/xurl.sty
 Package: xurl 2022/01/09 v 0.10 modify URL breaks
 )
-Package hyperref Info: Option `colorlinks' set `true' on input line 174.
+Package hyperref Info: Option `colorlinks' set `true' on input line 189.
 No file index.aux.
 \openout1 = `index.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 180.
-LaTeX Font Info:    ... okay on input line 180.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 196.
+LaTeX Font Info:    ... okay on input line 196.
 \c@maskedRefs=\count343
 (/usr/local/texlive/2024/texmf-dist/tex/latex/apacite/english.apc
 File: english.apc 2013/07/21 v6.03 apacite language file
@@ -618,19 +618,19 @@ LaTeX Info: Redefining \BPBI on input line 129.
 LaTeX Info: Redefining \BHBI on input line 130.
 )
 LaTeX Font Info:    Overwriting math alphabet `\mathrm' in version `normal'
-(Font)                  OT1/lmr/m/n --> TU/lmr/m/n on input line 180.
+(Font)                  OT1/lmr/m/n --> TU/lmr/m/n on input line 196.
 LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
-(Font)                  OT1/lmr/m/it --> TU/lmr/m/it on input line 180.
+(Font)                  OT1/lmr/m/it --> TU/lmr/m/it on input line 196.
 LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
-(Font)                  OT1/lmr/bx/n --> TU/lmr/bx/n on input line 180.
+(Font)                  OT1/lmr/bx/n --> TU/lmr/bx/n on input line 196.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
-(Font)                  OT1/lmss/m/n --> TU/lmss/m/n on input line 180.
+(Font)                  OT1/lmss/m/n --> TU/lmss/m/n on input line 196.
 LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
-(Font)                  OT1/lmss/bx/n --> TU/lmss/bx/n on input line 180.
+(Font)                  OT1/lmss/bx/n --> TU/lmss/bx/n on input line 196.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
-(Font)                  OT1/lmtt/m/n --> TU/lmtt/m/n on input line 180.
+(Font)                  OT1/lmtt/m/n --> TU/lmtt/m/n on input line 196.
 LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
-(Font)                  OT1/lmtt/m/n --> TU/lmtt/bx/n on input line 180.
+(Font)                  OT1/lmtt/m/n --> TU/lmtt/bx/n on input line 196.
 
 Package fontspec Info: latinmodern-math scale = 0.9999964596882403.
 
@@ -659,7 +659,7 @@ pt=math;language=dflt;"
 (fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(0)/m/n' will be
-(Font)              scaled to size 10.0pt on input line 180.
+(Font)              scaled to size 10.0pt on input line 196.
 
 Package fontspec Info: latinmodern-math scale = 0.9999964596882403.
 
@@ -698,18 +698,18 @@ pt=math;language=dflt;"
 (fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 10.0pt on input line 180.
+(Font)              scaled to size 10.0pt on input line 196.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `normal' on input line 180.
+(Font)              `operators' in the math version `normal' on input line 196.
 
 LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
 (Font)                  OT1/lmr/m/n --> TU/latinmodern-math.otf(1)/m/n on input
- line 180.
+ line 196.
 LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
-(Font)              `operators' in the math version `bold' on input line 180.
+(Font)              `operators' in the math version `bold' on input line 196.
 LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
 (Font)                  OT1/lmr/bx/n --> TU/latinmodern-math.otf(1)/b/n on inpu
-t line 180.
+t line 196.
 
 Package fontspec Info: latinmodern-math scale = 0.9999964596882403.
 
@@ -796,15 +796,15 @@ t=math;language=dflt;"
 (fontspec)             \fontdimen 21\font =0pt\relax 
 
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `normal' on input line 180.
+(Font)              `symbols' in the math version `normal' on input line 196.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `normal'
 (Font)                  OMS/lmsy/m/n --> TU/latinmodern-math.otf(2)/m/n on inpu
-t line 180.
+t line 196.
 LaTeX Font Info:    Encoding `OMS' has changed to `TU' for symbol font
-(Font)              `symbols' in the math version `bold' on input line 180.
+(Font)              `symbols' in the math version `bold' on input line 196.
 LaTeX Font Info:    Overwriting symbol font `symbols' in version `bold'
 (Font)                  OMS/lmsy/b/n --> TU/latinmodern-math.otf(2)/b/n on inpu
-t line 180.
+t line 196.
 
 Package fontspec Info: latinmodern-math scale = 0.9999964596882403.
 
@@ -874,22 +874,22 @@ pt=math;language=dflt;"
 
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
 (Font)              `largesymbols' in the math version `normal' on input line 1
-80.
+96.
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `normal'
 (Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/m/n on inpu
-t line 180.
+t line 196.
 LaTeX Font Info:    Encoding `OMX' has changed to `TU' for symbol font
-(Font)              `largesymbols' in the math version `bold' on input line 180
+(Font)              `largesymbols' in the math version `bold' on input line 196
 .
 LaTeX Font Info:    Overwriting symbol font `largesymbols' in version `bold'
 (Font)                  OMX/lmex/m/n --> TU/latinmodern-math.otf(3)/b/n on inpu
-t line 180.
-LaTeX Info: Redefining \microtypecontext on input line 180.
-Package microtype Info: Applying patch `item' on input line 180.
-Package microtype Info: Applying patch `toc' on input line 180.
-Package microtype Info: Applying patch `eqnum' on input line 180.
-Package microtype Info: Applying patch `footnote' on input line 180.
-Package microtype Info: Applying patch `verbatim' on input line 180.
+t line 196.
+LaTeX Info: Redefining \microtypecontext on input line 196.
+Package microtype Info: Applying patch `item' on input line 196.
+Package microtype Info: Applying patch `toc' on input line 196.
+Package microtype Info: Applying patch `eqnum' on input line 196.
+Package microtype Info: Applying patch `footnote' on input line 196.
+Package microtype Info: Applying patch `verbatim' on input line 196.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using protrusion set `basicmath'.
 Package microtype Info: No adjustment of tracking.
@@ -908,39 +908,39 @@ Package caption Info: End \AtBeginDocument code.
 Package hyperref Warning: Height of page (\paperheight) is invalid (0.0pt),
 (hyperref)                using 11in.
 
-Package hyperref Info: Link coloring ON on input line 180.
+Package hyperref Info: Link coloring ON on input line 196.
 
 Package hyperref Warning: Rerun to get /PageLabels entry.
 
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 7.0pt on input line 186.
+(Font)              scaled to size 7.0pt on input line 205.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 5.0pt on input line 186.
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 1
-86.
+(Font)              scaled to size 5.0pt on input line 205.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 2
+05.
 (/usr/local/texlive/2024/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 10.00092pt on input line 186.
+(Font)              scaled to size 10.00092pt on input line 205.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 7.00064pt on input line 186.
+(Font)              scaled to size 7.00064pt on input line 205.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 5.00046pt on input line 186.
+(Font)              scaled to size 5.00046pt on input line 205.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 9.99893pt on input line 186.
+(Font)              scaled to size 9.99893pt on input line 205.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 6.99925pt on input line 186.
+(Font)              scaled to size 6.99925pt on input line 205.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 4.99947pt on input line 186.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 186
+(Font)              scaled to size 4.99947pt on input line 205.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 205
 .
 (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 ) (/usr/local/texlive/2024/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 186
+LaTeX Font Info:    Trying to load font information for U+msb on input line 205
 .
 (/usr/local/texlive/2024/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
@@ -948,21 +948,968 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 8.0pt on input line 188.
+(Font)              scaled to size 8.0pt on input line 207.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(1)/m/n' will be
-(Font)              scaled to size 6.0pt on input line 188.
+(Font)              scaled to size 6.0pt on input line 207.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 8.00073pt on input line 188.
+(Font)              scaled to size 8.00073pt on input line 207.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(2)/m/n' will be
-(Font)              scaled to size 6.00055pt on input line 188.
+(Font)              scaled to size 6.00055pt on input line 207.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 7.99915pt on input line 188.
+(Font)              scaled to size 7.99915pt on input line 207.
 LaTeX Font Info:    Font shape `TU/latinmodern-math.otf(3)/m/n' will be
-(Font)              scaled to size 5.99936pt on input line 188.
+(Font)              scaled to size 5.99936pt on input line 207.
+Missing character: There is no ′ (U+2032) in font [lmroman8-regular]:mapping=te
+x-text;!
 
-Package hyperref Warning: Ignoring empty anchor on input line 192.
+Package hyperref Warning: Ignoring empty anchor on input line 223.
 
 [1]
+Underfull \hbox (badness 10000) in paragraph at lines 244--252
+[]\TU/lmr/m/n/10 BDNF is a crucial neurotrophin that supports the survival, dif
+ferentiation, and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 244--252
+\TU/lmr/m/n/10 growth of neurons. It plays a central role in neuroplasticity by
+ facilitating synaptic 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 244--252
+\TU/lmr/m/n/10 plasticity, which is the ability of synapses to strengthen or we
+aken over time in re- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 244--252
+\TU/lmr/m/n/10 sponse to increases or decreases in their activity. It enhances 
+long-term potentiation 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 244--252
+\TU/lmr/m/n/10 (LTP), a process associated with learning and memory. BDNF promo
+tes synaptic 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 257--260
+[]\TU/lmr/m/n/10 The promoter region of the BDNF gene can be methylated, which 
+generally sup- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 257--260
+\TU/lmr/m/n/10 presses its expression. Methylation of BDNF can be influenced by
+ various factors, 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 263--266
+[]\TU/lmr/m/n/10 Post-translational modifications of histones can also regulate
+ BDNF expression. For 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 269--271
+[]\TU/lmr/m/n/10 Factors such as CREB (cAMP response element-binding protein) r
+egulate BDNF 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 278--285
+[]\TU/lmr/m/n/10 PSD95 is a scaffolding protein found in the postsynaptic densi
+ty of neurons. It is in- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 278--285
+\TU/lmr/m/n/10 volved in organizing and stabilizing synaptic proteins, and it p
+lays a key role in the 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 278--285
+\TU/lmr/m/n/10 regulation of synaptic transmission and plasticity. It interacts
+ with glutamate recep- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 278--285
+\TU/lmr/m/n/10 tors (e.g., NMDA and AMPA receptors), thereby modulating synapti
+c strength and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 278--285
+\TU/lmr/m/n/10 contributing to synaptic plasticity mechanisms such as LTP and L
+TD (long-term 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 288--292
+[]\TU/lmr/m/n/10 DNA Methylation and Histone Modifications: The expression of P
+SD95 can be influ- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 288--292
+\TU/lmr/m/n/10 enced by DNA methylation and histone acetylation. Epigenetic cha
+nges can affect 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 296--299
+[]\TU/lmr/m/n/10 Synaptic activity and neuronal signaling pathways can alter th
+e expression of PSD95 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 305--311
+[]\TU/lmr/m/n/10 Tau is a microtubule-associated protein that stabilizes microt
+ubules and supports 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 305--311
+\TU/lmr/m/n/10 axonal transport. It plays a critical role in maintaining neuron
+al structure and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 305--311
+\TU/lmr/m/n/10 function. Dysregulation of Tau, such as hyperphosphorylation, is
+ associated with 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 305--311
+\TU/lmr/m/n/10 neurodegenerative diseases like Alzheimer’s disease. Tau patholo
+gy can disrupt neu- 
+ []
+
+
+Underfull \vbox (badness 1442) has occurred while \output is active []
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 317--320
+[]\TU/lmr/m/n/10 Epigenetic regulation of Tau involves changes in DNA methylati
+on patterns and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 317--320
+\TU/lmr/m/n/10 histone modifications. Abnormal epigenetic changes can affect Ta
+u expression and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 323--327
+[]\TU/lmr/m/n/10 Tau’s phosphorylation status is influenced by signaling pathwa
+ys and can affect its 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 323--327
+\TU/lmr/m/n/10 interactions with microtubules and its role in neuroplasticity. 
+Epigenetic Effects of 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 334--338
+[]\TU/lmr/m/n/10 Research indicates that cognitive activities, including comple
+x activities like making 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 334--338
+\TU/lmr/m/n/10 music, can influence DNA methylation patterns. Such activities a
+re associated with 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 341--345
+[]\TU/lmr/m/n/10 Engaging in musical activities has been shown to affect the ex
+pression of genes in- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 341--345
+\TU/lmr/m/n/10 volved in neuroplasticity, including BDNF. Studies suggest that 
+musical training can 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 351--356
+[]\TU/lmr/m/n/10 “Epigenetic Regulation of BDNF in the Brain: Implications for 
+Cognitive 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 351--356
+\TU/lmr/m/n/10 Function and Neuroplasticity” - This review discusses the impact
+ of epige- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 351--356
+\TU/lmr/m/n/10 netic modifications on BDNF expression and its role in neuroplas
+ticity and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 356--361
+[]\TU/lmr/m/n/10 “Music Training and Brain Plasticity: Evidence from Functional
+ and Struc- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 356--361
+\TU/lmr/m/n/10 tural Neuroimaging” - This article reviews how musical training 
+influences 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 361--366
+[]\TU/lmr/m/n/10 “The Impact of Cognitive and Physical Activities on DNA Methyl
+ation and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 361--366
+\TU/lmr/m/n/10 Cognitive Function” - This study explores how various cognitive 
+activities, 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 366--371
+[]\TU/lmr/m/n/10 “The Influence of Environmental Enrichment on Epigenetic Modif
+ications: 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 366--371
+\TU/lmr/m/n/10 Implications for Learning and Memory” - This paper discusses how
+ environ- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 366--371
+\TU/lmr/m/n/10 mental enrichment, which includes activities like music, affects
+ epigenetic 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 375--383
+[]\TU/lmr/m/n/10 BDNF, PSD95, and Tau are crucial for neuroplasticity, influenc
+ing synaptic function, 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 375--383
+\TU/lmr/m/n/10 and neuronal structure. Their expressions are regulated by vario
+us epigenetic mech- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 375--383
+\TU/lmr/m/n/10 anisms, including DNA methylation and histone modifications. Cog
+nitive activities, 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 375--383
+\TU/lmr/m/n/10 such as making music, have been shown to affect epigenetic regul
+ation and poten- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 375--383
+\TU/lmr/m/n/10 tially enhance neuroplasticity. There is growing evidence suppor
+ting the idea that 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 375--383
+\TU/lmr/m/n/10 engaging in complex cognitive activities can lead to beneficial 
+epigenetic changes 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 388--397
+[]\TU/lmr/m/n/10 Study participants were recruited at Hannover Medical School, 
+Dept. for Clinical 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 388--397
+\TU/lmr/m/n/10 Psychiatry, Social Psychiatry and Psychotherapy, Division of Cli
+nical Psychol- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 388--397
+\TU/lmr/m/n/10 ogy and Sexual Medicine and at the Geneva Musical Minds Lab, Gen
+eva School 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 388--397
+\TU/lmr/m/n/10 of Health Sciences, University of Applied Sciences and Arts West
+ern Switzerland 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 388--397
+\TU/lmr/m/n/10 (HES-SO), Geneva, Switzerland via newspaper advertisement and pl
+acards at public 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 388--397
+\TU/lmr/m/n/10 places. Demographics are given in the results in Table 1. Prereq
+uisites for partic- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 388--397
+\TU/lmr/m/n/10 ipation in the study were an overall good health, being right-ha
+nded, retired, and 
+ []
+
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+[]\TU/lmr/m/n/10 The first time point was before the weekly practical piano les
+sons were started (or 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 theoretical music lessons without any practical exercises in the
+ control group, re- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 spectively), the second time point was after half a year, and th
+e third time point 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 was one year after the first assessment (for the long-term obser
+vation of potential 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 beneficial effects of piano-lessons) for every individual partic
+ipant. The time points 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 each cover a period of several months, as all the participants c
+ould not be exam- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 ined on the same day, since MRI scans were also performed as par
+t of the original 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 study (T0: March to June 2019, T1: August 2019 to February 2020,
+ T2: June 2020 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 to November 2020). A small subgroup of participants were recruit
+ed as early as in 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 January 2019 (T0), and had their consecutive examinations in Aug
+ust 2019 (T1) and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 in the end of February/beginning of March 2020 (T2). In other wo
+rds, their T2 was 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 400--415
+\TU/lmr/m/n/10 directly before the lockdown started. Therefore, this small subg
+roup was excluded 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 418--426
+[]\TU/lmr/m/n/10 Genomic DNA (gDNA) for telomere measurements was isolated in t
+he Institute of 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 418--426
+\TU/lmr/m/n/10 Molecular and Translational Therapeutic Strategies of Hannover M
+edical School 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 418--426
+\TU/lmr/m/n/10 according to standard procedures from 50 µL blood using the DNea
+sy Blood & 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 418--426
+\TU/lmr/m/n/10 Tissue Kit (Qiagen #69506) and stored at −20 °C. DNA samples wer
+e diluted in 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 418--426
+\TU/lmr/m/n/10 96-well plates to a fixed concentration of 10 ng/µl. The blood s
+amples were received 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 418--426
+\TU/lmr/m/n/10 anonymized and prior to gDNA isolation the order of the samples 
+was further ran- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+[]\TU/lmr/m/n/10 To investigate the methylation status of the target genes—BDNF
+, PSD95, and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 Tau—specific regions of interest were amplified using polymerase
+ chain reaction 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 (PCR) followed by Sanger sequencing. Genomic DNA (gDNA) extracte
+d from blood 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 samples was bisulfite-converted using standard procedures (Kit e
+rgänzen), which 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 converts unmethylated cytosines to uracils while leaving methyla
+ted cytosines un- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 changed, enabling differentiation between methylated and unmethy
+lated CpG sites 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 (Frommer et al., 1992). PCR primers (Sequenz ergänzen) were desi
+gned to target 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 CpG-rich regions within the promoter or regulatory regions of ea
+ch gene, as these 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 regions are often key in regulating gene expression through DNA 
+methylation. Am- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 plifications were performed using high-fidelity DNA polymerases 
+to minimize errors, 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 and the resulting PCR products were verified for size and integr
+ity via agarose gel 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 electrophoresis (Clark et al., 1994). Once verified, the product
+s were purified using 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 a standard PCR purification kit. Sanger Sequencing was then perf
+ormed on the pu- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 rified PCR products to identify the methylation patterns at indi
+vidual CpG sites. 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 This method was chosen for its high accuracy in detecting methyl
+ation at single- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 nucleotide resolution (Sanger et al., 1977). Sequencing reaction
+s were carried out 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--451
+\TU/lmr/m/n/10 using fluorescently labeled dideoxynucleotides, and the resultin
+g sequences were 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--465
+[]\TU/lmr/m/n/10 CpG sites—regions of DNA where a cytosine nucleotide is follow
+ed by a guanine 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--465
+\TU/lmr/m/n/10 nucleotide—are often found in gene promoters and are key regulat
+ors of gene expres- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--465
+\TU/lmr/m/n/10 sion. Methylation at these sites can silence gene expression, ma
+king them critical 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--465
+\TU/lmr/m/n/10 points of study in understanding gene regulation (Bird, 2002). F
+or each of the three 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--465
+\TU/lmr/m/n/10 genes (BDNF, PSD95, and Tau), multiple CpG sites were identified
+ within the pro- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--465
+\TU/lmr/m/n/10 moter or other regulatory regions to assess their methylation st
+atus. By examining 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--465
+\TU/lmr/m/n/10 these CpG islands, we aimed to determine whether the degree of m
+ethylation dif- 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+[]\TU/lmr/m/n/10 The methylation status of individual CpG sites was quantified 
+using the Epigenetic 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 Sequencing Methylation Analysis software (ESME), which is specif
+ically designed for 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 analyzing bisulfite sequencing data (Lewin et al., 2004). ESME p
+rocesses bisulfite- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 converted Sanger sequencing data and compares the cytosine-uraci
+l conversion 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 patterns to the reference sequence to detect methylation at CpG 
+sites. Specifically, 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 ESME calculates the percentage of methylation at each CpG site b
+y determining the 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 ratio of methylated cytosines to total cytosines (methylated + u
+nmethylated) for 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 each site. ESME allows for a high-resolution quantification of m
+ethylation levels at 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 each CpG site, providing decimal values (e.g., 0.75 represents 7
+5% methylation at 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 a specific CpG site). The software also corrects for any potenti
+al sequencing errors 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 and can handle multiple sequencing runs to improve data accuracy
+. Each (not each. 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 Depending on the quality of the measurments some were ignored. T
+he dropped 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 CpGs are mentioned in the Excel-titles and listed in .txt-files)
+ gene region’s methyla- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 468--485
+\TU/lmr/m/n/10 tion data, broken down by CpG sites, was compiled for statistica
+l analysis (Lewin et 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 489--500
+[]\TU/lmr/m/n/10 After methylation percentages were obtained from ESME, the dat
+a were exported 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 489--500
+\TU/lmr/m/n/10 to Microsoft Excel for preliminary organization and data structu
+ring. In Excel, CpG 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 489--500
+\TU/lmr/m/n/10 site-specific methylation data were aligned with participant ide
+ntifiers, experimental 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 489--500
+\TU/lmr/m/n/10 groups (piano vs. control), and time points (T0, T1, T2). Data w
+ere thoroughly 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 489--500
+\TU/lmr/m/n/10 checked for consistency, and any missing or potentially erroneou
+s data points were 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 489--500
+\TU/lmr/m/n/10 flagged for review. In this step, we created a structured datase
+t for each gene, con- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 489--500
+\TU/lmr/m/n/10 sisting of individual participants’ methylation percentages at e
+ach CpG site. The 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 489--500
+\TU/lmr/m/n/10 Excel file was formatted to ensure seamless transfer into statis
+tical software for 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+[]\TU/lmr/m/n/10 The structured Excel data were subsequently imported into SPSS
+ for statistical 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 analysis. In SPSS, the methylation data for each gene and CpG si
+te were organized 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 into a comprehensive dataset, where participants’ CpG site methy
+lation values were 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 aligned with their respective experimental group (piano or contr
+ol) and time points 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 (T0, T1, and T2). To analyze the effects of piano lessons on the
+ methylation sta- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 tus of the BDNF, PSD95, and Tau genes, we employed generalized l
+inear models 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 (GLMs). GLMs are flexible and suitable for modeling non-normally
+ distributed data, 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 allowing for the inclusion of continuous, binary, and categorica
+l variables. This ap- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 proach enabled us to examine changes in methylation levels acros
+s the different time 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 points (T0, T1, T2) while controlling for potential covariates s
+uch as age and base- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 line methylation levels. In the model, time was treated as a rep
+eated measure, and 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 the group (piano vs. control) was included as a fixed factor. Me
+thylation percentages 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 at each CpG site (expressed as continuous variables) were the de
+pendent variables. 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 We also included interaction terms to assess whether the change 
+in methylation over 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 time differed between the piano and control groups. The model us
+ed a logit link 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 function to handle the proportion-based methylation data, ensuri
+ng the analysis 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 accurately reflected the bounded nature of the dependent variabl
+e (0 to 1). Model 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 significance was assessed at p < 0.05, and Bonferroni correction
+s were applied to 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 account for multiple comparisons across the different CpG sites 
+and genes. Model fit 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 was evaluated using the Akaike Information Criterion (AIC) and B
+ayesian Informa- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 504--531
+\TU/lmr/m/n/10 tion Criterion (BIC) to compare the fit of different models and 
+ensure robustness in 
+ []
+
+
+Package longtable Warning: Column widths have changed
+(longtable)                in table 1 on input line 546.
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 555--558
+[]\TU/lmr/m/n/10 Die Gene sind allgemein eher gering methyliert (Mean < 0,08, M
+edian < 0,04). 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 560--563
+[]\TU/lmr/m/n/10 Bei Tau sind die CpGs promoterfern mehr meyhtliert - bei PSD95
+ umgekehrt 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 571--576
+[]\TU/lmr/m/n/10 Bei BDNF zeigt sich eine leichte Differenz zwischen der Kontro
+llgruppe (Me- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 571--576
+\TU/lmr/m/n/10 dian: 0.07, Mean: 0.07326) und der Pianogruppe (Median: 0.064, M
+ean: 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 571--576
+\TU/lmr/m/n/10 0.06598), welche eine niedrigere Metyhlierung (Median: -0.006, M
+ean: - 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 576--579
+[]\TU/lmr/m/n/10 Weiterhin zeigen sich für die arithmetischen Mittel von BDNF u
+nd PSD95 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 587--591
+[]\TU/lmr/m/n/10 Bei BDNF zeigt sich, dass sich die Mittelwerte (Arithmetisch u
+nd Median) 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 587--591
+\TU/lmr/m/n/10 von T0 zu T1 leicht absenken und zu T2 wieder über das Niveau vo
+n T0 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 591--594
+[]\TU/lmr/m/n/10 Bei Tau steigt das arithmetische Mittel der Methylierung leich
+t von T0 zu T1 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 594--597
+[]\TU/lmr/m/n/10 Bei PSD95 verbleibt der Median der Methylierung gleichbleibend
+ bei 0, 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 594--597
+\TU/lmr/m/n/10 während das arithmetische Mittel der Methylierung von T0 zu T1 s
+teigt aber 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 612--616
+[]\TU/lmr/m/n/10 The study protocol was reviewed and approved by the Hannover M
+edical School 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 612--616
+\TU/lmr/m/n/10 ethics committee (approval number 3604-2017). All study particip
+ants gave their 
+ []
+
+
+Overfull \hbox (35.21506pt too wide) in paragraph at lines 624--627
+[]\TU/lmr/m/n/10 Data are available from the corresponding author upon request 
+via jonas.koberschinski@mhb- 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 634--640
+[]\TU/lmr/m/n/10 This work was funded by the Swiss National Science Foundation 
+(grant no. 100019E- 
+ []
+
+
+Overfull \hbox (8.73503pt too wide) in paragraph at lines 634--640
+\TU/lmr/m/n/10 170410 to Clara E. James) and the German Research Foundation (gr
+ant no. 323965454 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 634--640
+\TU/lmr/m/n/10 to Eckart Altenmüller). Financial support in Switzerland was als
+o provided by the 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 634--640
+\TU/lmr/m/n/10 Med. Kurt Fries Foundation, the Dalle Molle Foundation, and the 
+Edith Maryon 
+ []
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 658--660
+[]\TU/lmr/m/n/10 The first author would like to thank Martin Max Schumacher for
+ his expert assis- 
+ []
+
 
 ! LaTeX Error: Something's wrong--perhaps a missing \item.
 
@@ -970,15 +1917,15 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.221 \end{CSLReferences}
+l.668 \end{CSLReferences}
                           
 Here is how much of TeX's memory you used:
- 21835 strings out of 474773
- 399739 string characters out of 5757723
- 1923839 words of memory out of 5000000
- 43674 multiletter control sequences out of 15000+600000
- 563872 words of font info for 84 fonts, out of 8000000 for 9000
+ 21852 strings out of 474773
+ 400165 string characters out of 5757723
+ 1941839 words of memory out of 5000000
+ 43687 multiletter control sequences out of 15000+600000
+ 563888 words of font info for 86 fonts, out of 8000000 for 9000
  1354 hyphenation exceptions out of 8191
- 98i,8n,121p,1002b,353s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 98i,8n,121p,1002b,544s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on index.pdf (1 page).
+Output written on index.pdf (6 pages).

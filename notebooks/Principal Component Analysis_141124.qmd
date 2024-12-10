@@ -2,9 +2,12 @@
 title: "Principal Component Analysis"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
+format: html
 ---
+
 ## Data import
 ```{r}
+#| echo: true
 #| include: false
 
 #data set with all CpGs in columns for EDA and PCA
@@ -39,7 +42,7 @@ psd95[1:5,]
 ## BDNF
 ```{r}
 cpg_bdnf <- bdnf[11:20]
-pca_bdnf <- prcomp(na.omit(cpg_bdnf), scale = TRUE)
+pca_bdnf <- prcomp(na.omit(cpg_bdnf), scale = FALSE)
 
 ## plot pc1 and pc2
 plot(pca_bdnf$x[,1], pca_bdnf$x[,2])
@@ -72,7 +75,7 @@ bdnf_loading_scores <- pca_bdnf$rotation[,1]
 bdnf_methylation_scores <- abs(bdnf_loading_scores) # what to do of bdnf_methylation_scores?
   
 library(ggfortify)
-pca_bdnf_res <- prcomp(na.omit(bdnf[c(11:20)]), scale = TRUE)
+pca_bdnf_res <- prcomp(na.omit(bdnf[c(11:20)]), scale = FALSE)
 
 autoplot(pca_bdnf_res, data = na.omit(bdnf[c(1:20)]), colour = 'Zeitpunkt',
          loadings = TRUE, loadings.colour = 'blue',
@@ -89,7 +92,7 @@ autoplot(pca_bdnf_res, data = na.omit(bdnf[c(1:22)]), colour = 'Sex',
 ## Tau
 ```{r}
 cpg_tau <- tau[c(9:57)]
-pca_tau <- prcomp(na.omit(cpg_tau), scale = TRUE)
+pca_tau <- prcomp(na.omit(cpg_tau), scale = FALSE)
 
 ## plot pc1 and pc2
 plot(pca_tau$x[,1], pca_tau$x[,2])
@@ -139,7 +142,7 @@ autoplot(pca_tau_res, data = na.omit(tau[c(1:57,357)]), colour = 'Sex',
 ## PSD95
 ```{r}
 cpg_psd95 <- psd95[10:54]
-pca_psd95 <- prcomp(na.omit(cpg_psd95), scale = TRUE)
+pca_psd95 <- prcomp(na.omit(cpg_psd95), scale = FALSE)
 
 ## plot pc1 and pc2
 plot(pca_psd95$x[,1], pca_psd95$x[,2])

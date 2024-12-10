@@ -2,9 +2,12 @@
 title: "Linear models"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
+output: html
 ---
+
 ## Data import
 ```{r}
+#| echo: true
 #| include: false
 
 # List of file names (without paths and extension)
@@ -107,7 +110,7 @@ plot(bdnf_aic_median_T2T0)
 
 ```{r}
 # mean
-lm_bdnf_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+lm_bdnf_mean_T1T0 <- lm(T1_T0 ~ as.factor(Standort) + as.factor(Gruppe) + as.factor(Sex) + Age_start + CogTel + T0, 
                   data = bdnf_mean_T1T0)
 
 summary(lm_bdnf_mean_T1T0)
@@ -484,4 +487,12 @@ visreg(psd95_aic_median_T1T0, gg = F)
 visreg(psd95_aic_mean_T2T1, gg = F)
 visreg(psd95_aic_median_T2T1, gg = F)
 ```
+
+
+
+
+
+
+
+
 

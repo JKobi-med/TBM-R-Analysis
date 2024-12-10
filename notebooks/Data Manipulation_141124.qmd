@@ -2,10 +2,14 @@
 title: "Data Manipulation and Export"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
+output: html
 ---
 
+## Data import
+
 ```{r}
-#|include: FALSE
+#| echo: true
+#| include: false
 
 # Load required libraries
 library(tidyverse)
@@ -158,50 +162,50 @@ psd95_median[1:5,]
 # Save mean and median tables for BDNF
 
 # Save BDNF mean table
-write.table(bdnf_mean, 
-            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/bdnf_mean.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(bdnf_mean, 
+#            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/bdnf_mean.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
 
 # Save BDNF median table
-write.table(bdnf_median, 
-            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/bdnf_median.txt", 
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
-
+#write.table(bdnf_median, 
+#            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/bdnf_median.txt", 
+ #           sep = "\t",
+ #           row.names = FALSE,
+   #         quote = FALSE)
+#
 # Save mean and median tables for Tau
 
 # Save Tau mean table
-write.table(tau_mean,
-            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/tau_mean.txt",
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
+#write.table(tau_mean,
+ #           file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/tau_mean.txt",
+#            sep = "\t",
+ #           row.names = FALSE,
+#            quote = FALSE)
 
 # Save Tau median table
-write.table(tau_median, 
-            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/tau_median.txt", 
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
+#write.table(tau_median, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/tau_median.txt", 
+   #         sep = "\t",
+  #          row.names = FALSE,
+    #        quote = FALSE)
 
 # Save mean and median tables for PSD95
 
 # Save PSD95 mean table
-write.table(psd95_mean, 
-            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/psd95_mean.txt", 
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
+#write.table(psd95_mean, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/psd95_mean.txt", 
+#            sep = "\t",
+#            row.names = FALSE,
+#            quote = FALSE)
 
 # Save PSD95 median table
-write.table(psd95_median, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/psd95_median.txt", 
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
+#write.table(psd95_median, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables/psd95_median.txt", 
+#            sep = "\t",
+ #           row.names = FALSE,
+ #           quote = FALSE)
 ```
 
 
@@ -264,50 +268,50 @@ nrow(psd95_median_wide) # Expecting 145 rows
 # Save wide format tables for BDNF
 
 # Save BDNF mean wide table
-write.table(bdnf_mean_wide, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/bdnf_mean_wide.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(bdnf_mean_wide, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/bdnf_mean_wide.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
 
 # Save BDNF median wide table
-write.table(bdnf_median_wide, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/bdnf_median_wide.txt", 
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
-
+#write.table(bdnf_median_wide, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/bdnf_median_wide.txt", 
+ #           sep = "\t",
+  #          row.names = FALSE,
+  #          quote = FALSE)
+#
 # Save wide format tables for Tau
 
 # Save Tau mean wide table
-write.table(tau_mean_wide,
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/tau_mean_wide.txt",
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
+#write.table(tau_mean_wide,
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/tau_mean_wide.txt",
+#            sep = "\t",
+#            row.names = FALSE,
+#            quote = FALSE)
 
 # Save Tau median wide table
-write.table(tau_median_wide, 
-            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/tau_median_wide.txt", 
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
+#write.table(tau_median_wide, 
+#            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/tau_median_wide.txt", 
+ #           sep = "\t",
+ #           row.names = FALSE,
+  #          quote = FALSE)
 
 # Save wide format tables for PSD95
 
 # Save PSD95 mean wide table
-write.table(psd95_mean_wide, 
-            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/psd95_mean_wide.txt", 
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
+#write.table(psd95_mean_wide, 
+  #          file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/psd95_mean_wide.txt", 
+  #          sep = "\t",
+ #           row.names = FALSE,
+ #           quote = FALSE)
 
 # Save PSD95 median wide table
-write.table(psd95_median_wide, 
-            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/psd95_median_wide.txt", 
-            sep = "\t",
-            row.names = FALSE,
-            quote = FALSE)
+#write.table(psd95_median_wide, 
+#            file = "/Users/kobi/Desktop/Promotionsdatanalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/psd95_median_wide.txt", 
+   #         sep = "\t",
+ #           row.names = FALSE,
+ #           quote = FALSE)
 ```
 
 ## Create a new column 'T2-T0'
@@ -526,7 +530,7 @@ bdnf_median_T2T1 <- bdnf_median_T2T1 %>%
   mutate(`T2_T1` = T2 - T1) # Calculate T2 - T1
 
 bdnf_median_T2T1$CogTel <- as.numeric(bdnf_median_T2T1$CogTel)
-bdnf_median_T2
+bdnf_median_T2T1
 ```
 
 ## Write Time-point Tables
@@ -536,142 +540,142 @@ bdnf_median_T2
 
 ### mean
 #### T2-T0
-write.table(bdnf_mean_T2T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T2T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(bdnf_mean_T2T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T2T0.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+ #           quote = FALSE)
 
 #### T1-T0
-write.table(bdnf_mean_T1T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T1T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(bdnf_mean_T1T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T1T0.txt", 
+#           sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
 
 #### T1-T0
-write.table(bdnf_mean_T2T1, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T2T1.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(bdnf_mean_T2T1, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_mean_T2T1.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
 
 
 ### median
 #### T2-T0
-write.table(bdnf_median_T2T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T2T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(bdnf_median_T2T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T2T0.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+  #          quote = FALSE)
 
 #### T1-T0
-write.table(bdnf_median_T1T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T1T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(bdnf_median_T1T0, 
+  #          file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T1T0.txt", 
+  #          sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
 
 #### T1-T0
-write.table(bdnf_median_T2T1, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T2T1.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(bdnf_median_T2T1, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/bdnf_median_T2T1.txt", 
+ #          sep = "\t", 
+  #         row.names = FALSE, 
+  #          quote = FALSE)
 
 
 ## Tau
 
 ### mean
 #### T2-T0
-write.table(tau_mean_T2T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T2T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(tau_mean_T2T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T2T0.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+  #          quote = FALSE)
 
 #### T1-T0
-write.table(tau_mean_T1T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T1T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(tau_mean_T1T0, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T1T0.txt", 
+  #          sep = "\t", 
+  #          row.names = FALSE, 
+  #          quote = FALSE)
 
 #### T1-T0
-write.table(tau_mean_T2T1, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T2T1.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(tau_mean_T2T1, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_mean_T2T1.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+ #           quote = FALSE)
 
 
 ### median
 #### T2-T0
-write.table(tau_median_T2T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T2T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(tau_median_T2T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T2T0.txt", 
+#            sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
 
 #### T1-T0
-write.table(tau_median_T1T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T1T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(tau_median_T1T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T1T0.txt", 
+ #           sep = "\t", 
+  #          row.names = FALSE, 
+#            quote = FALSE)
 
 #### T1-T0
-write.table(tau_median_T2T1, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T2T1.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(tau_median_T2T1, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/tau_median_T2T1.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
 
 
 ## PSD95
 
 ### mean
 #### T2-T0
-write.table(psd95_mean_T2T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T2T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(psd95_mean_T2T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T2T0.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+#            quote = FALSE)
 
 #### T1-T0
-write.table(psd95_mean_T1T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T1T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(psd95_mean_T1T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T1T0.txt", 
+  #          sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
 
 #### T1-T0
-write.table(psd95_mean_T2T1, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T2T1.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(psd95_mean_T2T1, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_mean_T2T1.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
 
 
 ### median
 #### T2-T0
-write.table(psd95_median_T2T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T2T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(psd95_median_T2T0, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T2T0.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+ ##           quote = FALSE)
 
 #### T1-T0
-write.table(psd95_median_T1T0, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T1T0.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(psd95_median_T1T0, 
+#            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T1T0.txt", 
+ #           sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
 
 #### T1-T0
-write.table(psd95_median_T2T1, 
-            file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T2T1.txt", 
-            sep = "\t", 
-            row.names = FALSE, 
-            quote = FALSE)
+#write.table(psd95_median_T2T1, 
+ #           file = "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables/psd95_median_T2T1.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+  #          quote = FALSE)
 ```
