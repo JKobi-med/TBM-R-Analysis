@@ -1,17 +1,34 @@
+# The Quarto project file that defines project-wide settings and output formats.
 project:
-  type: manuscript
+  type: manuscript  # Specifies the project type as a manuscript, enabling features like section numbering and citation styling.
 
+# Global execution options for code chunks.
 execute:
-  freeze: auto
+  freeze: false      # Automatically "freezes" chunks unless their content changes, useful for reproducible research.
+  include: true     # (Optional) Include code output by default.
+  warning: false    # (Optional) Suppress warnings globally.
+  message: false    # (Optional) Suppress messages globally.
 
+# Define output formats for the manuscript.
 format:
+  # HTML-specific settings
   html:
-    toc: true
-    comments:
-      hypothesis: true
-  docx: default
-  jats: default
-  agu-pdf: default
+    toc: true              # Enables a table of contents in the HTML output.
+    code-fold: true        # Allows users to toggle the visibility of code blocks in the rendered HTML.
+    code-tools: true
+    code-block-border-left: true
+    number-sections: true  # Enables automatic numbering of sections and subsections.
+    comments:              # Integrates comment systems for collaboration.
+      hypothesis: true     # Enables Hypothes.is annotations for the document.
 
+  # Microsoft Word-specific settings
+  docx:
+    default: true          # Enables rendering to Microsoft Word format. Default means no additional customization.
 
+  # JATS XML format (for academic publishing)
+  jats:
+    default: true          # Enables rendering to JATS format, useful for journal submissions or interoperability.
 
+  # AGU PDF format (specific to AGU publication style)
+  agu-pdf:
+    default: true          # Enables rendering to PDF format styled for AGU manuscripts.

@@ -12,8 +12,8 @@ author:
       - Formal Analysis
       - Visualization
     affiliations:
-      - Medical School Brandenburg, Germany
-      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Medical School Hannover, Germany
+      - Brandenburg Medical School, Neuruppin, Germany
+      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover Medical School, Hannover, Germany
       - Devision of Clinical Psychology and Sexual Medicine, Dept. of Psychiatry, Social Psychiatry and Psychotherapy, Hannover Medical School, Hannover, Germany
   - name: Martin Max Schumacher
     orcid: 0000-0001-9538-8682
@@ -31,13 +31,13 @@ author:
       - Formal Analysis
       - Writing – review and editing
     affiliations:
-      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Medical School Hannover, Germany
+      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover Medical School, Hannover Germany
   - name: Helge Frieling
     corresponding: false
     roles:
       - Resources
     affiliations:
-      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Medical School Hannover, Germany
+      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover Medical School, Hannover Germany
   - name: Christopher Sinke
     orcid: 0000-0003-1716-6229
     corresponding: false
@@ -107,8 +107,8 @@ abstract: |
 plain-language-summary: |
   ...
 key-points:
-  - 
-  - 
+  -
+  -
 date: 2024-11-15
 bibliography: references.bib
 citation:

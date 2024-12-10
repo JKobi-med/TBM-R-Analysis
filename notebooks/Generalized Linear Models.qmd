@@ -1,147 +1,47 @@
 ---
 title: "Generalized Linear Models"
 author: "Jonas J.R. Koberschinski"
-author: "Kai Rouwen Wenger"
-date: "16-11-2024"
+date: "09-12-2024"
+output: html
 ---
 
 ## Data import
-```{r}
-#| include: false
-
-# List of file names (without paths and extension)
-file_names <- c(
-  "bdnf_mean_T2T0.txt",
-  "bdnf_mean_T1T0.txt",
-  "bdnf_mean_T2T1.txt",
-  
-  "bdnf_median_T2T0.txt",
-  "bdnf_median_T1T0.txt",
-  "bdnf_median_T2T1.txt",
-  
-  "tau_mean_T2T0.txt",
-  "tau_mean_T1T0.txt",
-  "tau_mean_T2T1.txt",
-  
-  "tau_median_T2T0.txt",
-  "tau_median_T1T0.txt",
-  "tau_median_T2T1.txt",
-  
-  "psd95_mean_T2T0.txt",
-  "psd95_mean_T1T0.txt",
-  "psd95_mean_T2T1.txt",
-  
-  "psd95_median_T2T0.txt",
-  "psd95_median_T1T0.txt",
-  "psd95_median_T2T1.txt"
-)
-
-# Folder where the files are located
-subfolder <- "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables"
-
-# Loop through the file names, read each table, and assign it to a variable
-for (file_name in file_names) {
-  # Construct the full file path by combining the subfolder and file name
-  file_path <- file.path(subfolder, file_name)
-  
-  # Remove the .txt extension to get the base name for the variable
-  var_name <- tools::file_path_sans_ext(file_name)
-  
-  # Read the table and assign it to a variable with the same name
-  assign(var_name, read.table(file_path, sep = "\t", header = TRUE, row.names = NULL, quote = ""))
-}
-```
-
-## Linear mixed (effect) models
-To resolve non-independence!
-
-add random effect for ID and maybe CpG (maybe even every CpGs and step()? Vielleicht nicht genug Freiheitsgrade bei Tau und PSD95 aber genug für BDNF)?
 
 ```{r}
-library(lme4)
-
-# pitch ~ politeness + sex + (1|subject) + ε 
-# add a random effext for ID
-
-
-lmem_bdnf_mean_T2T0 <- lmer(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + (1|ID), 
-                          data = bdnf_mean_T2T0)
-```
-
-
-
-## Skript von Kai
-
-```{r}
-# TBM-Methylation BDNF Analysis
-#
-# copyright (c) 2024 - MHH 
-# written by: Jonas Janik Ralf Koberschinski
-#
-# last modified Sep, 2024
-# first written Jan, 2024
-
-
 #Prep
  ## Set working directory
-setwd("/Users/kobi/Desktop/")
+setwd("/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Rohdaten/")
 print(getwd())
 
  ## Load necessary packages
 library(haven)
 library(tidyverse)
 library(dplyr)
+library(readxl)
 library(writexl)
+library(nlme)
 
  ## Load the BDNF data from a .sav file
  ### ??? more information !!!  restructured without methylation mean!
-BDNF <- read_sav("Auswertung Promotion/Auswertung MHH/Auswertung mit Christopher/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.sav")
-View(BDNF)
+bdnf <- read_xlsx("BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
 
- ### ??? more information !!! all CpGs without methylation mean!
-BDNFunstr <- read_sav("Auswertung Promotion/Auswertung MHH/Auswertung mit Christopher/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig.sav")
-View(BDNFunstr)
+tau <- suppressWarnings(read_xlsx("TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
 
- ### maybe not needed. Mit allen Verhaltensdaten, aber ohne mean!
-BDNFnew <- read_sav("Epignentik/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_neu.sav")
-View(BDNFnew)
-
-## no methylation mean in the files! Can't understand.
-
-    ##to excel
-    ### Read the SPSS file
-    ## restructured with methylation mean
-    spssdata1 <- read_spss("Auswertung Promotion/Auswertung MHH/Auswertung mit Christopher/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.sav") 
-
-    ## all CpGs without methylation mean
-    spssdata2 <- read_spss("Auswertung Promotion/Auswertung MHH/Auswertung mit Christopher/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig.sav")
-    
-    # Write to an Excel file
-      ## restructured with methylation mean
-    write_xlsx(spssdata1, "Auswertung Promotion/Auswertung MHH/Auswertung mit Christopher/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
-
-      ## all CpGs without methylation mean
-    write_xlsx(spssdata2, "Auswertung Promotion/Auswertung MHH/Auswertung mit Christopher/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig.xlsx")
-    
-
-# First look    
- ## Display the BDNF data
-print(BDNF)
+psd95 <- suppressWarnings(read_xlsx("PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
 
  ##first look at BDNF data
-head(BDNF)
-summary(BDNF)
+head(bdnf)
+summary(bdnf)
  ## Check the structure of the dataset
-str(BDNF)
+str(bdnf)
+
+```
 
 
-
-
-
-## Data
-
+## Drop NA
+```{r}
 # Remove rows with NA values in the 'methylierung' column
-BDNF2 <- BDNF %>% drop_na(methylierung)
+BDNF2 <- bdnf %>% drop_na(methylierung)
 
 # Summarize the number of NA values in the 'methylierung' column (commented out)
 # sum(is.na(BDNF$methylierung))
@@ -152,9 +52,20 @@ summary(BDNF2)
 
 
 
+tau2 <- tau %>% drop_na(methylation)
 
-### MHB-Code
 
+psd952  <- psd95  %>% drop_na(methylation)
+
+```
+
+
+
+
+
+## GLM (MHB-Code)
+### BDNF
+```{r}
 # Load the nlme package for mixed models
 library(nlme)
 
@@ -167,51 +78,194 @@ mixed_model_nointeraction2 <- lme(fixed= methylierung ~ as.factor(Group) +  as.f
                                  random=~1|id_umstrukturieren,
                                  method="ML",data=BDNF2)
 
+mixed_model_nointeraction_big_cpg <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ 1 | id_umstrukturieren/CpG_position,
+  method = "ML",
+  data = BDNF2
+)
 
+mixed_model_nointeraction_big <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ 1 | id_umstrukturieren,
+  method = "ML",
+  data = BDNF2
+)
+
+AIC(mixed_model_nointeraction1, mixed_model_nointeraction2, mixed_model_nointeraction_big)
+BIC(mixed_model_nointeraction1, mixed_model_nointeraction2, mixed_model_nointeraction_big)
+
+summary(mixed_model_nointeraction1)
+summary(mixed_model_nointeraction2)
+```
+
+#### Best glm
+```{r}
+
+# Example dataset and model
+# Ensure random effects variables are factors
+BDNF2$CpG_position <- as.factor(BDNF2$CpG_position)
+BDNF2$Zeitpunkt <- as.factor(BDNF2$Zeitpunkt)
+
+
+bdnf_glm_1 <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Geschlecht),
+  random = ~ 1 | id_umstrukturieren/CpG_position,
+  data = BDNF2,
+  method = "ML"
+)
+
+# Fit alternative models
+bdnf_glm_2 <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt),
+  random = ~ 1 | id_umstrukturieren,
+  method = "ML",
+  data = BDNF2
+)
+
+bdnf_glm_3 <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + Age_start,
+  random = ~ 1 | id_umstrukturieren/CpG_position,
+  method = "ML",
+  data = BDNF2
+)
+
+bdnf_glm_4 <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort),
+  random = ~ 1 | id_umstrukturieren/CpG_position/Zeitpunkt,
+  method = "ML",
+  data = BDNF2
+)
+
+# Compare models using AIC and BIC
+AIC(bdnf_glm_1, bdnf_glm_2, bdnf_glm_3, bdnf_glm_4)
+BIC(bdnf_glm_1, bdnf_glm_2, bdnf_glm_3, bdnf_glm_4)
+
+```
+
+
+
+```{r}
+bdnf_glm_1 <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort),
+  random = ~ 1 | id_umstrukturieren,
+  data = BDNF2,
+  method = "ML"
+)
+
+bdnf_glm_2 <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt),
+  random = ~ 1 | id_umstrukturieren,
+  method = "ML",
+  data = BDNF2
+)
+
+glm_big<- lme(
+    fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + 
+    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+    random = ~ 1 | id_umstrukturieren/CpG_position,
+    data = BDNF2,
+    method = "ML"
+  )
+
+AIC(glm_big, bdnf_glm_1, bdnf_glm_2)
+BIC(glm_big, bdnf_glm_1, bdnf_glm_2)
+
+# bdnf_glm_2 preferred
+summary(bdnf_glm_2)
+```
+
+
+#### better without random effect?
+
+not clear
+
+```{r}
+bdnf_glm_2_fixed <- lm(
+  methylierung ~ as.factor(Group) + as.factor(Zeitpunkt),
+  data = BDNF2
+)
+
+# Compare AIC and BIC for both models
+AIC(bdnf_glm_2, bdnf_glm_2_fixed)
+BIC(bdnf_glm_2, bdnf_glm_2_fixed)
+
+summary(bdnf_glm_2_fixed)
+
+```
+
+
+
+
+#### Model for group
+```{r}
 # Split the data by group
 BDNF_controll = BDNF2[BDNF2$Gruppe=='Controll',]
 BDNF_piano    = BDNF2[BDNF2$Gruppe=='Piano',]
 
 
 # Define a mixed model for the Piano group?????
-mixed_model_piano <- lme(fixed= methylierung ~ as.factor(Zeitpunkt),
+bdnf_mixed_model_piano <- lme(fixed= methylierung ~ as.factor(Zeitpunkt),
                                   random=~1|id_umstrukturieren,
                                   method="ML",data=BDNF_piano)
 
+bdnf_mixed_model_controll <- lme(fixed= methylierung ~ as.factor(Zeitpunkt),
+                                  random=~1|id_umstrukturieren,
+                                  method="ML",data=BDNF_controll)
+
 
 # Summarize the Piano group model
-summary(mixed_model_piano)
+summary(bdnf_mixed_model_piano)
+summary(bdnf_mixed_model_controll)
+
+```
 
 
+### Tau
+
+```{r}
+# Define mixed models without interaction
+tau_mixed_model_nointeraction1 <- lme(fixed= methylation ~ as.factor(Gruppe),
+                                  random=~1|id_umstruk,
+                                  method="ML",data=tau2)
+ 
+tau_mixed_model_nointeraction2 <- lme(fixed= methylation ~ as.factor(Gruppe) +  as.factor(Zeitpunkt),
+                                 random=~1|id_umstruk,
+                                 method="ML",data=tau2)
 
 
+AIC(tau_mixed_model_nointeraction1, tau_mixed_model_nointeraction2)
+BIC(tau_mixed_model_nointeraction1, tau_mixed_model_nointeraction2)
+
+summary(tau_mixed_model_nointeraction1)
+summary(tau_mixed_model_nointeraction2)
+
+```
 
 
-# NEU NEU NEU ##########
-#########################
+### PSD95 
 
-#(colour_plot <- ggplot(BDNF2, aes(x = Zeitpunkt_als_Zahl, y = methylierung, colour = Group)) +
-#   geom_point(size = 2) +
-#  theme_classic() ) +
-#  geom_smooth(aes(Zeitpunkt_als_Zahl,methylierung),method="lm",se=FALSE)
+```{r}
+# Define mixed models without interaction
+psd95_mixed_model_nointeraction1 <- lme(fixed= methylation ~ as.factor(Gruppe),
+                                  random=~1|id_umstrukturiert,
+                                  method="ML",data=psd952)
+ 
+psd95_mixed_model_nointeraction2 <- lme(fixed= methylation ~ as.factor(Gruppe) +  as.factor(Zeitpunkt),
+                                 random=~1|id_umstrukturiert,
+                                 method="ML",data=psd952)
 
+AIC(psd95_mixed_model_nointeraction1, psd95_mixed_model_nointeraction2)
+BIC(psd95_mixed_model_nointeraction1, psd95_mixed_model_nointeraction2)
 
-# Plot methylation by time point and group with a linear trend line
-colour_plot <- ggplot(BDNF2, aes(x = Zeitpunkt_als_Zahl, y = methylierung, colour = Group)) +
-  geom_point(size = 2) +
-  theme_classic() +
-  geom_smooth(aes(x = Zeitpunkt_als_Zahl, y = methylierung), method = "lm", se = FALSE)
+summary(psd95_mixed_model_nointeraction1)
+summary(psd95_mixed_model_nointeraction2)
+```
 
-print(colour_plot)
-
-
-# Check treat_group column
-print(BDNF$treat_group)
-
-
+## BDNF-Interaction?
 
 
-# ????
+```{r}
 # Summarize the no interaction models
 summary(mixed_model_nointeraction1)
 summary(mixed_model_nointeraction2)
@@ -219,13 +273,12 @@ summary(mixed_model_nointeraction2)
 # Plot the no interaction models
 plot(mixed_model_nointeraction1)
 # Corrected: changed 'mixed_model_nointeraction' to 'mixed_model_nointeraction2'
-plot(mixed_model_nointeraction2
-mixed_model_nointeraction2)
+plot(mixed_model_nointeraction2)
 
 
 # Perform post-hoc tests using glht
-contrasts <- glht(mixed_model_nointeraction2, linfct = mcp(Zeitpunkt = "Tukey"))
-summary(contrasts)
+#contrasts <- glht(mixed_model_nointeraction2, linfct = mcp(Zeitpunkt = "Tukey"))
+#summary(contrasts)
 
 
 # Define a mixed model with interaction
@@ -241,66 +294,11 @@ mixed_model_interaction <- lme(fixed= methylierung~ as.factor(Group)
 summary(mixed_model_interaction)
 plot(mixed_model_interaction)
 
-
-# Install and load the lme4 package
-install.packages(lme4)
-library(lme4)
-install.packages('multcomp')
-library(multcomp)
-
-# Define a mixed model using lme4
-model <- lmer(methylierung ~ as.factor(Zeitpunkt) + 1 | as.factor(Group), data = BDNF2)
-
-
-# Perform ANOVA to test for interaction between time and treatment group
-anova(mixed_model_nointeraction2, mixed_model_interaction)
-
-
-# p-value that shows if there is an interaction between time and treatment group:
-anova(mixed_model_nointeraction, mixed_model_interaction)
-
-# Example of generating dummy variables for treatment effect per time point:
-ddata$treat_group1_time1=0
-ddata$treat_group1_time1[which(ddata$time_point==1 & ddata$treat_group==1)]=1
-ddata$treat_group1_time2=0
-ddata$treat_group1_time2[which(ddata$time_point==2 & ddata$treat_group==1)]=1
-ddata$treat_group1_time3=0
-ddata$treat_group1_time3[which(ddata$time_point==3 & ddata$treat_group==1)]=1
-
-# if there are 4 time points: please generate additional variable 'treat_group1_time4'
-
-# if there are 2 time points: please use only two variables 'treat_group1_time1' and 'treat_group1_time2'
-
-
-# Define a mixed model to calculate the treatment effect per time point
-mixed_model_treatment_effect_per_time = lme(fixed= methylation~ as.factor(time_point) 
-                                                  + as.factor(treat_group1_time1) 
-                                                  +  as.factor(treat_group1_time2) 
-                                                  + as.factor(treat_group1_time3), 
-                                            random=~1|subjectkey, 
-                                            method="ML", 
-                                            data=ddata)
-
-
-# Summarize and get confidence intervals for the treatment effect model
-summary(mixed_model_treatment_effect_per_time)
-intervals(mixed_model_treatment_effect_per_time)
+AIC(mixed_model_nointeraction1, mixed_model_nointeraction2, mixed_model_interaction)
+BIC(mixed_model_nointeraction1, mixed_model_nointeraction2, mixed_model_interaction)
 
 ```
 
 
-Wichtige Abbildung!
-```{r}
-# Interaction plot showing methylation levels by group and time
-interaction_plot <- ggplot(BDNF2, aes(x = Zeitpunkt, y = methylierung, group = Group, colour = Group)) +
-  geom_line(stat = "summary", fun = mean) +
-  geom_point(stat = "summary", fun = mean) +
-  theme_classic() +
-  labs(title = "Interaction Plot of Methylation Levels by Group and Time",
-       x = "Time Point",
-       y = "Mean Methylation Levels")
 
-print(interaction_plot)
-
-```
 

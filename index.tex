@@ -41,14 +41,28 @@
 \setlength{\emergencystretch}{3em} % prevent overfull lines
 \setcounter{secnumdepth}{5}
 % Make \paragraph and \subparagraph free-standing
+\makeatletter
 \ifx\paragraph\undefined\else
   \let\oldparagraph\paragraph
-  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+  \renewcommand{\paragraph}{
+    \@ifstar
+      \xxxParagraphStar
+      \xxxParagraphNoStar
+  }
+  \newcommand{\xxxParagraphStar}[1]{\oldparagraph*{#1}\mbox{}}
+  \newcommand{\xxxParagraphNoStar}[1]{\oldparagraph{#1}\mbox{}}
 \fi
 \ifx\subparagraph\undefined\else
   \let\oldsubparagraph\subparagraph
-  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+  \renewcommand{\subparagraph}{
+    \@ifstar
+      \xxxSubParagraphStar
+      \xxxSubParagraphNoStar
+  }
+  \newcommand{\xxxSubParagraphStar}[1]{\oldsubparagraph*{#1}\mbox{}}
+  \newcommand{\xxxSubParagraphNoStar}[1]{\oldsubparagraph{#1}\mbox{}}
 \fi
+\makeatother
 
 
 \providecommand{\tightlist}{%
@@ -155,6 +169,7 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
+
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
@@ -164,7 +179,7 @@
 \urlstyle{same} % disable monospaced font for URLs
 \hypersetup{
   pdftitle={TBM impact on methylation of neuroplasticity-associated genes (BDNF, Tau, PSD95)},
-  pdfauthor={Jonas Janik Ralf Koberschinski; Kirsten Jahn; Christopher Sinke; Eckart Altenmüller; Tillmann H. C. Kruger},
+  pdfauthor={Jonas Janik Ralf Koberschinski; Martin Max Schumacher; Kirsten Jahn; Helge Frieling; Christopher Sinke; Kristin Jünemann; Clara E. James; Florian Worschech; Damien Marie; Eckart Altenmüller; Tillmann Horst Christoph Krüger},
   pdfkeywords={Piano, Aging, Neuroplasticity, Methylation, BDNF, Tau, PSD95},
   colorlinks=true,
   linkcolor={blue},
@@ -173,7 +188,8 @@
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
 
-\journalname{Epigenetic}
+
+\journalname{Epigenetics Music}
 
 \draftfalse
 
@@ -181,13 +197,28 @@
 \title{TBM impact on methylation of neuroplasticity-associated genes
 (BDNF, Tau, PSD95)}
 
-\authors{Jonas Janik Ralf Koberschinski\affil{1,2}, Kirsten
-Jahn\affil{2}, Christopher Sinke\affil{2}, Eckart
-Altenmüller\affil{3}, Tillmann H. C. Kruger\affil{2}}
-\affiliation{1}{Medizinische Hochschule
-Brandenburg, }\affiliation{2}{Medizinische Hochschule
-Hannover, }\affiliation{3}{Hochschule für Musik, Theater und Medien
-Hannover, }
+\authors{Jonas Janik Ralf Koberschinski\affil{1,2,3}, Martin Max
+Schumacher\affil{4}, Kirsten Jahn\affil{5}, Helge
+Frieling\affil{5}, Christopher Sinke\affil{3}, Kristin
+Jünemann\affil{3}, Clara E. James\affil{6}, Florian
+Worschech\affil{7,8}, Damien Marie\affil{6,9}, Eckart
+Altenmüller\affil{7,8}, Tillmann Horst Christoph Krüger\affil{3,8}}
+\affiliation{1}{Brandenburg Medical School, Neuruppin,
+Germany, }\affiliation{2}{Laboratory of Molecular Neurosciences (LMN),
+Dept. of clinical psychiatry, Hannover Medical School, Hannover,
+Germany, }\affiliation{3}{Devision of Clinical Psychology and Sexual
+Medicine, Dept. of Psychiatry, Social Psychiatry and Psychotherapy,
+Hannover Medical School, Hannover,
+Germany, }\affiliation{4}{Switzerland, }\affiliation{5}{Laboratory of
+Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover
+Medical School, Hannover Germany, }\affiliation{6}{Geneva Musical Minds
+Lab, Geneva School of Health Sciences, University of Applied Sciences
+and Arts Western Switzerland (HES-SO), Geneva,
+Switzerland, }\affiliation{7}{Institute of Music Physiology and
+Musicians′ Medicine, Hannover University of Music, Drama and Media,
+Hannover, Germany, }\affiliation{8}{Center for Systems Neuroscience,
+Hannover, Germany, }\affiliation{9}{Faculty of Psychology and
+Educational Sciences,University of Geneva, Geneva, Switzerland, }
 \correspondingauthor{Jonas Janik Ralf
 Koberschinski}{jonas.koberschinski@mhb-fontane.de}
 
@@ -201,15 +232,431 @@ Koberschinski}{jonas.koberschinski@mhb-fontane.de}
 
 
 
+
 \section{Introduction}\label{introduction}
+
+\subsection{BDNF (Brain-Derived Neurotrophic
+Factor)}\label{bdnf-brain-derived-neurotrophic-factor}
+
+\subsubsection{Association with
+Neuroplasticity}\label{association-with-neuroplasticity}
+
+BDNF is a crucial neurotrophin that supports the survival,
+differentiation, and growth of neurons. It plays a central role in
+neuroplasticity by facilitating synaptic plasticity, which is the
+ability of synapses to strengthen or weaken over time in response to
+increases or decreases in their activity. It enhances long-term
+potentiation (LTP), a process associated with learning and memory. BDNF
+promotes synaptic plasticity by influencing dendritic growth and spine
+density.
+
+\subsubsection{Epigenetic Regulation}\label{epigenetic-regulation}
+
+\paragraph{DNA Methylation}\label{dna-methylation}
+
+The promoter region of the BDNF gene can be methylated, which generally
+suppresses its expression. Methylation of BDNF can be influenced by
+various factors, including environmental stimuli and stress.
+
+\paragraph{Histone Modifications}\label{histone-modifications}
+
+Post-translational modifications of histones can also regulate BDNF
+expression. For example, acetylation of histones is associated with
+increased BDNF expression.
+
+\subsubsection{Transcription Factors}\label{transcription-factors}
+
+Factors such as CREB (cAMP response element-binding protein) regulate
+BDNF expression through binding to its promoter region.
+
+\subsection{PSD95 (Postsynaptic Density Protein
+95)}\label{psd95-postsynaptic-density-protein-95}
+
+\subsubsection{Association with
+Neuroplasticity}\label{association-with-neuroplasticity-1}
+
+PSD95 is a scaffolding protein found in the postsynaptic density of
+neurons. It is involved in organizing and stabilizing synaptic proteins,
+and it plays a key role in the regulation of synaptic transmission and
+plasticity. It interacts with glutamate receptors (e.g., NMDA and AMPA
+receptors), thereby modulating synaptic strength and contributing to
+synaptic plasticity mechanisms such as LTP and LTD (long-term
+depression).
+
+\subsubsection{Epigenetic Regulation}\label{epigenetic-regulation-1}
+
+DNA Methylation and Histone Modifications: The expression of PSD95 can
+be influenced by DNA methylation and histone acetylation. Epigenetic
+changes can affect its expression levels and, consequently, synaptic
+plasticity and cognitive functions.
+
+\subsubsection{Activity-Dependent
+Regulation}\label{activity-dependent-regulation}
+
+Synaptic activity and neuronal signaling pathways can alter the
+expression of PSD95 through epigenetic mechanisms, including the
+regulation of transcription factors.
+
+\subsection{Tau}\label{tau}
+
+\subsubsection{Association with
+Neuroplasticity}\label{association-with-neuroplasticity-2}
+
+Tau is a microtubule-associated protein that stabilizes microtubules and
+supports axonal transport. It plays a critical role in maintaining
+neuronal structure and function. Dysregulation of Tau, such as
+hyperphosphorylation, is associated with neurodegenerative diseases like
+Alzheimer's disease. Tau pathology can disrupt neuroplasticity by
+impairing synaptic function and neuronal integrity.
+
+\subsubsection{Epigenetic Regulation}\label{epigenetic-regulation-2}
+
+\paragraph{DNA Methylation and Histone
+Modifications}\label{dna-methylation-and-histone-modifications}
+
+Epigenetic regulation of Tau involves changes in DNA methylation
+patterns and histone modifications. Abnormal epigenetic changes can
+affect Tau expression and its pathological modifications.
+
+\paragraph{Phosphorylation}\label{phosphorylation}
+
+Tau's phosphorylation status is influenced by signaling pathways and can
+affect its interactions with microtubules and its role in
+neuroplasticity. Epigenetic Effects of Cognitive Activity (e.g., Making
+Music)
+
+\subsubsection{Methylation and Cognitive
+Activity}\label{methylation-and-cognitive-activity}
+
+\paragraph{Cognitive Activity and
+Methylation:}\label{cognitive-activity-and-methylation}
+
+Research indicates that cognitive activities, including complex
+activities like making music, can influence DNA methylation patterns.
+Such activities are associated with changes in gene expression related
+to brain function and plasticity.
+
+\paragraph{Making Music}\label{making-music}
+
+Engaging in musical activities has been shown to affect the expression
+of genes involved in neuroplasticity, including BDNF. Studies suggest
+that musical training can lead to epigenetic changes that enhance
+synaptic plasticity and cognitive functions.
+
+\subsection{Relevant Publications}\label{relevant-publications}
+
+\begin{itemize}
+\tightlist
+\item
+  ``Epigenetic Regulation of BDNF in the Brain: Implications for
+  Cognitive Function and Neuroplasticity'' - This review discusses the
+  impact of epigenetic modifications on BDNF expression and its role in
+  neuroplasticity and cognitive function.
+\item
+  ``Music Training and Brain Plasticity: Evidence from Functional and
+  Structural Neuroimaging'' - This article reviews how musical training
+  influences brain structure and function, including changes in
+  epigenetic regulation.
+\item
+  ``The Impact of Cognitive and Physical Activities on DNA Methylation
+  and Cognitive Function'' - This study explores how various cognitive
+  activities, including music, influence DNA methylation and cognitive
+  outcomes.
+\item
+  ``The Influence of Environmental Enrichment on Epigenetic
+  Modifications: Implications for Learning and Memory'' - This paper
+  discusses how environmental enrichment, which includes activities like
+  music, affects epigenetic modifications related to learning and
+  memory.
+\end{itemize}
+
+\subsection{Summary}\label{summary}
+
+BDNF, PSD95, and Tau are crucial for neuroplasticity, influencing
+synaptic function, and neuronal structure. Their expressions are
+regulated by various epigenetic mechanisms, including DNA methylation
+and histone modifications. Cognitive activities, such as making music,
+have been shown to affect epigenetic regulation and potentially enhance
+neuroplasticity. There is growing evidence supporting the idea that
+engaging in complex cognitive activities can lead to beneficial
+epigenetic changes that positively impact brain function.
 
 \section{Methods}\label{sec-data-methods}
 
+\subsection{Subjects}\label{subjects}
+
+Study participants were recruited at Hannover Medical School, Dept. for
+Clinical Psychiatry, Social Psychiatry and Psychotherapy, Division of
+Clinical Psychology and Sexual Medicine and at the Geneva Musical Minds
+Lab, Geneva School of Health Sciences, University of Applied Sciences
+and Arts Western Switzerland (HES-SO), Geneva, Switzerland via newspaper
+advertisement and placards at public places. Demographics are given in
+the results in Table 1. Prerequisites for participation in the study
+were an overall good health, being right-handed, retired, and
+non-reliant on hearing-aids.
+
+\subsection{Study design}\label{study-design}
+
+The first time point was before the weekly practical piano lessons were
+started (or theoretical music lessons without any practical exercises in
+the control group, respectively), the second time point was after half a
+year, and the third time point was one year after the first assessment
+(for the long-term observation of potential beneficial effects of
+piano-lessons) for every individual participant. The time points each
+cover a period of several months, as all the participants could not be
+examined on the same day, since MRI scans were also performed as part of
+the original study (T0: March to June 2019, T1: August 2019 to February
+2020, T2: June 2020 to November 2020). A small subgroup of participants
+were recruited as early as in January 2019 (T0), and had their
+consecutive examinations in August 2019 (T1) and in the end of
+February/beginning of March 2020 (T2). In other words, their T2 was
+directly before the lockdown started. Therefore, this small subgroup was
+excluded from the main analyses.
+
+\subsection{DNA isolation}\label{dna-isolation}
+
+Genomic DNA (gDNA) for telomere measurements was isolated in the
+Institute of Molecular and Translational Therapeutic Strategies of
+Hannover Medical School according to standard procedures from 50 µL
+blood using the DNeasy Blood \& Tissue Kit (Qiagen \#69506) and stored
+at −20 °C. DNA samples were diluted in 96-well plates to a fixed
+concentration of 10 ng/µl. The blood samples were received anonymized
+and prior to gDNA isolation the order of the samples was further
+randomized to minimize potential batch effects.
+
+\subsection{Gene Amplification and
+Sequencing}\label{gene-amplification-and-sequencing}
+
+To investigate the methylation status of the target genes---BDNF, PSD95,
+and Tau---specific regions of interest were amplified using polymerase
+chain reaction (PCR) followed by Sanger sequencing. Genomic DNA (gDNA)
+extracted from blood samples was bisulfite-converted using standard
+procedures (Kit ergänzen), which converts unmethylated cytosines to
+uracils while leaving methylated cytosines unchanged, enabling
+differentiation between methylated and unmethylated CpG sites (Frommer
+et al., 1992). PCR primers (Sequenz ergänzen) were designed to target
+CpG-rich regions within the promoter or regulatory regions of each gene,
+as these regions are often key in regulating gene expression through DNA
+methylation. Amplifications were performed using high-fidelity DNA
+polymerases to minimize errors, and the resulting PCR products were
+verified for size and integrity via agarose gel electrophoresis (Clark
+et al., 1994). Once verified, the products were purified using a
+standard PCR purification kit. Sanger Sequencing was then performed on
+the purified PCR products to identify the methylation patterns at
+individual CpG sites. This method was chosen for its high accuracy in
+detecting methylation at single-nucleotide resolution (Sanger et al.,
+1977). Sequencing reactions were carried out using fluorescently labeled
+dideoxynucleotides, and the resulting sequences were analyzed to
+identify CpG methylation patterns.
+
+\subsection{CpG Sites and Methylation
+Analysis}\label{cpg-sites-and-methylation-analysis}
+
+CpG sites---regions of DNA where a cytosine nucleotide is followed by a
+guanine nucleotide---are often found in gene promoters and are key
+regulators of gene expression. Methylation at these sites can silence
+gene expression, making them critical points of study in understanding
+gene regulation (Bird, 2002). For each of the three genes (BDNF, PSD95,
+and Tau), multiple CpG sites were identified within the promoter or
+other regulatory regions to assess their methylation status. By
+examining these CpG islands, we aimed to determine whether the degree of
+methylation differed between the intervention (piano lessons) and
+control groups.
+
+\subsection{Data Processing via ESME}\label{data-processing-via-esme}
+
+The methylation status of individual CpG sites was quantified using the
+Epigenetic Sequencing Methylation Analysis software (ESME), which is
+specifically designed for analyzing bisulfite sequencing data (Lewin et
+al., 2004). ESME processes bisulfite-converted Sanger sequencing data
+and compares the cytosine-uracil conversion patterns to the reference
+sequence to detect methylation at CpG sites. Specifically, ESME
+calculates the percentage of methylation at each CpG site by determining
+the ratio of methylated cytosines to total cytosines (methylated +
+unmethylated) for each site. ESME allows for a high-resolution
+quantification of methylation levels at each CpG site, providing decimal
+values (e.g., 0.75 represents 75\% methylation at a specific CpG site).
+The software also corrects for any potential sequencing errors and can
+handle multiple sequencing runs to improve data accuracy. Each (not
+each. Depending on the quality of the measurments some were ignored. The
+dropped CpGs are mentioned in the Excel-titles and listed in .txt-files)
+gene region's methylation data, broken down by CpG sites, was compiled
+for statistical analysis (Lewin et al., 2004).
+
+\subsection{Data Transfer and Further
+Processing}\label{data-transfer-and-further-processing}
+
+After methylation percentages were obtained from ESME, the data were
+exported to Microsoft Excel for preliminary organization and data
+structuring. In Excel, CpG site-specific methylation data were aligned
+with participant identifiers, experimental groups (piano vs.~control),
+and time points (T0, T1, T2). Data were thoroughly checked for
+consistency, and any missing or potentially erroneous data points were
+flagged for review. In this step, we created a structured dataset for
+each gene, consisting of individual participants' methylation
+percentages at each CpG site. The Excel file was formatted to ensure
+seamless transfer into statistical software for further analysis. (The
+Data was restructured in SPSS.)
+
+\subsection{Data Structuring and Statistical
+Analysis}\label{data-structuring-and-statistical-analysis}
+
+The structured Excel data were subsequently imported into SPSS for
+statistical analysis. In SPSS, the methylation data for each gene and
+CpG site were organized into a comprehensive dataset, where
+participants' CpG site methylation values were aligned with their
+respective experimental group (piano or control) and time points (T0,
+T1, and T2). To analyze the effects of piano lessons on the methylation
+status of the BDNF, PSD95, and Tau genes, we employed generalized linear
+models (GLMs). GLMs are flexible and suitable for modeling non-normally
+distributed data, allowing for the inclusion of continuous, binary, and
+categorical variables. This approach enabled us to examine changes in
+methylation levels across the different time points (T0, T1, T2) while
+controlling for potential covariates such as age and baseline
+methylation levels. In the model, time was treated as a repeated
+measure, and the group (piano vs.~control) was included as a fixed
+factor. Methylation percentages at each CpG site (expressed as
+continuous variables) were the dependent variables. We also included
+interaction terms to assess whether the change in methylation over time
+differed between the piano and control groups. The model used a logit
+link function to handle the proportion-based methylation data, ensuring
+the analysis accurately reflected the bounded nature of the dependent
+variable (0 to 1). Model significance was assessed at p \textless{}
+0.05, and Bonferroni corrections were applied to account for multiple
+comparisons across the different CpG sites and genes. Model fit was
+evaluated using the Akaike Information Criterion (AIC) and Bayesian
+Information Criterion (BIC) to compare the fit of different models and
+ensure robustness in detecting group differences over time (McCullagh \&
+Nelder, 1989).
+
 \section{Results}\label{results}
+
+\subsection{General}\label{general}
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+~ & Piano Group & Control Group \\
+Mean Age +/- SD (years) & 68.9 +/- 2.9 & 69.5 +/- 4 \\
+Min./Max. & 64/76 & 62/78 \\
+N & 29??? & 26??? \\
+Female/Male (\%) & 44.8/55.2 & 38.5/61.5 \\
+\end{longtable}
+
+Table 1: Demographics of the study cohort
+
+\subsection{Methylation Levels}\label{methylation-levels}
+
+\begin{itemize}
+\tightlist
+\item
+  Die Gene sind allgemein eher gering methyliert (Mean \textless{} 0,08,
+  Median \textless{} 0,04). \textbf{Hohe Expressionsrate!}
+\item
+  Dabei ist PSD95 am geringsten und BDNF am höchsten metyhyliert.
+\item
+  Bei Tau sind die CpGs promoterfern mehr meyhtliert - bei PSD95
+  umgekehrt (\emph{Boxplots mit CpG-Methylierung der Gene!})
+\item
+  \textbf{Lagemaß u. Streuungsmaß?}
+\end{itemize}
+
+\subsubsection{Gruppendifferenz}\label{gruppendifferenz}
+
+\begin{itemize}
+\tightlist
+\item
+  Bei BDNF zeigt sich eine leichte Differenz zwischen der Kontrollgruppe
+  (Median: 0.07, Mean: 0.07326) und der Pianogruppe (Median: 0.064,
+  Mean: 0.06598), welche eine niedrigere Metyhlierung (Median: -0.006,
+  Mean: -0.00728) aufwies. \textbf{Streuungsmaße?}
+\item
+  Weiterhin zeigen sich für die arithmetischen Mittel von BDNF und PSD95
+  zwei Modi.
+\item
+  Tau war unimodal.
+\end{itemize}
+
+\subsubsection{Zeitdifferenz}\label{zeitdifferenz}
+
+\begin{itemize}
+\tightlist
+\item
+  Bei BDNF zeigt sich, dass sich die Mittelwerte (Arithmetisch und
+  Median) von T0 zu T1 leicht absenken und zu T2 wieder über das Niveau
+  von T0 ansteigen.
+\item
+  Bei Tau steigt das arithmetische Mittel der Methylierung leicht von T0
+  zu T1 und hält das Niveau bei T2.
+\item
+  Bei PSD95 verbleibt der Median der Methylierung gleichbleibend bei 0,
+  während das arithmetische Mittel der Methylierung von T0 zu T1 steigt
+  aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
+\end{itemize}
+
+\subsection{Tests und Modelle}\label{tests-und-modelle}
 
 \section{Discussion}\label{discussion}
 
+\subsection{Limitations}\label{limitations}
+
 \section{Conclusion}\label{conclusion}
+
+\section{Declarations}\label{declarations}
+
+\subsection{Ethics approval and consent to
+participate}\label{ethics-approval-and-consent-to-participate}
+
+The study protocol was reviewed and approved by the Hannover Medical
+School ethics committee (approval number 3604-2017). All study
+participants gave their written informed consent to participate in the
+study.
+
+\subsection{Consent for publication}\label{consent-for-publication}
+
+Not applicable.
+
+\subsection{Availability of data and
+materials}\label{availability-of-data-and-materials}
+
+Data are available from the corresponding author upon request via
+jonas.koberschinski@mhb-fontane.de and via
+https://github.com/JKobi-med/Promotion.
+
+\subsection{Competing interests}\label{competing-interests}
+
+The authors have no competing interests to declare.
+
+\subsection{Funding}\label{funding}
+
+This work was funded by the Swiss National Science Foundation (grant no.
+100019E-170410 to Clara E. James) and the German Research Foundation
+(grant no. 323965454 to Eckart Altenmüller). Financial support in
+Switzerland was also provided by the Med. Kurt Fries Foundation, the
+Dalle Molle Foundation, and the Edith Maryon Foundation (to Clara E.
+James).
+
+\subsection{Author Contributions}\label{author-contributions}
+
+Conceptualization: T.H.C.K.\\
+Methodology: K.Jü., C.S., S.C., K.Ja., J.K.\\
+Software: S.C., C.S., K.Jü., K.Ja., J.K.\\
+Formal Analysis: S.C., K.Ja., C.S. Investigation: S.C., C.B., K.Jü.\\
+Resources: T.H.C.K., C.B., S.B., H.F.\\
+Writing -- original draft preparation: J.K.\\
+Writing -- review and editing: S.C., C.S., K. Jü., H.F., S.B., C. B.,
+T.H.C.K.\\
+Visualization, K.Ja., J.K.\\
+Supervision, T.H.C.K., C.B., H.F., S.B.\\
+All authors have read and agreed to the published version of the
+manuscript.
+
+\subsection{Acknowledgement}\label{acknowledgement}
+
+The first author would like to thank Martin Max Schumacher for his
+expert assistance and kind support.
 
 \section*{References}\label{references}
 \addcontentsline{toc}{section}{References}
@@ -219,6 +666,7 @@ Koberschinski}{jonas.koberschinski@mhb-fontane.de}
 \vspace{1em}
 
 \end{CSLReferences}
+
 
 
 

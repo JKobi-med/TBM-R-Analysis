@@ -1,0 +1,176 @@
+---
+title: "BDNF - Multiple Linear Regression "
+author: "Jonas J.R. Koberschinski"
+data: "2024-11-18"
+output: html
+---
+
+## Data import
+```{r}
+#| echo: true
+#| include: false
+
+# List of file names (without paths and extension)
+file_names <- c(
+  "bdnf_mean_T2T0.txt",
+  "bdnf_mean_T1T0.txt",
+  "bdnf_mean_T2T1.txt",
+  
+  "bdnf_median_T2T0.txt",
+  "bdnf_median_T1T0.txt",
+  "bdnf_median_T2T1.txt"
+)
+
+# Folder where the files are located
+subfolder <- "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables"
+
+# Loop through the file names, read each table, and assign it to a variable
+for (file_name in file_names) {
+  # Construct the full file path by combining the subfolder and file name
+  file_path <- file.path(subfolder, file_name)
+  
+  # Remove the .txt extension to get the base name for the variable
+  var_name <- tools::file_path_sans_ext(file_name)
+  
+  # Read the table and assign it to a variable with the same name
+  assign(var_name, read.table(file_path, sep = "\t", header = TRUE, row.names = NULL, quote = ""))
+}
+
+```
+
+## LM: Regression analysis (Bivariate/multivariate)
+### T2-T0
+#### All variables and step()
+
+```{r}
+# lm mean
+lm_bdnf_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_mean_T2T0)
+
+summary(lm_bdnf_mean_T2T0)
+anova(lm_bdnf_mean_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_mean_T2T0)
+step(lm_bdnf_mean_T2T0) # call: lm(formula = T2_T0 ~ T0, data = bdnf_mean_T2T0)
+
+# lm median
+lm_bdnf_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_median_T2T0)
+
+summary(lm_bdnf_median_T2T0)
+anova(lm_bdnf_median_T2T0)
+plot(lm_bdnf_median_T2T0)
+step(lm_bdnf_median_T2T0) # call: lm(formula = T2_T0 ~ T0, data = bdnf_median_T2T0)
+```
+
+#### AIC model recommendation
+```{r}
+#mean
+bdnf_aic_mean_T2T0 <- lm(formula = T2_T0 ~ T0, data = bdnf_mean_T2T0)
+summary(bdnf_aic_mean_T2T0)
+anova(bdnf_aic_mean_T2T0)
+par(mfrow = c(2,2))
+plot(bdnf_aic_mean_T2T0)
+
+#median
+bdnf_aic_median_T2T0 <- lm(formula = T2_T0 ~ T0, data = bdnf_median_T2T0)
+summary(bdnf_aic_median_T2T0)
+anova(bdnf_aic_median_T2T0)
+plot(bdnf_aic_median_T2T0)
+```
+
+### T1-T0
+#### All variables and step()
+```{r}
+# mean
+lm_bdnf_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_mean_T1T0)
+
+summary(lm_bdnf_mean_T1T0)
+anova(lm_bdnf_mean_T1T0)
+step(lm_bdnf_mean_T1T0)
+
+# median
+lm_bdnf_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_median_T1T0)
+
+summary(lm_bdnf_median_T1T0)
+anova(lm_bdnf_median_T1T0)
+step(lm_bdnf_median_T1T0)
+```
+
+#### AIC model recommendation
+```{r}
+#mean
+bdnf_aic_mean_T1T0 <- lm(formula = T1_T0 ~ Gruppe + T0, data = bdnf_mean_T1T0)
+summary(bdnf_aic_mean_T1T0)
+anova(bdnf_aic_mean_T1T0)
+par(mfrow = c(2,2))
+plot(bdnf_aic_mean_T1T0)
+
+#median
+bdnf_aic_median_T1T0 <- lm(formula = T1_T0 ~ Gruppe + CogTel + T0, data = bdnf_median_T1T0)
+summary(bdnf_aic_median_T1T0)
+anova(bdnf_aic_median_T1T0)
+plot(bdnf_aic_median_T1T0)
+```
+
+### T2-T1
+#### All variables and step()
+```{r}
+# with T1
+# mean
+lm_bdnf_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = bdnf_mean_T2T1)
+
+summary(lm_bdnf_mean_T2T1)
+anova(lm_bdnf_mean_T2T1)
+step(lm_bdnf_mean_T2T1)
+
+# median
+
+lm_bdnf_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = bdnf_median_T2T1)
+
+summary(lm_bdnf_median_T2T1)
+anova(lm_bdnf_median_T2T1)
+step(lm_bdnf_median_T2T1)
+```
+
+#### AIC model recommendation
+```{r}
+#mean
+bdnf_aic_mean_T2T1 <- lm(formula = T2_T1 ~ T1, data = bdnf_mean_T2T1)
+summary(bdnf_aic_mean_T2T1)
+anova(bdnf_aic_mean_T2T1)
+par(mfrow = c(2,2))
+plot(bdnf_aic_mean_T2T1)
+
+#median
+bdnf_aic_median_T2T1 <- lm(formula = T2_T1 ~ T1, data = bdnf_median_T2T1)
+summary(bdnf_aic_median_T2T1)
+anova(bdnf_aic_median_T2T1)
+plot(bdnf_aic_median_T2T1)
+```
+
+### Plot models
+
+```{r}
+#?termplot
+
+library(visreg)
+
+#T2-T0
+visreg(bdnf_aic_mean_T2T0, type="conditional", gg = TRUE)
+visreg(bdnf_aic_median_T2T0, gg = TRUE)
+
+#T1-T0
+visreg(bdnf_aic_mean_T1T0, "Gruppe", gg = TRUE)
+visreg(bdnf_aic_median_T1T0, "CogTel", by = "Gruppe", gg = TRUE)
+
+#T2-T1
+visreg(bdnf_aic_mean_T2T1, gg = TRUE)
+visreg(bdnf_aic_median_T2T1, gg = TRUE)
+```
+
