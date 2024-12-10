@@ -41,6 +41,7 @@ str(bdnf)
 ## Drop NA
 ```{r}
 # Remove rows with NA values in the 'methylierung' column
+##BDNF
 BDNF2 <- bdnf %>% drop_na(methylierung)
 
 # Summarize the number of NA values in the 'methylierung' column (commented out)
@@ -49,155 +50,27 @@ BDNF2 <- bdnf %>% drop_na(methylierung)
 # without NA
 summary(BDNF2)
 
-
-
-
 tau2 <- tau %>% drop_na(methylation)
 
-
 psd952  <- psd95  %>% drop_na(methylation)
-
 ```
 
 
-
-
-
-## GLM (MHB-Code)
-### BDNF
+## BDNF
+### GLM
 ```{r}
-# Load the nlme package for mixed models
-library(nlme)
-
-# Define mixed models without interaction
-mixed_model_nointeraction1 <- lme(fixed= methylierung ~ as.factor(Group),
-                                  random=~1|id_umstrukturieren,
-                                  method="ML",data=BDNF2)
- 
-mixed_model_nointeraction2 <- lme(fixed= methylierung ~ as.factor(Group) +  as.factor(Zeitpunkt),
-                                 random=~1|id_umstrukturieren,
-                                 method="ML",data=BDNF2)
-
-mixed_model_nointeraction_big_cpg <- lme(
-  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
-  random = ~ 1 | id_umstrukturieren/CpG_position,
-  method = "ML",
-  data = BDNF2
-)
-
-mixed_model_nointeraction_big <- lme(
+bdnf_glm_nointeraction <- lme(
   fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
   random = ~ 1 | id_umstrukturieren,
   method = "ML",
   data = BDNF2
 )
 
-AIC(mixed_model_nointeraction1, mixed_model_nointeraction2, mixed_model_nointeraction_big)
-BIC(mixed_model_nointeraction1, mixed_model_nointeraction2, mixed_model_nointeraction_big)
-
-summary(mixed_model_nointeraction1)
-summary(mixed_model_nointeraction2)
-```
-
-#### Best glm
-```{r}
-
-# Example dataset and model
-# Ensure random effects variables are factors
-BDNF2$CpG_position <- as.factor(BDNF2$CpG_position)
-BDNF2$Zeitpunkt <- as.factor(BDNF2$Zeitpunkt)
-
-
-bdnf_glm_1 <- lme(
-  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Geschlecht),
-  random = ~ 1 | id_umstrukturieren/CpG_position,
-  data = BDNF2,
-  method = "ML"
-)
-
-# Fit alternative models
-bdnf_glm_2 <- lme(
-  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt),
-  random = ~ 1 | id_umstrukturieren,
-  method = "ML",
-  data = BDNF2
-)
-
-bdnf_glm_3 <- lme(
-  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + Age_start,
-  random = ~ 1 | id_umstrukturieren/CpG_position,
-  method = "ML",
-  data = BDNF2
-)
-
-bdnf_glm_4 <- lme(
-  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort),
-  random = ~ 1 | id_umstrukturieren/CpG_position/Zeitpunkt,
-  method = "ML",
-  data = BDNF2
-)
-
-# Compare models using AIC and BIC
-AIC(bdnf_glm_1, bdnf_glm_2, bdnf_glm_3, bdnf_glm_4)
-BIC(bdnf_glm_1, bdnf_glm_2, bdnf_glm_3, bdnf_glm_4)
-
+summary(bdnf_glm_nointeraction)
 ```
 
 
-
-```{r}
-bdnf_glm_1 <- lme(
-  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort),
-  random = ~ 1 | id_umstrukturieren,
-  data = BDNF2,
-  method = "ML"
-)
-
-bdnf_glm_2 <- lme(
-  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt),
-  random = ~ 1 | id_umstrukturieren,
-  method = "ML",
-  data = BDNF2
-)
-
-glm_big<- lme(
-    fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + 
-    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
-    random = ~ 1 | id_umstrukturieren/CpG_position,
-    data = BDNF2,
-    method = "ML"
-  )
-
-AIC(glm_big, bdnf_glm_1, bdnf_glm_2)
-BIC(glm_big, bdnf_glm_1, bdnf_glm_2)
-
-# bdnf_glm_2 preferred
-summary(bdnf_glm_2)
-```
-
-
-#### better without random effect?
-
-not clear
-
-```{r}
-bdnf_glm_2_fixed <- lm(
-  methylierung ~ as.factor(Group) + as.factor(Zeitpunkt),
-  data = BDNF2
-)
-
-# Compare AIC and BIC for both models
-AIC(bdnf_glm_2, bdnf_glm_2_fixed)
-BIC(bdnf_glm_2, bdnf_glm_2_fixed)
-
-summary(bdnf_glm_2_fixed)
-
-```
-
-
-
-
-#### Model for group
+### Model for group
 ```{r}
 # Split the data by group
 BDNF_controll = BDNF2[BDNF2$Gruppe=='Controll',]
@@ -221,84 +94,60 @@ summary(bdnf_mixed_model_controll)
 ```
 
 
-### Tau
+## Tau
 
 ```{r}
 # Define mixed models without interaction
-tau_mixed_model_nointeraction1 <- lme(fixed= methylation ~ as.factor(Gruppe),
-                                  random=~1|id_umstruk,
-                                  method="ML",data=tau2)
- 
-tau_mixed_model_nointeraction2 <- lme(fixed= methylation ~ as.factor(Gruppe) +  as.factor(Zeitpunkt),
-                                 random=~1|id_umstruk,
-                                 method="ML",data=tau2)
+
+tau_glm_nointeraction <- lme(
+  fixed = methylation ~ as.factor(Gruppe) + as.factor(Zeit) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start +  as.factor(Sex) * Age_start + as.numeric(CogTel),
+  random = ~ 1 | CpG_position,
+  method = "ML",
+  data = tau2
+)
+
+library(lme4)
+library(lmerTest)
 
 
-AIC(tau_mixed_model_nointeraction1, tau_mixed_model_nointeraction2)
-BIC(tau_mixed_model_nointeraction1, tau_mixed_model_nointeraction2)
 
-summary(tau_mixed_model_nointeraction1)
-summary(tau_mixed_model_nointeraction2)
+tau_glm_interaction <- lmer(
+  formula = methylation ~ as.factor(Gruppe) + as.factor(Zeit) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start +
+                         as.numeric(CogTel)  +
+                        (1 | CpG_position),
+  data = tau2,
+  REML = TRUE
+)
+
+summary(tau_glm_nointeraction)
+summary(tau_glm_interaction)
+
+library(car)
+vif(tau_glm_interaction) # because of 
 
 ```
 
 
-### PSD95 
+## PSD95 
 
 ```{r}
 # Define mixed models without interaction
-psd95_mixed_model_nointeraction1 <- lme(fixed= methylation ~ as.factor(Gruppe),
-                                  random=~1|id_umstrukturiert,
-                                  method="ML",data=psd952)
- 
-psd95_mixed_model_nointeraction2 <- lme(fixed= methylation ~ as.factor(Gruppe) +  as.factor(Zeitpunkt),
-                                 random=~1|id_umstrukturiert,
-                                 method="ML",data=psd952)
+psd95_glm_nointeraction <- lme(
+  fixed = methylation ~ as.factor(Gruppe) + as.factor(Zeitpunkt) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start + as.numeric(CogTel),
+  random = ~ 1 | id_umstrukturiert,
+  method = "ML",
+  data = psd952
+)
 
-AIC(psd95_mixed_model_nointeraction1, psd95_mixed_model_nointeraction2)
-BIC(psd95_mixed_model_nointeraction1, psd95_mixed_model_nointeraction2)
+psd95_glm_interaction <- lmer(
+  formula = methylation ~ as.factor(Gruppe) + as.factor(Zeitpunkt) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start + as.numeric(CogTel) + Age_start * as.factor(Sex) +
+                        (1 | CpG_Position),
+  data = psd952,
+  REML = TRUE
+)
 
-summary(psd95_mixed_model_nointeraction1)
-summary(psd95_mixed_model_nointeraction2)
+summary(psd95_glm_nointeraction)
+summary(psd95_glm_interaction)
 ```
-
-## BDNF-Interaction?
-
-
-```{r}
-# Summarize the no interaction models
-summary(mixed_model_nointeraction1)
-summary(mixed_model_nointeraction2)
-
-# Plot the no interaction models
-plot(mixed_model_nointeraction1)
-# Corrected: changed 'mixed_model_nointeraction' to 'mixed_model_nointeraction2'
-plot(mixed_model_nointeraction2)
-
-
-# Perform post-hoc tests using glht
-#contrasts <- glht(mixed_model_nointeraction2, linfct = mcp(Zeitpunkt = "Tukey"))
-#summary(contrasts)
-
-
-# Define a mixed model with interaction
-mixed_model_interaction <- lme(fixed= methylierung~ as.factor(Group) 
-                               +  as.factor(Zeitpunkt) 
-                               +  as.factor(Zeitpunkt)*as.factor(Group), 
-                               random=~1|id_umstrukturieren, 
-                               method="ML", 
-                               data=BDNF2)
-
-
-# Summarize the interaction model
-summary(mixed_model_interaction)
-plot(mixed_model_interaction)
-
-AIC(mixed_model_nointeraction1, mixed_model_nointeraction2, mixed_model_interaction)
-BIC(mixed_model_nointeraction1, mixed_model_nointeraction2, mixed_model_interaction)
-
-```
-
-
 
 

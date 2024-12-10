@@ -14,10 +14,12 @@ format:
   # HTML-specific settings
   html:
     toc: true              # Enables a table of contents in the HTML output.
+    toc-depth: 3
     code-fold: true        # Allows users to toggle the visibility of code blocks in the rendered HTML.
     code-tools: true
     code-block-border-left: true
     number-sections: true  # Enables automatic numbering of sections and subsections.
+    shift-heading-level-by: -1
     comments:              # Integrates comment systems for collaboration.
       hypothesis: true     # Enables Hypothes.is annotations for the document.
 
