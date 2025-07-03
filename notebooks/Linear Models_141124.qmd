@@ -38,7 +38,7 @@ file_names <- c(
 )
 
 # Folder where the files are located
-subfolder <- "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/timepoint_tables"
+subfolder <- "/home/kobi/Documents/02 Vocational/TBM-R-Analysis/tables/timepoint_tables"
 
 # Loop through the file names, read each table, and assign it to a variable
 for (file_name in file_names) {

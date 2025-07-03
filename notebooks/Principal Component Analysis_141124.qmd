@@ -15,7 +15,7 @@ library(tidyverse)
 
 # load data
  ## BDNF
-bdnf <- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/bdnf.txt', 
+bdnf <- as_tibble(read.table('/home/kobi/Documents/02 Vocational/TBM-R-Analysis/tables/Ausgangstabellen/bdnf.txt', 
                    sep = "\t", 
                    header = TRUE, 
                    row.names = NULL, 
@@ -23,7 +23,7 @@ bdnf <- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Exc
 bdnf[1:5,]
 
  ##Tau
-tau <- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/tau.txt', 
+tau <- as_tibble(read.table('/home/kobi/Documents/02 Vocational/TBM-R-Analysis/tables/Ausgangstabellen/tau.txt', 
                    sep = "\t", 
                    header = TRUE, 
                    row.names = NULL, 
@@ -31,7 +31,7 @@ tau <- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Exce
 tau[1:5,]
 
  ## PSD95
-psd95 <- as_tibble(read.table('/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/psd95.txt', 
+psd95 <- as_tibble(read.table('/home/kobi/Documents/02 Vocational/TBM-R-Analysis/tables/Ausgangstabellen/psd95.txt', 
                    sep = "\t", 
                    header = TRUE, 
                    row.names = NULL, 

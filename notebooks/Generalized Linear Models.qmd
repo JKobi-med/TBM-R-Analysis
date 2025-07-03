@@ -10,8 +10,8 @@ output: html
 ```{r}
 #Prep
  ## Set working directory
-setwd("/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Rohdaten/")
-print(getwd())
+#setwd("~/Documents/02 Vocational/Promotionsdatananalyse mit Excel und Martin/Rohdaten/")
+#print(getwd())
 
  ## Load necessary packages
 library(haven)
@@ -20,14 +20,18 @@ library(dplyr)
 library(readxl)
 library(writexl)
 library(nlme)
+library(lme4)
 
+```
+
+```{r}
  ## Load the BDNF data from a .sav file
  ### ??? more information !!!  restructured without methylation mean!
-bdnf <- read_xlsx("BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+bdnf <- read_excel("~/Documents/02 Vocational/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
 
-tau <- suppressWarnings(read_xlsx("TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+tau <- suppressWarnings(read_xlsx("~/Documents/02 Vocational/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
 
-psd95 <- suppressWarnings(read_xlsx("PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+psd95 <- suppressWarnings(read_xlsx("~/Documents/02 Vocational/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
 
  ##first look at BDNF data
 head(bdnf)
