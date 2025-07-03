@@ -24,7 +24,7 @@ file_names <- c(
 )
 
 # Folder where the files are located
-subfolder <- "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/mean&median_tables"
+subfolder <- "/home/kobi/Documents/02 Vocational/TBM-R-Analysis/tables/mean&median_tables"
 
 # Loop through the file names, read each table, and assign it to a variable
 for (file_name in file_names) {
@@ -40,7 +40,7 @@ for (file_name in file_names) {
 
 
 # load cpg-data
-cpg <- read.table(file = '/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/Ausgangstabellen/cpg.txt', sep = "\t", header = TRUE, row.names = NULL, quote = "")
+cpg <- read.table(file = '/home/kobi/Documents/02 Vocational/TBM-R-Analysis/tables/Ausgangstabellen/cpg.txt', sep = "\t", header = TRUE, row.names = NULL, quote = "")
 
 
 # load wide data
@@ -57,7 +57,7 @@ file_names_wide <- c(
 )
 
 # Folder where the files are located
-subfolder_wide <- "/Users/kobi/Desktop/Promotionsdatananalyse mit Excel und Martin/Promotion (Quarto Manuscript)/tables/wide_format/"
+subfolder_wide <- "/home/kobi/Documents/02 Vocational/TBM-R-Analysis/tables/wide_format/"
 
 # Loop through the file names, read each table, and assign it to a variable
 for (file_name in file_names_wide) {
