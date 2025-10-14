@@ -15,7 +15,7 @@ output: html
 
 ## Set working directory
 
-# setwd("~/Documents/02 Vocational/Promotionsdatananalyse mit Excel und Martin/Rohdaten/")
+# setwd("~/Work/Promotionsdatananalyse mit Excel und Martin/Rohdaten/")
 # print(getwd())
 
 ## Load necessary packages
@@ -26,11 +26,11 @@ library(readxl)
 library(writexl)
 
 
-BDNF <- read_xlsx("~/Documents/02 Vocational/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+BDNF <- read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
 
-TAU <- suppressWarnings(read_xlsx("~/Documents/02 Vocational/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+TAU <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
 
-PSD95 <- suppressWarnings(read_xlsx("~/Documents/02 Vocational/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+PSD95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
 ```
 
 ```{r}
