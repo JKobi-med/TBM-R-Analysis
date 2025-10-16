@@ -1,0 +1,79 @@
+---
+title: "Principal Component Analysis (NIPALS with pcaMethods)"
+author: "Jonas J. R. Koberschinski"
+editor: visual
+---
+## Data import
+```{r}
+#| echo: true
+#| include: false
+
+#data set with all CpGs in columns for EDA and PCA
+library(tidyverse)
+
+# load data
+ ## BDNF
+bdnf <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/bdnf.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+bdnf[1:5,]
+
+ ##Tau
+tau <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/tau.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+tau[1:5,]
+
+ ## PSD95
+psd95 <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/psd95.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+psd95[1:5,]
+```
+
+
+## PCA with NIPALS
+```{r}
+#| echo: true
+
+library(pcaMethods)
+
+cpg_bdnf <- bdnf[11:20]
+
+# Convert to a numeric matrix
+cpg_bdnf_mat <- as.matrix(cpg_bdnf)
+
+# Remove rows that are all NA
+cpg_bdnf_mat <- cpg_bdnf_mat[rowSums(is.na(cpg_bdnf_mat)) != ncol(cpg_bdnf_mat), ]
+
+# Perform PCA using NIPALS
+pca_nipals_bdnf <- pca(cpg_bdnf, method = "nipals", nPcs = 5, center = TRUE, scale = "uv")
+
+# Scree plot
+plot(pca_nipals_bdnf)
+
+# View results
+summary(pca_nipals_bdnf)
+scores(pca_nipals_bdnf)[, 1:2]   # PC scores (samples)
+loadings(pca_nipals_bdnf)[, 1:2] # Loadings (CpGs)
+
+
+# Sample scores plot
+scores_df <- as.data.frame(scores(pca_nipals_bdnf))
+ggplot(scores_df, aes(PC1, PC2)) +
+  geom_point() +
+  theme_bw() +
+  ggtitle("BDNF PCA (NIPALS)")
+
+# Top CpG loadings
+loadings_df <- as.data.frame(loadings(pca_nipals))
+head(loadings_df[order(abs(loadings_df$PC1), decreasing = TRUE), ])
+
+```
+
