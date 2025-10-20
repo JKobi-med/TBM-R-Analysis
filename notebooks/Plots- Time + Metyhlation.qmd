@@ -103,7 +103,7 @@ summary_stats_bdnf <- BDNF2 %>%
   )
 
 # Interaction plot with error bars for BDNF
-interaction_plot_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = Group, colour = Group)) +
+interaction_plot_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = , colour = Group)) +
   geom_line() +
   geom_point() +
   geom_errorbar(

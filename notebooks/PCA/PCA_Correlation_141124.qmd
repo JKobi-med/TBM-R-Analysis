@@ -1,5 +1,5 @@
 ---
-title: "Principal Component Analysis (Correlation)"
+title: "Principal Component Analysis"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
 last_modified: "2025-10-16"
@@ -81,7 +81,11 @@ ggplot(pca_bdnf_data, aes(PC1, PC2)) +
 
 bdnf_loading_scores <- pca_bdnf$rotation[,1]
 bdnf_methylation_scores <- abs(bdnf_loading_scores) # what to do of bdnf_methylation_scores?
-  
+ 
+
+
+
+ 
 library(ggfortify)
 pca_bdnf_res <- prcomp(na.omit(bdnf[c(11:20)]), scale = TRUE)
 

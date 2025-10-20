@@ -1,12 +1,12 @@
 ---
 title: "Principal Component Analysis"
 author: "Jonas J.R. Koberschinski"
-date: "14-11-2024"
-last_modified: "2025-10-16"
+date: "16-10-2025"
 format: html
 ---
 
 ## Data import
+
 ```{r}
 #| echo: true
 #| include: false
@@ -40,19 +40,48 @@ psd95 <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstab
 psd95[1:5,]
 ```
 
+Raw (unscaled) CpG methylation values. --\>PCA is therefore using the **covariance matrix** of those CpGs.
+
+Chat: "You can interpret large‐magnitude loadings as CpGs most responsible for differences among your samples." Watch out!
+
 ## BDNF
+
 ```{r}
 cpg_bdnf <- bdnf[11:20]
-pca_bdnf <- prcomp(na.omit(cpg_bdnf), scale = FALSE)
+
+pca_bdnf <- prcomp(na.omit(cpg_bdnf), scale = FALSE) # Raw (unscaled) methylation values --> PCA with covariance matrix of CpGs
+# prcomp() centers by default!
+#For CpG methylation data (which often varies by scale and variance across loci): center = TRUE and scale = TRUE are recommended (your current setting is correct).
+
+
+
+
+
 
 ## plot pc1 and pc2
-plot(pca_bdnf$x[,1], pca_bdnf$x[,2])
+plot(pca_bdnf$x[,1], pca_bdnf$x[,2])# pca_bdnf$x holds the principal component scores (i.e., the transformed sample coordinates in PC space).
+# Each column corresponds to a principal component, and each row corresponds to a sample.
+# plot the first principal component (PC1) against the second principal component (PC2) to visualize the distribution of samples in the space defined by these two components.
+
+
 
 ## make a scree plot
 pca_bdnf_var <- pca_bdnf$sdev^2
+# The standard deviations of the principal components are stored in the sdev attribute of the pca_bdnf object.
+# To understand the amount of variance explained by each principal component, you can square these standard deviations
+# to obtain the variance explained by each component.
+
+
 pca_bdnf_var_per <- round(pca_bdnf_var/sum(pca_bdnf_var)*100, 1)
+# To express the variance explained by each principal component as a percentage of the total variance,
+# you can divide each component's variance by the total variance (sum of all variances)
+# and multiply by 100. The round function is used to round the percentages to one decimal place for better readability.
 
 barplot(pca_bdnf_var_per, main="BDNF Scree Plot", xlab="Principal Component", ylab="Percent Variation")
+# The barplot (Scree Plot) shows how much information each PC captures — usually you look for the “elbow point” to decide how many PCs to keep.
+# In this plot, each bar represents a principal component, and its height corresponds to the percentage of total variance explained by that component.
+# The x-axis represents the principal components (PC1, PC2, etc.), and the y-axis represents the percentage of variance explained by each component.
+# The scree plot helps to visualize the relative importance of each principal component in terms of the variance it captures from the original data.
 
 
 ## now make a fancy looking plot that shows the PCs and the variation:
@@ -90,7 +119,63 @@ autoplot(pca_bdnf_res, data = na.omit(bdnf[c(1:22)]), colour = 'Sex',
 ```
 
 
+
+```{r}
+library(ggfortify)
+library(ggplot2)
+
+# Assume pca_bdnf_res is already computed
+autoplot(
+  pca_bdnf_res,
+  data = na.omit(bdnf[c(1:22)]),  # metadata
+  colour = 'Gruppe',               # color by group
+  shape = 'Sex',                   # shape by Sex
+  size = 'Age_start',              # size by Age_start (numeric)
+  loadings = TRUE,                 # show variable loadings
+  loadings.colour = 'blue',
+  loadings.label = TRUE,
+  loadings.label.size = 3
+) +
+  theme_bw() +
+  ggtitle("BDNF PCA Colored by Group, Shape by Sex, Size by Age")
+
+```
+
+### Ranking BDNF loadings
+```{r}
+# Rank CpGs by influence on PC1
+ranked_bdnf_cpgs <- sort(abs(bdnf_loading_scores), decreasing =
+ TRUE)
+head(ranked_bdnf_cpgs)
+```
+
+| Rank | CpG | |Loading| |
+|------|------|-----------:|
+| 1 | m148 | 0.612 |
+| 2 | m066 | 0.453 |
+| 3 | m111 | 0.431 |
+| 4 | m058 | 0.422 |
+| - | ---- | ----- |
+| 5 | m039 | 0.215 |
+| 6 | m035 | 0.076 |
+| 7 | m087 | 0.053 |
+| 8 | m024 | 0.029 |
+| 9 | p020 | 0.022 |
+| 10 | p018 | 0.013 |
+
+
+### Visualize ranked loadings
+```{r}
+plot(ranked_bdnf_cpgs, type = "b", main = "Absolute PC1 Loadings (BDNF CpGs)",
+     ylab = "|Loading|", xlab = "Ranked CpGs")
+abline(v = 4.5, col = "red", lty = 2, lwd = 2)
+```
+
+
+Die ersten 4 CpG scheinen die wesentlichen zu sein, wie in den Boxplots zu erkennen!
+
 ## Tau
+
 ```{r}
 cpg_tau <- tau[c(9:57)]
 pca_tau <- prcomp(na.omit(cpg_tau), scale = FALSE)
@@ -107,7 +192,6 @@ barplot(pca_tau_var_per, main="Tau Scree Plot", xlab="Principal Component", ylab
 
 ## now make a fancy looking plot that shows the PCs and the variation:
 library(ggplot2)
-
 
 pca_tau_data <- as.data.frame(pca_tau$x)
 pca_tau_data$ID <- rownames(pca_tau)
@@ -126,7 +210,7 @@ tau_loading_scores <- pca_tau$rotation[,1]
 tau_methylation_scores <- abs(tau_loading_scores) # what to do of tau_methylation_scores?
   
 library(ggfortify)
-pca_tau_res <- prcomp(na.omit(tau[c(9:57)]), scale = TRUE)
+pca_tau_res <- prcomp(na.omit(tau[c(9:57)]), scale = FALSE)
 
 autoplot(pca_tau_res, data = na.omit(tau[c(1:57)]), colour = 'Zeit',
          loadings = TRUE, loadings.colour = 'blue',
@@ -137,10 +221,60 @@ autoplot(pca_tau_res, data = na.omit(tau[c(1:57)]), colour = 'Gruppe',
 autoplot(pca_tau_res, data = na.omit(tau[c(1:57,357)]), colour = 'Sex', 
          loadings = TRUE, loadings.colour = 'blue',
          loadings.label = TRUE, loadings.label.size = 3)
+
+
+```
+
+### Ranking Tau loadings
+```{r}
+# Rank CpGs by influence on PC1
+ranked_tau_cpgs <- sort(abs(tau_loading_scores), decreasing = TRUE)
+head(ranked_tau_cpgs)
+
+```
+
+Die ersten 10 CpG scheinen die wesentlichen zu sein, wie in den Boxplots zu erkennen! m277 = 0.1086290423\
+m210 = 0.0785399456
+
+| Rank | CpG  |        |
+|------|------|-------:|
+| 1    | m331 | 0.4438 |
+| 2    | m337 | 0.4236 |
+| 3    | m310 | 0.3856 |
+| 4    | m315 | 0.3843 |
+| 5    | m323 | 0.3771 |
+| -    | ---- | ------ |
+| 6    | m306 | 0.2459 |
+| 7    | m219 | 0.1652 |
+| 8    | m300 | 0.1489 |
+| 9    | m293 | 0.1295 |
+| 10   | m207 | 0.1246 |
+| 11   | m249 | 0.1151 |
+| 12   | m277 | 0.1086 |
+| 13   | m210 | 0.0785 |
+
+
+
+### Visualize ranked loadings
+
+There are two clear gaps:
+
+Between m323 (0.377) and m306 (0.246) → Δ = 0.131
+
+Between m277 (0.109) and m210 (0.079) → Δ = 0.030
+
+```{r}
+plot(ranked_tau_cpgs, type = "b", main = "Absolute PC1 Loadings (Tau CpGs)",
+     ylab = "|Loading|", xlab = "Ranked CpGs")
+abline(v = 5.5, col = "red", lty = 2, lwd = 2)
+
 ```
 
 
+
+
 ## PSD95
+
 ```{r}
 cpg_psd95 <- psd95[10:54]
 pca_psd95 <- prcomp(na.omit(cpg_psd95), scale = FALSE)
@@ -176,7 +310,7 @@ psd95_loading_scores <- pca_psd95$rotation[,1]
 psd95_methylation_scores <- abs(psd95_loading_scores) # what to do of tau_methylation_scores?
   
 library(ggfortify)
-pca_psd95_res <- prcomp(na.omit(psd95[c(10:54)]), scale = TRUE)
+pca_psd95_res <- prcomp(na.omit(psd95[c(10:54)]), scale = FALSE)
 
 autoplot(pca_psd95_res, data = na.omit(psd95[c(1:54)]), colour = 'Zeitpunkt',
          loadings = TRUE, loadings.colour = 'blue',
@@ -189,3 +323,32 @@ autoplot(pca_psd95_res, data = na.omit(psd95[c(1:54,353)]), colour = 'Sex',
          loadings.label = TRUE, loadings.label.size = 3)
 ```
 
+### Ranking PSD95 loadings
+```{r}
+# Rank CpGs by influence on PC1
+ranked_psd95_cpgs <- sort(abs(psd95_loading_scores), decreasing = TRUE)
+head(ranked_psd95_cpgs)
+```
+
+| Rank | CpG | |Loading| |
+|------|------|-----------:|
+| 1 | p95 | 0.664 |
+| 2 | p60 | 0.484 |
+| 3 | p23 | 0.445 |
+| - | --- | ----- |
+| 4 | m35 | 0.153 |
+| 5 | m28 | 0.103 |
+| 6 | m418 | 0.097 |
+| 7 | m24 | 0.094 |
+| 8 | p91 | 0.094 |
+| 9 | m400 | 0.086 |
+| 10 | m11 | 0.078 |
+
+### Visualize ranked loadings
+
+```{r}
+plot(ranked_psd95_cpgs, type = "b", main = "Absolute PC1 Loadings (PSD95 CpGs)",
+     ylab = "|Loading|", xlab = "Ranked CpGs")
+abline(v = 4, col = "red", lty = 2, lwd = 2)
+```
+Die ersten 3 CpG scheinen die wesentlichen zu sein, wie in den Boxplots zu erkennen!

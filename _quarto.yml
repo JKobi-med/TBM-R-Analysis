@@ -2,6 +2,10 @@
 project:
   type: manuscript  # Specifies the project type as a manuscript, enabling features like section numbering and citation styling.
 
+render:
+  - "*.qmd"
+  - "!PCA_NIPALS_*"
+
 # Global execution options for code chunks.
 execute:
   freeze: false      # Automatically "freezes" chunks unless their content changes, useful for reproducible research.

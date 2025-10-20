@@ -1,0 +1,681 @@
+---
+title: "Data Manipulation and Export"
+author: "Jonas J. R. Koberschinski"
+date: "14-11-2024"
+output: html
+---
+
+## Data import
+
+```{r}
+#| echo: true
+#| include: false
+
+# Load required libraries
+library(tidyverse)
+library(tidyr)
+library(dplyr)
+#library(RColorBrewer) # Commented out unused libraries
+#library(lme4)
+
+# Load BDNF data from a text file and display the first few rows
+bdnf <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/bdnf.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(bdnf)
+
+# Save BDNF data back to the same file
+write.table(bdnf, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/bdnf.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
+
+# Load Tau data from a text file and display the first few rows
+tau <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/tau.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(tau)
+
+# Save Tau data back to the same file
+write.table(tau, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/tau.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
+
+# Load PSD95 data from a text file and display the first few rows
+psd95 <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/psd95.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(psd95)
+
+# Save PSD95 data back to the same file
+write.table(psd95, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/psd95.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
+
+# Load CpG data from a text file and display the first few rows
+cpg <- as_tibble(read.table(file = '/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/cpg.txt', 
+                  sep = "\t", 
+                  header = TRUE, 
+                  row.names = NULL, 
+                  quote = ""))
+head(cpg)
+
+# Save CpG data back to the same file
+write.table(cpg, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/cpg.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
+```
+
+## Subset of the essential variables
+
+```{r}
+# Subsetting BDNF data to include only specific columns
+bdnf_subset <- subset(bdnf, select = c(ID, Standort, Zeitpunkt, Gruppe, Sex, Age_start, CogTel))
+
+# Subsetting BDNF CpG columns and calculating mean and median values for each row
+bdnf_methylation <- subset(bdnf, select = c(m148:p020))
+bdnf_methylation_mean <- apply(bdnf_methylation, 1, mean, na.rm=TRUE)
+bdnf_methylation_median <- apply(bdnf_methylation, 1, median, na.rm=TRUE)
+
+# Combining the subset data with the calculated mean and median values
+bdnf_mean <- cbind(bdnf_subset, bdnf_methylation_mean)
+colnames(bdnf_mean)[8] <- "Mean"
+bdnf_median <- cbind(bdnf_subset, bdnf_methylation_median)
+colnames(bdnf_median)[8] <- "Median"
+
+# Removing rows with specific IDs due to data issues
+bdnf_mean <- bdnf_mean[!(bdnf_mean$ID %in% c(192, 193)), ]
+bdnf_mean[bdnf_mean$ID >= 190 & bdnf_mean$ID <= 196, ] # Display rows to verify deletion
+
+bdnf_median <- bdnf_median[!(bdnf_median$ID %in% c(192, 193)), ]
+bdnf_median[bdnf_median$ID >= 190 & bdnf_median$ID <= 196, ] # Display rows to verify deletion
+
+bdnf_mean[1:5,]
+bdnf_median[1:5,]
+
+# Subsetting Tau data and renaming columns
+tau_subset <- subset(tau, select = c(ID, standort_aus_andere_quelle, Zeit, Gruppe, Sex, Age_start, CogTel))
+colnames(tau_subset)[c(2:3)] <- c("Standort", "Zeitpunkt")
+
+# Subsetting Tau CpG columns and calculating mean and median values for each row
+tau_methylation <- subset(tau, select = c(m331:p27))
+tau_methylation_mean <- apply(tau_methylation, 1, mean, na.rm = TRUE)
+tau_methylation_median <- apply(tau_methylation, 1, median, na.rm = TRUE)
+
+# Combining the subset data with the calculated mean and median values
+tau_mean <- cbind(tau_subset, tau_methylation_mean)
+colnames(tau_mean)[8] <- "Mean"
+tau_median <- cbind(tau_subset, tau_methylation_median)
+colnames(tau_median)[8] <- "Median"
+
+# Removing rows with specific IDs due to data issues
+tau_mean <- tau_mean[!(tau_mean$ID %in% c(192, 193)), ]
+tau_mean[tau_mean$ID >= 190 & tau_mean$ID <= 196, ]
+
+tau_median <- tau_median[!(tau_median$ID %in% c(192, 193)), ]
+tau_median[tau_median$ID >= 190 & tau_median$ID <= 196, ]
+
+tau_mean[1:5,]
+tau_median[1:5,]
+
+# Subsetting PSD95 data and renaming columns
+psd95_subset <- subset(psd95, select = c(ID, standort_aus_andere_quelle, Zeitpunkt, Gruppe, Sex, Age_start, CogTel))
+colnames(psd95_subset)[2] <- "Standort"
+
+# Subsetting PSD95 CpG columns and calculating mean and median values for each row
+psd95_methylation <- subset(psd95, select = c(m465:p122))
+psd95_methylation_mean <- apply(psd95_methylation, 1, mean, na.rm = TRUE)
+psd95_methylation_median <- apply(psd95_methylation, 1, median, na.rm = TRUE)
+
+# Combining the subset data with the calculated mean and median values
+psd95_mean <- cbind(psd95_subset, psd95_methylation_mean)
+colnames(psd95_mean)[8] <- "Mean"
+psd95_median <- cbind(psd95_subset, psd95_methylation_median)
+colnames(psd95_median)[8] <- "Median"
+
+# Removing rows with specific IDs due to data issues
+psd95_mean <- psd95_mean[!(psd95_mean$ID %in% c(192, 193)), ]
+psd95_mean[psd95_mean$ID >= 190 & psd95_mean$ID <= 196, ]
+
+psd95_median <- psd95_median[!(psd95_median$ID %in% c(192, 193)), ]
+psd95_median[psd95_median$ID >= 190 & psd95_median$ID <= 196, ]
+
+psd95_mean[1:5,]
+psd95_median[1:5,]
+```
+
+## Write mean and median Tables
+```{r}
+# Save mean and median tables for BDNF
+
+# Save BDNF mean table
+#write.table(bdnf_mean, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/bdnf_mean.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
+
+# Save BDNF median table
+#write.table(bdnf_median, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/bdnf_median.txt", 
+ #           sep = "\t",
+ #           row.names = FALSE,
+   #         quote = FALSE)
+#
+# Save mean and median tables for Tau
+
+# Save Tau mean table
+#write.table(tau_mean,
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/tau_mean.txt",
+#            sep = "\t",
+ #           row.names = FALSE,
+#            quote = FALSE)
+
+# Save Tau median table
+#write.table(tau_median, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/tau_median.txt", 
+   #         sep = "\t",
+  #          row.names = FALSE,
+    #        quote = FALSE)
+
+# Save mean and median tables for PSD95
+
+# Save PSD95 mean table
+#write.table(psd95_mean, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/psd95_mean.txt", 
+#            sep = "\t",
+#            row.names = FALSE,
+#            quote = FALSE)
+
+# Save PSD95 median table
+#write.table(psd95_median, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/psd95_median.txt", 
+#            sep = "\t",
+ #           row.names = FALSE,
+ #           quote = FALSE)
+```
+
+
+## Pivot time points to columns
+
+```{r}
+# Define the two split_zeitpunkt functions for mean and median
+split_zeitpunkt_mean <- function(data) {
+  data %>%
+    pivot_wider(id_cols = c(ID, Standort, Gruppe, Sex, Age_start, CogTel), # no doublets!
+                names_from = Zeitpunkt, # Pivot Zeitpunkt from long to wide format
+                values_from = Mean)
+}
+
+split_zeitpunkt_median <- function(data) {
+  data %>%
+    pivot_wider(id_cols = c(ID, Standort, Gruppe, Sex, Age_start, CogTel), # no doublets!
+                names_from = Zeitpunkt, # Pivot Zeitpunkt from long to wide format
+                values_from = Median)
+}
+
+# Run the function and check the first few rows
+
+# Apply to BDNF mean data
+bdnf_mean_wide <- split_zeitpunkt_mean(bdnf_mean)
+head(bdnf_mean_wide)
+nrow(bdnf_mean_wide) # Expecting 144 rows
+
+# Apply to BDNF median data
+bdnf_median_wide <- split_zeitpunkt_median(bdnf_median)
+head(bdnf_median_wide)
+nrow(bdnf_median_wide) # Expecting 144 rows
+
+# Apply to Tau mean data
+tau_mean_wide <- split_zeitpunkt_mean(tau_mean)
+head(tau_mean_wide)
+nrow(tau_mean_wide) # Expecting 145 rows
+
+# Apply to Tau median data
+tau_median_wide <- split_zeitpunkt_median(tau_median)
+head(tau_median_wide)
+nrow(tau_median_wide) # Expecting 145 rows
+
+# Apply to PSD95 mean data
+psd95_mean_wide <- split_zeitpunkt_mean(psd95_mean)
+head(psd95_mean_wide)
+nrow(psd95_mean_wide) # Expecting 145 rows
+
+# Apply to PSD95 median data
+psd95_median_wide <- split_zeitpunkt_median(psd95_median)
+head(psd95_median_wide)
+nrow(psd95_median_wide) # Expecting 145 rows
+
+#names(bdnf_mean_wide)[1] <- "ID2" # rename "ID" to "ID2" to delete it later
+#names(bdnf_mean_wide)
+```
+
+## Write Wide Tables  
+```{r}
+# Save wide format tables for BDNF
+
+# Save BDNF mean wide table
+#write.table(bdnf_mean_wide, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/wide_format/bdnf_mean_wide.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
+
+# Save BDNF median wide table
+#write.table(bdnf_median_wide, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/wide_format/bdnf_median_wide.txt", 
+ #           sep = "\t",
+  #          row.names = FALSE,
+  #          quote = FALSE)
+#
+# Save wide format tables for Tau
+
+# Save Tau mean wide table
+#write.table(tau_mean_wide,
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/wide_format/tau_mean_wide.txt",
+#            sep = "\t",
+#            row.names = FALSE,
+#            quote = FALSE)
+
+# Save Tau median wide table
+#write.table(tau_median_wide, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/wide_format/tau_median_wide.txt", 
+ #           sep = "\t",
+ #           row.names = FALSE,
+  #          quote = FALSE)
+
+# Save wide format tables for PSD95
+
+# Save PSD95 mean wide table
+#write.table(psd95_mean_wide, 
+  #          file = "/home/kobi/Work/TBM-R-Analysis/tables/wide_format/psd95_mean_wide.txt", 
+  #          sep = "\t",
+ #           row.names = FALSE,
+ #           quote = FALSE)
+
+# Save PSD95 median wide table
+#write.table(psd95_median_wide, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/wide_format/psd95_median_wide.txt", 
+   #         sep = "\t",
+ #           row.names = FALSE,
+ #           quote = FALSE)
+```
+
+## Create a new column 'T2-T0'
+
+```{r}
+# Create new columns for BDNF data
+# BDNF mean
+bdnf_mean_T2T0 <- bdnf_mean_wide
+bdnf_mean_T2T0$T1 <- NULL
+
+bdnf_mean_T2T0 <- bdnf_mean_T2T0 %>%
+  filter(!is.na(T2), !is.na(T0)) %>%
+  mutate(`T2_T0` = T2 - T0) # Calculate T2 - T0
+
+bdnf_mean_T2T0$CogTel <- as.numeric(bdnf_mean_T2T0$CogTel)
+bdnf_mean_T2T0$Standort <- as.character(bdnf_mean_T2T0$Standort)
+is.numeric(bdnf_mean_T2T0$CogTel)
+is.character(bdnf_mean_T2T0$Standort)
+head(bdnf_mean_T2T0)
+
+# BDNF median
+bdnf_median_T2T0 <- bdnf_median_wide
+bdnf_median_T2T0$T1 <- NULL
+
+bdnf_median_T2T0 <- bdnf_median_T2T0 %>%
+  filter(!is.na(T2), !is.na(T0)) %>%
+  mutate(`T2_T0` = T2 - T0) # Calculate T2 - T0
+
+bdnf_median_T2T0$CogTel <- as.numeric(bdnf_median_T2T0$CogTel)
+bdnf_median_T2T0$Standort <- as.character(bdnf_median_T2T0$Standort)
+is.numeric(bdnf_median_T2T0$CogTel)
+is.character(bdnf_median_T2T0$Standort)
+head(bdnf_median_T2T0)
+
+# Create new columns for Tau data
+# Tau mean
+tau_mean_T2T0 <- tau_mean_wide
+tau_mean_T2T0$T1 <- NULL
+
+tau_mean_T2T0 <- tau_mean_T2T0 %>%
+  filter(!is.na(T2), !is.na(T0)) %>%
+  mutate(`T2_T0` = T2 - T0) # Calculate T2 - T0
+
+tau_mean_T2T0$CogTel <- as.numeric(tau_mean_T2T0$CogTel)
+tau_mean_T2T0$Standort <- as.character(tau_mean_T2T0$Standort)
+is.numeric(tau_mean_T2T0$CogTel)
+is.character(tau_mean_T2T0$Standort)
+head(tau_mean_T2T0)
+
+# Tau median
+tau_median_T2T0 <- tau_median_wide
+tau_median_T2T0$T1 <- NULL
+
+tau_median_T2T0 <- tau_median_T2T0 %>%
+  filter(!is.na(T2), !is.na(T0)) %>%
+  mutate(`T2_T0` = T2 - T0) # Calculate T2 - T0
+
+tau_median_T2T0$CogTel <- as.numeric(tau_median_T2T0$CogTel)
+tau_median_T2T0$Standort <- as.character(tau_median_T2T0$Standort)
+is.numeric(tau_median_T2T0$CogTel)
+is.character(tau_median_T2T0$Standort)
+head(tau_median_T2T0)
+
+# Create new columns for PSD95 data
+# PSD95 mean
+psd95_mean_T2T0 <- psd95_mean_wide
+psd95_mean_T2T0$T1 <- NULL
+
+psd95_mean_T2T0 <- psd95_mean_T2T0 %>%
+  filter(!is.na(T2), !is.na(T0)) %>%
+  mutate(`T2_T0` = T2 - T0) # Calculate T2 - T0
+
+psd95_mean_T2T0$CogTel <- as.numeric(psd95_mean_T2T0$CogTel)
+psd95_mean_T2T0$Standort <- as.character(psd95_mean_T2T0$Standort)
+is.numeric(psd95_mean_T2T0$CogTel)
+is.character(psd95_mean_T2T0$Standort)
+head(psd95_mean_T2T0)
+
+# PSD95 median
+psd95_median_T2T0 <- psd95_median_wide
+psd95_median_T2T0$T1 <- NULL
+
+psd95_median_T2T0 <- psd95_median_T2T0 %>%
+  filter(!is.na(T2), !is.na(T0)) %>%
+  mutate(`T2_T0` = T2 - T0) # Calculate T2 - T0
+
+psd95_median_T2T0$CogTel <- as.numeric(psd95_median_T2T0$CogTel)
+psd95_median_T2T0$Standort <- as.character(psd95_median_T2T0$Standort)
+is.numeric(psd95_median_T2T0$CogTel)
+is.character(psd95_median_T2T0$Standort)
+head(psd95_median_T2T0)
+```
+
+## Create a new column 'T1-T0'
+
+```{r}
+# Create new columns for BDNF data
+# BDNF mean
+bdnf_mean_T1T0 <- bdnf_mean_wide
+bdnf_mean_T1T0$T2 <- NULL
+
+bdnf_mean_T1T0 <- bdnf_mean_T1T0 %>%
+  filter(!is.na(T1), !is.na(T0)) %>%
+  mutate(`T1_T0` = T1 - T0) # Calculate T1 - T0
+
+bdnf_mean_T1T0$CogTel <- as.numeric(bdnf_mean_T1T0$CogTel)
+bdnf_mean_T1T0$Standort <- as.character(bdnf_mean_T1T0$Standort)
+is.numeric(bdnf_mean_T1T0$CogTel)
+is.character(bdnf_mean_T1T0$Standort)
+
+head(bdnf_mean_T1T0)
+
+# BDNF median
+bdnf_median_T1T0 <- bdnf_median_wide
+bdnf_median_T1T0$T2 <- NULL
+
+bdnf_median_T1T0 <- bdnf_median_T1T0 %>%
+  filter(!is.na(T1), !is.na(T0)) %>%
+  mutate(`T1_T0` = T1 - T0) # Calculate T1 - T0
+
+bdnf_median_T1T0$CogTel <- as.numeric(bdnf_median_T1T0$CogTel)
+bdnf_median_T1T0$Standort <- as.character(bdnf_median_T1T0$Standort)
+is.numeric(bdnf_median_T1T0$CogTel)
+is.character(bdnf_median_T1T0$Standort)
+
+head(bdnf_median_T1T0)
+
+# Create new columns for Tau data
+# Tau mean
+tau_mean_T1T0 <- tau_mean_wide
+tau_mean_T1T0$T2 <- NULL
+
+tau_mean_T1T0 <- tau_mean_T1T0 %>%
+  filter(!is.na(T1), !is.na(T0)) %>%
+  mutate(`T1_T0` = T1 - T0) # Calculate T1 - T0
+
+tau_mean_T1T0$CogTel <- as.numeric(tau_mean_T1T0$CogTel)
+tau_mean_T1T0$Standort <- as.character(tau_mean_T1T0$Standort)
+is.numeric(tau_mean_T1T0$CogTel)
+is.character(tau_mean_T1T0$Standort)
+
+head(tau_mean_T1T0)
+
+# Tau median
+tau_median_T1T0 <- tau_median_wide
+tau_median_T1T0$T2 <- NULL
+
+tau_median_T1T0 <- tau_median_T1T0 %>%
+  filter(!is.na(T1), !is.na(T0)) %>%
+  mutate(`T1_T0` = T1 - T0) # Calculate T1 - T0
+
+tau_median_T1T0$CogTel <- as.numeric(tau_median_T1T0$CogTel)
+tau_median_T1T0$Standort <- as.character(tau_median_T1T0$Standort)
+is.numeric(tau_median_T1T0$CogTel)
+is.character(tau_median_T1T0$Standort)
+
+head(tau_median_T1T0)
+
+# Create new columns for PSD95 data
+# PSD95 mean
+psd95_mean_T1T0 <- psd95_mean_wide
+psd95_mean_T1T0$T2 <- NULL
+
+psd95_mean_T1T0 <- psd95_mean_T1T0 %>%
+  filter(!is.na(T1), !is.na(T0)) %>%
+  mutate(`T1_T0` = T1 - T0) # Calculate T1 - T0
+
+psd95_mean_T1T0$CogTel <- as.numeric(psd95_mean_T1T0$CogTel)
+psd95_mean_T1T0$Standort <- as.character(psd95_mean_T1T0$Standort)
+is.numeric(psd95_mean_T1T0$CogTel)
+is.character(psd95_mean_T1T0$Standort)
+
+head(psd95_mean_T1T0)
+
+# PSD95 median
+psd95_median_T1T0 <- psd95_median_wide
+psd95_median_T1T0$T2 <- NULL
+
+psd95_median_T1T0 <- psd95_median_T1T0 %>%
+  filter(!is.na(T1), !is.na(T0)) %>%
+  mutate(`T1_T0` = T1 - T0) # Calculate T1 - T0
+
+psd95_median_T1T0$CogTel <- as.numeric(psd95_median_T1T0$CogTel)
+psd95_median_T1T0$Standort <- as.character(psd95_median_T1T0$Standort)
+is.numeric(psd95_median_T1T0$CogTel)
+is.character(psd95_median_T1T0$Standort)
+
+head(psd95_median_T1T0)
+```
+
+## Create a new column 'T2-T1'
+
+```{r}
+# Create new columns for BDNF data
+# BDNF mean
+bdnf_mean_T2T1 <- bdnf_mean_wide
+bdnf_mean_T2T1$T0 <- NULL
+
+bdnf_mean_T2T1 <- bdnf_mean_T2T1 %>%
+  filter(!is.na(T2), !is.na(T1)) %>%
+  mutate(`T2_T1` = T2 - T1) # Calculate T2 - T1
+
+bdnf_mean_T2T1$CogTel <- as.numeric(bdnf_mean_T2T1$CogTel)
+bdnf_mean_T2T1$Standort <- as.character(bdnf_mean_T2T1$Standort)
+is.numeric(bdnf_mean_T2T1$CogTel)
+is.character(bdnf_mean_T2T1$Standort)
+
+head(bdnf_mean_T2T1)
+
+# BDNF median
+bdnf_median_T2T1 <- bdnf_median_wide
+bdnf_median_T2T1$T0 <- NULL
+
+bdnf_median_T2T1 <- bdnf_median_T2T1 %>%
+  filter(!is.na(T2), !is.na(T1)) %>%
+  mutate(`T2_T1` = T2 - T1) # Calculate T2 - T1
+
+bdnf_median_T2T1$CogTel <- as.numeric(bdnf_median_T2T1$CogTel)
+bdnf_median_T2T1
+```
+
+## Write Time-point Tables
+```{r}
+# Save Time-Tables
+## BDNF
+
+### mean
+#### T2-T0
+#write.table(bdnf_mean_T2T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/bdnf_mean_T2T0.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+ #           quote = FALSE)
+
+#### T1-T0
+#write.table(bdnf_mean_T1T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/bdnf_mean_T1T0.txt", 
+#           sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
+
+#### T1-T0
+#write.table(bdnf_mean_T2T1, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/bdnf_mean_T2T1.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
+
+
+### median
+#### T2-T0
+#write.table(bdnf_median_T2T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/bdnf_median_T2T0.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+  #          quote = FALSE)
+
+#### T1-T0
+#write.table(bdnf_median_T1T0, 
+  #          file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/bdnf_median_T1T0.txt", 
+  #          sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
+
+#### T1-T0
+#write.table(bdnf_median_T2T1, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/bdnf_median_T2T1.txt", 
+ #          sep = "\t", 
+  #         row.names = FALSE, 
+  #          quote = FALSE)
+
+
+## Tau
+
+### mean
+#### T2-T0
+#write.table(tau_mean_T2T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/tau_mean_T2T0.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+  #          quote = FALSE)
+
+#### T1-T0
+#write.table(tau_mean_T1T0, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/tau_mean_T1T0.txt", 
+  #          sep = "\t", 
+  #          row.names = FALSE, 
+  #          quote = FALSE)
+
+#### T1-T0
+#write.table(tau_mean_T2T1, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/tau_mean_T2T1.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+ #           quote = FALSE)
+
+
+### median
+#### T2-T0
+#write.table(tau_median_T2T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/tau_median_T2T0.txt", 
+#            sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
+
+#### T1-T0
+#write.table(tau_median_T1T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/tau_median_T1T0.txt", 
+ #           sep = "\t", 
+  #          row.names = FALSE, 
+#            quote = FALSE)
+
+#### T1-T0
+#write.table(tau_median_T2T1, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/tau_median_T2T1.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
+
+
+## PSD95
+
+### mean
+#### T2-T0
+#write.table(psd95_mean_T2T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/psd95_mean_T2T0.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+#            quote = FALSE)
+
+#### T1-T0
+#write.table(psd95_mean_T1T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/psd95_mean_T1T0.txt", 
+  #          sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
+
+#### T1-T0
+#write.table(psd95_mean_T2T1, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/psd95_mean_T2T1.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+ #           quote = FALSE)
+
+
+### median
+#### T2-T0
+#write.table(psd95_median_T2T0, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/psd95_median_T2T0.txt", 
+#            sep = "\t", 
+#            row.names = FALSE, 
+ ##           quote = FALSE)
+
+#### T1-T0
+#write.table(psd95_median_T1T0, 
+#            file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/psd95_median_T1T0.txt", 
+ #           sep = "\t", 
+#            row.names = FALSE, 
+#            quote = FALSE)
+
+#### T1-T0
+#write.table(psd95_median_T2T1, 
+ #           file = "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables/psd95_median_T2T1.txt", 
+ #           sep = "\t", 
+ #           row.names = FALSE, 
+  #          quote = FALSE)
+```

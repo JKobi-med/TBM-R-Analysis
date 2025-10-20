@@ -1,7 +1,7 @@
 -- 
 title: "Generalized Linear Models"
-author: "Jonas J.R. Koberschinski"
-date: "09-12-2024"
+author: "Jonas J. R. Koberschinski"
+date: "20-10-2025"
 output: html
 ---
 
@@ -42,17 +42,24 @@ str(bdnf)
 ```
 
 
-## Drop NA
+## Subset Data and Drop NA
 ```{r}
 # Remove rows with NA values in the 'methylierung' column
+
 ##BDNF
 BDNF2 <- bdnf %>% drop_na(methylierung)
 
 # Summarize the number of NA values in the 'methylierung' column (commented out)
 # sum(is.na(BDNF$methylierung))
 
+#subset of BDNF2 with only the values "m148" "m066" "m111" "m058" of the column "CpG_Position"
+bdnf_reduced <- BDNF2 %>%
+  dplyr::select(methylierung, Group, Zeitpunkt, Standort, Geschlecht, Age_start, CogTel, id_umstrukturieren, CpG_position) %>%
+  dplyr::filter(CpG_position %in% c("m148", "m066", "m111", "m058", "m039")) #maybe drop m039
+
+
 # without NA
-summary(BDNF2)
+str(bdnf_reduced)
 
 tau2 <- tau %>% drop_na(methylation)
 
@@ -67,7 +74,7 @@ bdnf_glm_nointeraction <- lme(
   fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
   random = ~ 1 | id_umstrukturieren,
   method = "ML",
-  data = BDNF2
+  data = bdnf_reduced
 )
 
 summary(bdnf_glm_nointeraction)
@@ -77,8 +84,9 @@ summary(bdnf_glm_nointeraction)
 ### Model for group
 ```{r}
 # Split the data by group
-BDNF_controll = BDNF2[BDNF2$Gruppe=='Controll',]
-BDNF_piano    = BDNF2[BDNF2$Gruppe=='Piano',]
+BDNF_controll = bdnf_reduced[bdnf_reduced$Group=='Control',]
+
+BDNF_piano    = bdnf_reduced[bdnf_reduced$Group=='Piano',]
 
 
 # Define a mixed model for the Piano group?????
@@ -98,7 +106,69 @@ summary(bdnf_mixed_model_controll)
 ```
 
 
+### Interaction plot
+```{r}
+# Interaction plot showing methylation levels by group and time
+interaction_plot_bdnf <- ggplot(bdnf_reduced, aes(x = Zeitpunkt, y = methylierung, group = Group, colour = Group)) +
+  geom_line(stat = "summary", fun = mean) +
+  geom_point(stat = "summary", fun = mean) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_bdnf)
+
+# Interaction plot with error bars for BDNF
+interaction_plot_bdnf <- ggplot(
+  bdnf_reduced,
+  aes(x = Zeitpunkt, y = methylierung, group = Group, colour = Group)
+) +
+  stat_summary(fun = mean, geom = "line") +
+  stat_summary(fun = mean, geom = "point", size = 2) +
+  stat_summary(
+    fun.data = mean_se,      # mean ± standard error
+    geom = "errorbar",
+    width = 0.1              # width of the error bar caps
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_bdnf)
+
+
+```
+
 ## Tau
+
+### Subset Data for relevant CpGs
+
+```{r}
+
+
+
+
+
+
+tau2 <- tau %>% drop_na(methylation)
+
+#subset of BDNF2 with only the values "m148" "m066" "m111" "m058" of the column "CpG_Position"
+tau_reduced <- tau2 %>%
+  dplyr::select(methylierung, Group, Zeitpunkt, Standort, Geschlecht, Age_start, CogTel, id_umstrukturieren, CpG_position) %>%
+  dplyr::filter(CpG_position %in% c("m331", "m337", "m310", "m315", "m323")) #maybe drop m039
+
+# without NA
+str(tau_reduced)
+
+psd952  <- psd95  %>% drop_na(methylation)
+```
+
 
 ```{r}
 # Define mixed models without interaction
@@ -133,6 +203,20 @@ vif(tau_glm_interaction) # because of
 
 
 ## PSD95 
+
+
+```{r}
+psd952  <- psd95  %>% drop_na(methylation)
+#subset of BDNF2 with only the values "m148" "m066" "m111" "m058" of the column "CpG_Position"
+psd95_reduced <- psd952 %>%
+  dplyr::select(methylierung, Group, Zeitpunkt, Standort, Geschlecht, Age_start, CogTel, id_umstrukturieren, CpG_position) %>%
+  dplyr::filter(CpG_position %in% c("p95", "p60", p"23")) #maybe drop m039
+
+# without NA
+str(psd95_reduced)
+
+
+```
 
 ```{r}
 # Define mixed models without interaction

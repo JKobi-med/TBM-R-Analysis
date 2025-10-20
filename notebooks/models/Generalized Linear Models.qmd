@@ -1,0 +1,157 @@
+-- 
+title: "Generalized Linear Models"
+author: "Jonas J. R. Koberschinski"
+date: "09-12-2024"
+output: html
+---
+
+## Data import
+
+```{r}
+#Prep
+ ## Set working directory
+#setwd("~/Work/Promotionsdatananalyse mit Excel und Martin/Rohdaten/")
+#print(getwd())
+
+ ## Load necessary packages
+library(haven)
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(writexl)
+library(nlme)
+library(lme4)
+
+```
+
+```{r}
+ ## Load the BDNF data from a .sav file
+ ### ??? more information !!!  restructured without methylation mean!
+bdnf <- read_excel("~/Work/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+
+tau <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+
+psd95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+
+ ##first look at BDNF data
+head(bdnf)
+summary(bdnf)
+ ## Check the structure of the dataset
+str(bdnf)
+
+```
+
+
+## Drop NA
+```{r}
+# Remove rows with NA values in the 'methylierung' column
+##BDNF
+BDNF2 <- bdnf %>% drop_na(methylierung)
+
+# Summarize the number of NA values in the 'methylierung' column (commented out)
+# sum(is.na(BDNF$methylierung))
+
+# without NA
+summary(BDNF2)
+
+tau2 <- tau %>% drop_na(methylation)
+
+psd952  <- psd95  %>% drop_na(methylation)
+```
+
+
+## BDNF
+### GLM
+```{r}
+bdnf_glm_nointeraction <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ 1 | id_umstrukturieren,
+  method = "ML",
+  data = BDNF2
+)
+
+summary(bdnf_glm_nointeraction)
+```
+
+
+### Model for group
+```{r}
+# Split the data by group
+BDNF_controll = BDNF2[BDNF2$Gruppe=='Controll',]
+BDNF_piano    = BDNF2[BDNF2$Gruppe=='Piano',]
+
+
+# Define a mixed model for the Piano group?????
+bdnf_mixed_model_piano <- lme(fixed= methylierung ~ as.factor(Zeitpunkt),
+                                  random=~1|id_umstrukturieren,
+                                  method="ML",data=BDNF_piano)
+
+bdnf_mixed_model_controll <- lme(fixed= methylierung ~ as.factor(Zeitpunkt),
+                                  random=~1|id_umstrukturieren,
+                                  method="ML",data=BDNF_controll)
+
+
+# Summarize the Piano group model
+summary(bdnf_mixed_model_piano)
+summary(bdnf_mixed_model_controll)
+
+```
+
+
+## Tau
+
+```{r}
+# Define mixed models without interaction
+
+tau_glm_nointeraction <- lme(
+  fixed = methylation ~ as.factor(Gruppe) + as.factor(Zeit) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start +  as.factor(Sex) * Age_start + as.numeric(CogTel),
+  random = ~ 1 | CpG_position,
+  method = "ML",
+  data = tau2
+)
+
+library(lme4)
+library(lmerTest)
+
+
+
+tau_glm_interaction <- lmer(
+  formula = methylation ~ as.factor(Gruppe) + as.factor(Zeit) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start +
+                         as.numeric(CogTel)  +
+                        (1 | CpG_position),
+  data = tau2,
+  REML = TRUE
+)
+
+summary(tau_glm_nointeraction)
+summary(tau_glm_interaction)
+
+library(car)
+vif(tau_glm_interaction) # because of 
+
+```
+
+
+## PSD95 
+
+```{r}
+# Define mixed models without interaction
+psd95_glm_nointeraction <- lme(
+  fixed = methylation ~ as.factor(Gruppe) + as.factor(Zeitpunkt) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start + as.numeric(CogTel),
+  random = ~ 1 | id_umstrukturiert,
+  method = "ML",
+  data = psd952
+)
+
+psd95_glm_interaction <- lmer(
+  formula = methylation ~ as.factor(Gruppe) + as.factor(Zeitpunkt) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start + as.numeric(CogTel) + Age_start * as.factor(Sex) +
+                        (1 | CpG_Position),
+  data = psd952,
+  REML = TRUE
+)
+
+summary(psd95_glm_nointeraction)
+summary(psd95_glm_interaction)
+```
+
+
