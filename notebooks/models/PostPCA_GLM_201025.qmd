@@ -5,7 +5,8 @@ date: "20-10-2025"
 output: html
 ---
 
-## Data import
+
+## Setup
 
 ```{r}
 #Prep
@@ -23,6 +24,8 @@ library(nlme)
 library(lme4)
 
 ```
+
+## Data import
 
 ```{r}
  ## Load the BDNF data from a .sav file
@@ -68,6 +71,37 @@ psd952  <- psd95  %>% drop_na(methylation)
 
 
 ## BDNF
+### Normality check
+```{r}
+# Descriptive statistics for methylierung
+mean(bdnf_reduced$methylierung)
+sd(bdnf_reduced$methylierung)
+median(bdnf_reduced$methylierung)
+
+# Histogram to check normality of methylierung
+ggplot(bdnf_reduced, aes(x = methylierung)) +
+  geom_histogram(binwidth = 0.005, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Histogram of BDNF Methylation Levels", x = "Methylation Levels", y = "Frequency") +
+  theme_minimal()
+
+# Another Histogram
+hist(bdnf$methylierung, breaks = 30, main = "Methylation distribution", xlab = "Methylation")
+
+# QQ plot
+qqnorm(bdnf$methylierung)
+qqline(bdnf$methylierung, col = "red")
+
+# Shapiro-Wilk normality test
+shapiro.test(bdnf$methylierung)
+
+# Boxplot to visualize methylierung distribution
+boxplot(bdnf_reduced$methylierung, main="Boxplot of BDNF Methylation Levels", ylab="Methylation Levels")
+```
+
+Methylation values are significantly non-normal
+(see zero-inflated Poisson (ZIP) models)
+
+
 ### GLM
 ```{r}
 bdnf_glm_nointeraction <- lme(
@@ -78,8 +112,30 @@ bdnf_glm_nointeraction <- lme(
 )
 
 summary(bdnf_glm_nointeraction)
+
+res <- resid(bdnf_glm_nointeraction)
+shapiro.test(res)
+qqnorm(res)
+qqline(res, col = "blue")
 ```
 
+```{r}
+bdnf_glm_time_nointeraction <- lme(
+  fixed = methylierung ~ as.factor(Group) + as.factor(Zeitpunkt) + as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ as.factor(Zeitpunkt) | id_umstrukturieren,
+  method = "ML",
+  data = bdnf_reduced
+)
+
+summary(bdnf_glm_time_nointeraction)
+
+res_time <- resid(bdnf_glm_nointeraction)
+shapiro.test(res_time)
+qqnorm(res_time)
+qqline(res_time, col = "blue")
+```
+
+also resuidulas are non-normal --> try logit transformation, nlme or glmmTMB below
 
 ### Model for group
 ```{r}
@@ -108,11 +164,35 @@ summary(bdnf_mixed_model_controll)
 
 ### Interaction plot
 ```{r}
+
+# Interaction plot showing methylation levels over time
+
+plot_bdnf <- ggplot(bdnf_reduced, 
+                    aes(x = Zeitpunkt, y = methylierung, group = 1)) +
+  geom_line(stat = "summary", fun = mean) +
+  geom_point(stat = "summary", fun = mean) +
+  stat_summary(
+    fun.data = mean_se,      # mean ± standard error
+    geom = "errorbar",
+    width = 0.1              # width of the error bar caps
+  ) +
+  theme_linedraw() +
+  labs(
+    title = "Interaction Plot of BDNF Methylation Levels over Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(plot_bdnf)
+  
+```
+
+```{r}
 # Interaction plot showing methylation levels by group and time
 interaction_plot_bdnf <- ggplot(bdnf_reduced, aes(x = Zeitpunkt, y = methylierung, group = Group, colour = Group)) +
   geom_line(stat = "summary", fun = mean) +
   geom_point(stat = "summary", fun = mean) +
-  theme_classic() +
+  theme_linedraw() +
   labs(
     title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
     x = "Time Point",
@@ -133,7 +213,7 @@ interaction_plot_bdnf <- ggplot(
     geom = "errorbar",
     width = 0.1              # width of the error bar caps
   ) +
-  theme_classic() +
+  theme_linedraw() +
   labs(
     title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
     x = "Time Point",
@@ -145,28 +225,130 @@ print(interaction_plot_bdnf)
 
 ```
 
+### Logit
+
+
+```{r}
+library(nlme)
+
+# 1. Transform methylation
+bdnf_reduced$Methyl_arcsin <- asin(sqrt(bdnf_reduced$methylierung))
+
+# 2. Fit linear mixed-effects model
+bdnf_lme <- lme(
+  fixed = Methyl_arcsin ~ as.factor(Group) + as.factor(Zeitpunkt) +
+            as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~1 | id_umstrukturieren,
+  method = "ML",
+  data = bdnf_reduced
+)
+
+# 3. Check results
+summary(bdnf_lme)
+
+qqnorm(resid(bdnf_lme))
+qqline(resid(bdnf_lme), col = "blue")
+shapiro.test(resid(bdnf_lme))
+```
+
+
+```{r}
+# Logit transformation of methylierung
+bdnf_log <- BDNF2 %>%
+  mutate(
+    methylierung_logit = log((methylierung + 1e-6) / (1 - methylierung + 1e-6))
+  )
+
+shapiro.test(bdnf_log$methylierung_logit)
+hist(bdnf_log$methylierung_logit, breaks = 30, main = "Logit Transformed Methylation distribution", xlab = "Logit Transformed Methylation")
+```
+
+```{r}
+# Define mixed models without interaction for logit transformed data
+library(nlme)
+
+bdnf_glm_logit_nointeraction <- lme(
+  fixed = methylierung_logit ~ as.factor(Group) + as.factor(Zeitpunkt) + 
+    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ 1 | id_umstrukturieren,
+  method = "ML",
+  data = bdnf_log
+)
+
+summary(bdnf_glm_logit_nointeraction)
+
+res_log <- resid(bdnf_glm_logit_nointeraction)
+shapiro.test(res_log)
+qqnorm(res_log)
+qqline(res_log, col = "blue")
+
+```
+
+```{r}
+bdnf_glm_logit_time_nointeraction <- lme(
+  fixed = methylierung_logit ~ as.factor(Group) + as.factor(Zeitpunkt) + 
+    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ as.factor(Zeitpunkt) | id_umstrukturieren,
+  method = "ML",
+  data = bdnf_log
+)
+
+summary(bdnf_glm_logit_time_nointeraction)
+```
+
+```{r}
+anova(bdnf_glm_logit_time_nointeraction, bdnf_glm_logit_nointeraction)
+
+```
+
+
+```{r}
+library(nlme)
+
+bdnf_glm_logit_var <- lme(
+  fixed = methylierung_logit ~ as.factor(Group) + as.factor(Zeitpunkt) +
+    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ 1 | id_umstrukturieren,
+  weights = varPower(form = ~ fitted(.)),  # variance depends on fitted values
+  method = "ML",
+  data = bdnf_log
+)
+
+summary(bdnf_glm_logit_var)
+
+qqnorm(resid(bdnf_glm_logit_var))
+qqline(resid(bdnf_glm_logit_var))
+```
+
+
+
+```{r}
+library(glmmTMB)
+
+# Zero-inflated beta GLMM
+model <- glmmTMB(
+  methylierung ~ Group + Zeitpunkt + Standort + Geschlecht + Age_start + CogTel + (1|id_umstrukturieren),
+  ziformula = ~1,          # models the probability of zero
+  family = beta_family(link = "logit"),  # beta regression for values in (0,1)
+  data = bdnf_reduced
+)
+summary(model)
+```
+
 ## Tau
 
 ### Subset Data for relevant CpGs
 
 ```{r}
-
-
-
-
-
-
 tau2 <- tau %>% drop_na(methylation)
 
-#subset of BDNF2 with only the values "m148" "m066" "m111" "m058" of the column "CpG_Position"
+#subset of tau2 with only the values "m331", "m337", "m310", "m315", "m323" of the column "CpG_Position"
 tau_reduced <- tau2 %>%
-  dplyr::select(methylierung, Group, Zeitpunkt, Standort, Geschlecht, Age_start, CogTel, id_umstrukturieren, CpG_position) %>%
-  dplyr::filter(CpG_position %in% c("m331", "m337", "m310", "m315", "m323")) #maybe drop m039
+  dplyr::select(methylation, Gruppe, Zeit, standort_aus_andere_quelle, Sex, Age_start, CogTel, id_umstruk, CpG_position)   %>%
+  dplyr::filter(CpG_position %in% c("m331", "m337", "m310", "m315", "m323", "m306")) #maybe drop m306
 
 # without NA
 str(tau_reduced)
-
-psd952  <- psd95  %>% drop_na(methylation)
 ```
 
 
@@ -174,22 +356,22 @@ psd952  <- psd95  %>% drop_na(methylation)
 # Define mixed models without interaction
 
 tau_glm_nointeraction <- lme(
-  fixed = methylation ~ as.factor(Gruppe) + as.factor(Zeit) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start +  as.factor(Sex) * Age_start + as.numeric(CogTel),
-  random = ~ 1 | CpG_position,
+  fixed = methylation ~ as.factor(Gruppe) + as.factor(Zeit) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start + as.numeric(CogTel),
+  random = ~ 1 | id_umstruk,
   method = "ML",
-  data = tau2
+  data = tau_reduced
 )
 
-library(lme4)
-library(lmerTest)
+summary(tau_glm_nointeraction)
+```
 
 
-
+```{r}
 tau_glm_interaction <- lmer(
   formula = methylation ~ as.factor(Gruppe) + as.factor(Zeit) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start +
                          as.numeric(CogTel)  +
                         (1 | CpG_position),
-  data = tau2,
+  data = tau_reduced,
   REML = TRUE
 )
 
@@ -198,6 +380,54 @@ summary(tau_glm_interaction)
 
 library(car)
 vif(tau_glm_interaction) # because of 
+
+
+```
+
+### Interaction plot
+
+```{r}
+# Plot showing methylation levels over time (Tau)
+interaction_plot_tau <- ggplot(
+  tau_reduced,
+  aes(x = Zeit, y = methylation, group = 1)  # make sure variable names match
+) +
+  stat_summary(fun = mean, geom = "line") +
+  stat_summary(fun = mean, geom = "point", size = 2) +
+  theme_linedraw() +
+  labs(
+    title = "Plot of Tau Methylation Levels over Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_tau)
+```
+
+
+```{r}
+# Interaction plot showing methylation levels by group and time (Tau)
+interaction_plot_tau <- ggplot(
+  tau_reduced,
+  aes(x = Zeit, y = methylation, group = Gruppe, colour = Gruppe)  # make sure variable names match
+) +
+  stat_summary(fun = mean, geom = "line") +
+  stat_summary(fun = mean, geom = "point", size = 2) +
+  stat_summary(
+    fun.data = mean_se,      # mean ± standard error
+    geom = "errorbar",
+    width = 0.1              # width of the error bar caps
+  ) +
+  theme_linedraw() +
+  labs(
+    title = "Interaction Plot of Tau Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_tau)
+
+
 
 ```
 
@@ -209,8 +439,8 @@ vif(tau_glm_interaction) # because of
 psd952  <- psd95  %>% drop_na(methylation)
 #subset of BDNF2 with only the values "m148" "m066" "m111" "m058" of the column "CpG_Position"
 psd95_reduced <- psd952 %>%
-  dplyr::select(methylierung, Group, Zeitpunkt, Standort, Geschlecht, Age_start, CogTel, id_umstrukturieren, CpG_position) %>%
-  dplyr::filter(CpG_position %in% c("p95", "p60", p"23")) #maybe drop m039
+  dplyr::select(methylation, Gruppe, Zeitpunkt, standort_aus_andere_quelle, Sex, Age_start, CogTel, id_umstrukturiert, CpG_Position) %>%
+  dplyr::filter(CpG_Position %in% c("p95", "p60", "p23")) #maybe drop m039
 
 # without NA
 str(psd95_reduced)
@@ -227,6 +457,8 @@ psd95_glm_nointeraction <- lme(
   data = psd952
 )
 
+summary(psd95_glm_nointeraction)
+
 psd95_glm_interaction <- lmer(
   formula = methylation ~ as.factor(Gruppe) + as.factor(Zeitpunkt) + as.factor(standort_aus_andere_quelle) + as.factor(Sex) + Age_start + as.numeric(CogTel) + Age_start * as.factor(Sex) +
                         (1 | CpG_Position),
@@ -234,8 +466,85 @@ psd95_glm_interaction <- lmer(
   REML = TRUE
 )
 
-summary(psd95_glm_nointeraction)
+
 summary(psd95_glm_interaction)
+```
+
+### Interaction plot
+
+```{r}
+# Interaction plot showing methylation levels by group and time (Tau)
+interaction_plot_tau <- ggplot(
+  psd95_reduced,
+  aes(x = Zeitpunkt, y = methylation, group = 1)  # make sure variable names match
+) +
+  stat_summary(fun = mean, geom = "line") +
+  stat_summary(fun = mean, geom = "point", size = 2) +
+  theme_linedraw() +
+  labs(
+    title = "Interaction Plot of Tau Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_tau)
+```
+
+
+#### Comparison between groups
+
+```{r}
+library(ggplot2)
+
+# Interaction plot for PSD95 with mean ± SE
+interaction_plot_psd95 <- ggplot(
+  psd95_reduced,
+  aes(x = Zeitpunkt, y = methylation, group = Gruppe, colour = Gruppe)
+) +
+  stat_summary(fun = mean, geom = "line") +
+  stat_summary(fun = mean, geom = "point", size = 2) +
+  stat_summary(
+    fun.data = mean_se,   # mean ± standard error
+    geom = "errorbar",
+    width = 0.1           # width of the error bar caps
+  ) +
+  theme_linedraw() +
+  labs(
+    title = "Interaction Plot of PSD95 Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_psd95)
+
+```
+
+#### Comparison between sexes
+
+```{r}
+library(ggplot2)
+
+# Interaction plot for PSD95 with mean ± SE
+interaction_plot_psd95 <- ggplot(
+  psd95_reduced,
+  aes(x = Zeitpunkt, y = methylation, group = Sex, colour = Sex)
+) +
+  stat_summary(fun = mean, geom = "line") +
+  stat_summary(fun = mean, geom = "point", size = 2) +
+  stat_summary(
+    fun.data = mean_se,   # mean ± standard error
+    geom = "errorbar",
+    width = 0.1           # width of the error bar caps
+  ) +
+  theme_linedraw() +
+  labs(
+    title = "Interaction Plot of PSD95 Methylation Levels by Sex and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_psd95)
+
 ```
 
 

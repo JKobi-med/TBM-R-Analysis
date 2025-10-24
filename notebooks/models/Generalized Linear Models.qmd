@@ -5,7 +5,7 @@ date: "09-12-2024"
 output: html
 ---
 
-## Data import
+## Prep
 
 ```{r}
 #Prep
@@ -23,6 +23,8 @@ library(nlme)
 library(lme4)
 
 ```
+
+## Data import
 
 ```{r}
  ## Load the BDNF data from a .sav file
@@ -95,6 +97,31 @@ bdnf_mixed_model_controll <- lme(fixed= methylierung ~ as.factor(Zeitpunkt),
 summary(bdnf_mixed_model_piano)
 summary(bdnf_mixed_model_controll)
 
+```
+
+
+##BDNF-logit
+```{r}
+BDNF2 <- bdnf %>%
+  drop_na(methylierung) %>%
+  mutate(
+    methylierung_logit = log((methylierung + 1e-6) / (1 - methylierung + 1e-6))
+  )
+
+summary(BDNF2$methylierung_logit)
+
+
+library(nlme)
+
+bdnf_glm_nointeraction <- lme(
+  fixed = methylierung_logit ~ as.factor(Group) + as.factor(Zeitpunkt) + 
+    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ 1 | id_umstrukturieren,
+  method = "ML",
+  data = BDNF2
+)
+
+summary(bdnf_glm_nointeraction)
 ```
 
 

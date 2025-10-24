@@ -81,7 +81,6 @@ anova(lm_bdnf_median_T1T0)
 
 
 ### T2-T1
-#### All variables
 ```{r}
 # with T1
 # mean
@@ -90,7 +89,6 @@ lm_bdnf_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T
 
 summary(lm_bdnf_mean_T2T1)
 anova(lm_bdnf_mean_T2T1)
-step(lm_bdnf_mean_T2T1)
 
 # median
 
@@ -102,21 +100,6 @@ anova(lm_bdnf_median_T2T1)
 step(lm_bdnf_median_T2T1)
 ```
 
-#### AIC model recommendation
-```{r}
-#mean
-bdnf_aic_mean_T2T1 <- lm(formula = T2_T1 ~ T1, data = bdnf_mean_T2T1)
-summary(bdnf_aic_mean_T2T1)
-anova(bdnf_aic_mean_T2T1)
-par(mfrow = c(2,2))
-plot(bdnf_aic_mean_T2T1)
-
-#median
-bdnf_aic_median_T2T1 <- lm(formula = T2_T1 ~ T1, data = bdnf_median_T2T1)
-summary(bdnf_aic_median_T2T1)
-anova(bdnf_aic_median_T2T1)
-plot(bdnf_aic_median_T2T1)
-```
 
 ### Plot models
 
@@ -126,15 +109,15 @@ plot(bdnf_aic_median_T2T1)
 library(visreg)
 
 #T2-T0
-visreg(bdnf_aic_mean_T2T0, type="conditional", gg = TRUE)
-visreg(bdnf_aic_median_T2T0, gg = TRUE)
+visreg(bdnf_mean_T2T0, gg = TRUE)
+visreg(bdnf_median_T2T0, gg = TRUE)
 
 #T1-T0
-visreg(bdnf_aic_mean_T1T0, "Gruppe", gg = TRUE)
-visreg(bdnf_aic_median_T1T0, "CogTel", by = "Gruppe", gg = TRUE)
+visreg(bdnf_mean_T1T0, "Gruppe", gg = TRUE)
+visreg(bdnf_median_T1T0, "CogTel", by = "Gruppe", gg = TRUE)
 
 #T2-T1
-visreg(bdnf_aic_mean_T2T1, gg = TRUE)
-visreg(bdnf_aic_median_T2T1, gg = TRUE)
+visreg(bdnf_mean_T2T1, gg = TRUE)
+visreg(bdnf_median_T2T1, gg = TRUE)
 ```
 

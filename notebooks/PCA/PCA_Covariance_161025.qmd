@@ -124,22 +124,30 @@ autoplot(pca_bdnf_res, data = na.omit(bdnf[c(1:22)]), colour = 'Sex',
 library(ggfortify)
 library(ggplot2)
 
-# Assume pca_bdnf_res is already computed
+# Ensure numeric variables for size
+bdnf$Age_start <- as.numeric(bdnf$Age_start)
+bdnf$CogTel <- as.numeric(bdnf$CogTel)
+
 autoplot(
   pca_bdnf_res,
-  data = na.omit(bdnf[c(1:22)]),  # metadata
-  colour = 'Gruppe',               # color by group
-  shape = 'Sex',                   # shape by Sex
-  size = 'Age_start',              # size by Age_start (numeric)
-  loadings = TRUE,                 # show variable loadings
+  data = na.omit(bdnf[c(1:22)]),
+  colour = 'Gruppe',        # group coloring
+  shape = 'Sex',            # shape by Sex
+  loadings = TRUE,
   loadings.colour = 'blue',
   loadings.label = TRUE,
   loadings.label.size = 3
 ) +
-  theme_bw() +
-  ggtitle("BDNF PCA Colored by Group, Shape by Sex, Size by Age")
+  scale_shape_manual(values = c(16, 17)) +      # custom shapes for Sex
+  scale_size_continuous(range = c(2, 6)) +      # min/max point size
+  facet_wrap(~Zeitpunkt) +                       # separate panels for each timepoint
+  theme_classic() +
+  ggtitle("BDNF PCA: Color by Group, Shape by Sex, Size by Age, Facet by Timepoint")
 
 ```
+
+
+
 
 ### Ranking BDNF loadings
 ```{r}

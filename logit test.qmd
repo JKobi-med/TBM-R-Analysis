@@ -1,0 +1,113 @@
+---
+title: "Logit testing"
+editor: visual
+---
+
+Seems not feasable because the data is zero-inflated
+
+### Logit
+
+```{r}
+
+library(glmmTMB)
+
+model <- glmmTMB(
+  methylierung ~ Group + Zeitpunkt + Standort + Geschlecht + Age_start + CogTel + (1|id_umstrukturieren),
+  family = beta_family(link = "logit"),
+  ziformula = ~1,  # models probability of being exactly zero
+  data = bdnf_reduced
+)
+
+summary(model)
+
+```
+
+```{r}
+library(nlme)
+
+# 1. Transform methylation
+bdnf_reduced$Methyl_arcsin <- asin(sqrt(bdnf_reduced$methylierung))
+
+# 2. Fit linear mixed-effects model
+bdnf_lme <- lme(
+  fixed = Methyl_arcsin ~ as.factor(Group) + as.factor(Zeitpunkt) +
+            as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~1 | id_umstrukturieren,
+  method = "ML",
+  data = bdnf_reduced
+)
+
+# 3. Check results
+summary(bdnf_lme)
+
+qqnorm(resid(bdnf_lme))
+qqline(resid(bdnf_lme), col = "blue")
+shapiro.test(resid(bdnf_lme))
+```
+
+```{r}
+# Logit transformation of methylierung
+bdnf_log <- BDNF2 %>%
+  mutate(
+    methylierung_logit = log((methylierung + 1e-6) / (1 - methylierung + 1e-6))
+  )
+
+shapiro.test(bdnf_log$methylierung_logit)
+hist(bdnf_log$methylierung_logit, breaks = 30, main = "Logit Transformed Methylation distribution", xlab = "Logit Transformed Methylation")
+```
+
+```{r}
+# Define mixed models without interaction for logit transformed data
+library(nlme)
+
+bdnf_glm_logit_nointeraction <- lme(
+  fixed = methylierung_logit ~ as.factor(Group) + as.factor(Zeitpunkt) + 
+    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ 1 | id_umstrukturieren,
+  method = "ML",
+  data = bdnf_log
+)
+
+summary(bdnf_glm_logit_nointeraction)
+
+res_log <- resid(bdnf_glm_logit_nointeraction)
+shapiro.test(res_log)
+qqnorm(res_log)
+qqline(res_log, col = "blue")
+
+```
+
+```{r}
+bdnf_glm_logit_time_nointeraction <- lme(
+  fixed = methylierung_logit ~ as.factor(Group) + as.factor(Zeitpunkt) + 
+    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ as.factor(Zeitpunkt) | id_umstrukturieren,
+  method = "ML",
+  data = bdnf_log
+)
+
+summary(bdnf_glm_logit_time_nointeraction)
+```
+
+```{r}
+anova(bdnf_glm_logit_time_nointeraction, bdnf_glm_logit_nointeraction)
+
+```
+
+```{r}
+library(nlme)
+
+bdnf_glm_logit_var <- lme(
+  fixed = methylierung_logit ~ as.factor(Group) + as.factor(Zeitpunkt) +
+    as.factor(Standort) + as.factor(Geschlecht) + Age_start + CogTel,
+  random = ~ 1 | id_umstrukturieren,
+  weights = varPower(form = ~ fitted(.)),  # variance depends on fitted values
+  method = "ML",
+  data = bdnf_log
+)
+
+summary(bdnf_glm_logit_var)
+
+qqnorm(resid(bdnf_glm_logit_var))
+qqline(resid(bdnf_glm_logit_var))
+```
