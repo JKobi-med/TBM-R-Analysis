@@ -73,7 +73,7 @@ sum(tau_subset$methylation == 0)  # For reference on zeros
 Ein einzelner Wert = 1
 
 ```{r}
-tau_subset$methylation <- tau_subset$methylation[tau_subset$methylation == 1] <- 1 - 1e-9
+tau_subset$methylation[tau_subset$methylation == 1] <- 1 - 1e-9
 ```
 
 
@@ -89,15 +89,15 @@ tau_glmm_1 <- glmmTMB(
   ziformula = ~ Gruppe + Zeit + (1 | CpG_position),  # drivers of exact zeros
   dispformula = ~ 1 + (1 | CpG_position),            # allow CpG-specific dispersion (optional)
   family = beta_family(link = "logit"),
-  data = d,
+  data = tau_subset,
   REML = FALSE
 )
 
 summary(tau_glmm_1)
 
 # diagnostics
-tau_glmm_1 <- simulateResiduals(fit, n = 1000)
-plot(tau_glmm_1)
+tau_res <- simulateResiduals(tau_glmm_1, n = 1000)
+plot(tau_res)
 
 #(Optional) Marginal means / contrasts for Gruppe × Zeit
 # em <- emmeans(tau_glmm_1, ~ Gruppe * Zeit, type = "response")
@@ -153,7 +153,7 @@ plot(sim_phi); testUniformity(sim_phi); testDispersion(sim_phi); testZeroInflati
 
 ```{r}
 glmmTMB(
-  methylation ~ Gruppe * Zeit + Sex + rauchen + Age_start + CogTel + Psycholgical +
+  methylation ~ Gruppe * Zeit + Sex + rauchen + Age_start + CogTel +
     (1 + Zeit | ID) + (1 | CpG_position),            # random intercepts + optional slope
   ziformula = ~ Gruppe + Zeit + (1 | CpG_position),  # what drives exact zeros
   dispformula = ~ 1 + (1 | CpG_position),            # allow CpG-specific dispersion (optional)
@@ -195,4 +195,123 @@ summary(tau_glmm_CpG_ID)
 
 
 ```
+
+
+## Fever CpGs
+| Rank | CpG  |        |
+|------|------|-------:|
+| 1    | m331 | 0.4438 |
+| 2    | m337 | 0.4236 |
+| 3    | m310 | 0.3856 |
+| 4    | m315 | 0.3843 |
+| 5    | m323 | 0.3771 |
+| -    | ---- | ------ |
+| 6    | m306 | 0.2459 |
+| 7    | m219 | 0.1652 |
+| 8    | m300 | 0.1489 |
+| 9    | m293 | 0.1295 |
+| 10   | m207 | 0.1246 |
+| 11   | m249 | 0.1151 |
+| 12   | m277 | 0.1086 |
+| 13   | m210 | 0.0785 |
+
+### select CpGs for new data frame
+
+```{r}
+
+tau_top5 <- tau_subset %>%
+  filter(CpG_position %in% c("m331", "m337", "m310", "m315", "m323"))
+```
+
+```{r}
+summary(tau_top5)
+```
+
+```{r}
+summary(tau_top5$methylation)
+range(tau_top5$methylation)
+sum(tau_top5$methylation == 1)  # Count how many exact 1s
+sum(tau_top5$methylation == 0) 
+```
+
+```{r}
+tau_glmm_top5 <- glmmTMB(
+  methylation ~ Gruppe * Zeit + Sex + rauchen + Age_start + CogTel +
+    (0 + Zeit | ID) + CpG_position,            # random intercepts + Zeit slope by ID
+  ziformula = ~ Zeit,  # drivers of exact zeros
+  family = beta_family(link = "logit"),
+  data = tau_top5,
+  REML = FALSE
+)
+summary(tau_glmm_top5)
+
+
+```
+
+```{r}
+tau_top5$Zeit_num <- as.numeric(tau_top5$Zeit) - 1  # T0=0, T1=1, T2=2
+
+fit_numSlope <- glmmTMB(
+  methylation ~ CpG_position + Gruppe * Zeit + Sex + rauchen + scale(Age_start) + scale(CogTel) +
+                (1 + Zeit_num | ID),
+  ziformula   = ~ Zeit,                      # keep as in your current model first
+  family      = beta_family(link="logit"),
+  data        = tau_top5
+)
+summary(fit_numSlope)
+```
+```{r}
+fit_tau_best <- fit_numSlope         # your first model: (1 + Zeit_num | ID), ziformula = ~ Zeit
+fit_tau_ZI0  <- update(fit_tau_best, ziformula = ~ 1)
+
+bbmle::AICtab(fit_tau_best, fit_tau_ZI0, sort = TRUE)
+# If ΔAIC < ~2, prefer fit_tau_ZI0 (simpler ZI).
+
+```
+```{r}
+fit_tau_ZI0$sdr$pdHess  # want TRUE
+VarCorr(fit_tau_ZI0)    # look at |corr| < ~0.95 and sensible variances
+
+```
+
+```{r}
+tau_top5$Zeit_c <- as.numeric(tau_top5$Zeit) - mean(as.numeric(tau_top5$Zeit))
+fit_tau_ZI0_c <- update(fit_tau_ZI0, . ~ . - (1 + Zeit_num | ID) + (1 + Zeit_c | ID))
+summary(fit_tau_ZI0_c)
+```
+ChatGPT
+We selected a zero-inflated beta mixed model with constant zero inflation (≈4%) and participant-specific intercepts and linear time slopes (corr ≈ −0.82). Overall expected methylation 
+𝐸
+[
+𝑦
+]
+=
+(
+1
+−
+𝑝
+0
+)
+𝜇
+E[y]=(1−p
+0
+	​
+
+)μ was similar between groups at T0 and T2, but lower in Piano at T1 (Gruppe×Zeit interaction on the conditional mean significant at T1), while zeros were rare and stable over time.
+
+```{r}
+# Zeit_num = as.numeric(Zeit) - 1 (T0=0, T1=1, T2=2)
+tau_best <- glmmTMB(
+  methylation ~ CpG_position + Gruppe * Zeit + Sex + rauchen +
+    scale(Age_start) + scale(CogTel) +
+    (1 + Zeit_num | ID),          # correlated intercept + linear time slope
+  ziformula   = ~ 1,              # zeros are rare (~4%), time effects NS → intercept-only
+  family = beta_family(link="logit"),
+  data = tau_top5
+)
+summary(tau_best)
+
+```
+
+
 

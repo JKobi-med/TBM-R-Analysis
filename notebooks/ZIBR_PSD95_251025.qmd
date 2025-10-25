@@ -4,9 +4,13 @@ author: "Jonas J. R. Koberschinski"
 date: "25-10-2025"
 lastmod: "25-10-2025"
 output: html
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 # Preparation
+
 ## Load libraries
 
 ```{r}
@@ -99,7 +103,6 @@ psd95_glmm_CpG_ID <- glmmTMB(
 summary(psd95_glmm_CpG_ID)
 ```
 
-
 ```{r}
 library(DHARMa)
 sim_psd95 <- simulateResiduals(psd95_glmm_CpG_ID, n = 2000)
@@ -110,16 +113,12 @@ testZeroInflation(sim_psd95)
 
 ```
 
-
-
-
 ```{r}
 psd95_glmm_CpG_ID_phi <- update(psd95_glmm_CpG_ID,
   dispformula = ~ Zeitpunkt + Gruppe + (1 | CpG_Position)
 )
 
 ```
-
 
 ```{r}
 sim_phi <- simulateResiduals(psd95_glmm_CpG_ID_phi, n=1500)
@@ -139,8 +138,6 @@ sim_olre <- simulateResiduals(psd95_glmm_CpG_ID_olre, n = 1500)
 testDispersion(sim_olre)
 
 ```
-
-
 
 ```{r}
 psd95_glmm_CpG_ID_olre <- glmmTMB(
@@ -167,6 +164,7 @@ psd95_glmm_CpG_ID_olre <- update(
   start = list(theta = c(log(0.05)))  # tiny variance
 )
 ```
+
 ```{r}
 psd95_glmm_CpG_ID_olre <- update(
   psd95_glmm_CpG_ID,
@@ -188,6 +186,7 @@ psd95_glmm_CpG_OLREtest <- glmmTMB(
 
 summary(psd95_glmm_CpG_OLREtest)
 ```
+
 ```{r}
 library(DHARMa)
 sim_olre <- simulateResiduals(psd95_glmm_CpG_OLREtest, n = 1500)
@@ -195,24 +194,183 @@ testDispersion(sim_olre)
 
 ```
 
-
 Frustrane Modelle wegen bleibender Übderdispersion
 
-Versuche auf CpGs zu verzichten gemäß PCA.
-Vielleicht für Tau auch notwendig.
+Versuche auf CpGs zu verzichten gemäß PCA. Vielleicht für Tau auch
+notwendig.
 
-Nach Chat:
-✅ It’s justifiable if you do it transparently and carefully
+Nach Chat: ✅ It’s justifiable if you do it transparently and carefully
 
-You can absolutely restrict your inferential modeling to those 3 CpGs provided that:
+You can absolutely restrict your inferential modeling to those 3 CpGs
+provided that:
 
-You pre-specify or justify the reduction.
-e.g., “PCA indicated that 3 CpG positions explained >95 % of variance in PSD95 methylation; subsequent mixed modeling focused on these sites.”
+You pre-specify or justify the reduction. e.g., “PCA indicated that 3
+CpG positions explained \>95 % of variance in PSD95 methylation;
+subsequent mixed modeling focused on these sites.”
 
-You verify that these 3 CpGs are not statistical outliers or sequencing artefacts.
-(Check their read quality and call rate.)
+You verify that these 3 CpGs are not statistical outliers or sequencing
+artefacts. (Check their read quality and call rate.)
 
-You describe them biologically.
-e.g., “CpG7–CpG9 near the transcription start site were the most variable.”
+You describe them biologically. e.g., “CpG7–CpG9 near the transcription
+start site were the most variable.”
 
-You note that other CpGs were excluded because they carried redundant or negligible information.
+You note that other CpGs were excluded because they carried redundant or
+negligible information.
+
+## Fever CpGs
+
+| Rank | CpG  |       |
+|------|------|------:|
+| 1    | p95  | 0.664 |
+| 2    | p60  | 0.484 |
+| 3    | p23  | 0.445 |
+| \-   | ---  | ----- |
+| 4    | m35  | 0.153 |
+| 5    | m28  | 0.103 |
+| 6    | m418 | 0.097 |
+| 7    | m24  | 0.094 |
+| 8    | p91  | 0.094 |
+| 9    | m400 | 0.086 |
+| 10   | m11  | 0.078 |
+
+### select CpGs for new data frame
+
+```{r}
+psd95_top3 <- psd95_subset %>%
+  filter(CpG_Position %in% c("p95", "p60", "p23"))
+```
+
+```{r}
+summary(psd95_top3)
+```
+
+### fit model with selected CpGs
+
+```{r}
+  # 3) Fit zero-inflated beta mixed model (CpG as fixed effect)
+library(glmmTMB)
+fit_top3 <- glmmTMB(
+  methylation ~ Gruppe * Zeitpunkt + Sex + rauchen + Age_start_sc + CogTel_sc +
+                 (1 | ID) + (0 + Zeitpunkt || ID),
+  ziformula   = ~ Zeitpunkt + Gruppe,
+  family      = beta_family(link = "logit"),
+  data        = psd95_top3
+)
+
+summary(fit_top3)
+```
+
+```{r}
+library(DHARMa)
+sim <- simulateResiduals(fit_top3, n = 2000)
+plot(sim); testUniformity(sim); testDispersion(sim); testZeroInflation(sim)
+```
+
+```{r}
+# 1) Keep CpG fixed; simplify the zero part (Gruppe was NS there)
+fit_top3_ZIzeit <- update(fit_top3, ziformula = ~ Zeitpunkt)
+
+# 2) Let dispersion vary a bit by time (soaks up the slight under-dispersion)
+fit_top3_phi <- update(fit_top3_ZIzeit, dispformula = ~ Zeitpunkt)
+
+# Compare and re-check DHARMa
+bbmle::AICtab(fit_top3, fit_top3_ZIzeit, fit_top3_phi, sort = TRUE)
+
+library(DHARMa)
+sim <- simulateResiduals(fit_top3_phi, n = 2000)
+plot(sim); testUniformity(sim); testDispersion(sim); testZeroInflation(sim)
+
+```
+
+```{r}
+library(emmeans)
+best <- fit_top3_phi  # your chosen model
+
+# 1) Get component-wise estimates on the response scale
+em_mu <- as.data.frame(emmeans(best, ~ Gruppe * Zeitpunkt, component="cond", type="response"))
+em_zi <- as.data.frame(emmeans(best, ~ Zeitpunkt,          component="zi",   type="response"))
+
+# 2) Merge zero-prob by time (same for both groups)
+names(em_zi)[names(em_zi)=="response"] <- "p0"
+names(em_zi)[names(em_zi)=="SE"]       <- "p0_SE"
+EY <- merge(em_mu, em_zi[, c("Zeitpunkt","p0","p0_SE")], by="Zeitpunkt", all.x=TRUE)
+
+# 3) Combine: Ey = (1 - p0)*mu, with delta-method SE (ignoring tiny cross-covariance)
+EY$Ey    <- (1 - EY$p0) * EY$response
+EY$Ey_SE <- sqrt( (1 - EY$p0)^2 * EY$SE^2 + (EY$response^2) * EY$p0_SE^2 )
+
+# 4) 95% CI on response scale (simple Normal approx)
+EY$LCL <- pmax(0, EY$Ey - 1.96*EY$Ey_SE)
+EY$UCL <- pmin(1, EY$Ey + 1.96*EY$Ey_SE)
+
+# (Optional) slightly better-bounded CI via logit transform
+logit   <- function(x) log(x/(1-x)); invlogit <- function(x) 1/(1+exp(-x))
+g       <- logit(pmin(pmax(EY$Ey, 1e-6), 1-1e-6))
+dg_dEy  <- 1/(EY$Ey*(1 - EY$Ey))
+se_g    <- dg_dEy * EY$Ey_SE
+EY$LCL2 <- invlogit(g - 1.96*se_g)
+EY$UCL2 <- invlogit(g + 1.96*se_g)
+
+# 5) Tidy output
+out <- EY[, c("Gruppe","Zeitpunkt","Ey","LCL","UCL","LCL2","UCL2")]
+out[order(out$Zeitpunkt, out$Gruppe), ]
+
+```
+
+ChatGPT: What to report (template)
+
+Model: zero-inflated beta with CpG (top-3) as fixed effect; random
+(1\|ID) and uncorrelated (0+Zeitpunkt\|\|ID); ziformula = \~ Zeitpunkt;
+dispformula = \~ Zeitpunkt.
+
+Diagnostics: dispersion test \~ OK (slight under-dispersion), ZI OK, KS
+OK.
+
+Effects: report (i) group contrasts at each time from pairs(em_mu,
+by="Zeitpunkt"), (ii) ZI by time from em_zi, and (iii) overall expected
+methylation table EY_tab with 95% bootstrapped CIs.
+
+Sensitivity: include the no-CpG model and the CpG-fixed/no-phi model in
+the appendix—AICs worse, conclusions unchanged.
+
+That’s a publishable endpoint. If you want, I can help format EY_tab
+into a nice table (means ± CI) and give a ggplot snippet for a clean
+figure.
+
+## Report ChatGPT
+
+Overall expected methylation
+
+| Zeitpunkt | Controll E\[y\] (95% CI) | Piano E\[y\] (95% CI) | Δ (Controll − Piano) | Piano vs Controll |
+|:-------------:|:-------------:|:-------------:|:-------------:|:-------------:|
+| T0 | 0.136 (0.110–0.167) | 0.146 (0.119–0.178) | −0.010 | +7.1% (p = 0.65) |
+| T1 | 0.161 (0.134–0.192) | 0.156 (0.129–0.186) | +0.005 | −3.2% (p = 0.80) |
+| T2 | 0.190 (0.157–0.229) | 0.134 (0.108–0.165) | **+0.056** | **−29.6% (p = 0.016)** |
+
+Notes
+
+CIs are the bounded (logit-transformed) intervals you computed
+(LCL2–UCL2), so they stay within \[ 0 , 1\] \[0,1\].
+
+p-values use a quick delta method combining the component SEs (no
+bootstrap). T2 remains clearly different; T0/T1 are not.
+
+One-line result you can paste
+
+Overall expected methylation 𝐸 \[ 𝑦\] E\[y\] was similar between groups
+at T0 and T1, but at T2 Control exceeded Piano (0.190 \[0.157–0.229\] vs
+0.134 \[0.108–0.165\]; Δ = 0.056; \~30% lower in Piano; p ≈ 0.016).
+
+
+```{r}
+psd95_best <- glmmTMB(
+  methylation ~ Gruppe * Zeitpunkt + Sex + rauchen + scale(Age_start) + scale(CogTel) +
+    (1 | ID) + (0 + Zeitpunkt || ID),          # uncorrelated time slopes
+  ziformula   = ~ Zeitpunkt,                    # ZI varies by time
+  dispformula = ~ Zeitpunkt,                    # phi varies by time (best by AIC)
+  family = beta_family(link="logit"),
+  data = psd95_top3
+)
+summary(psd95_best)
+```
+

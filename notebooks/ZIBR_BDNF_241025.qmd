@@ -377,6 +377,50 @@ E[y]=(1−p
 
 Reduktion in Odds!
 
+
+| Zeitpunkt | Controll E[y] (95% CI) | Piano E[y] (95% CI) | Δ (Control − Piano) | Piano vs Control | z      | p-value      |
+|:---------:|:------------------------|:---------------------|--------------------:|-----------------:|:------:|:-------------|
+| T0        | 0.0294 (0.0292–0.0296)  | 0.0273 (0.0271–0.0275) | +0.0021            | −7.1%           | 14.55  | 5.65×10⁻⁴⁸  |
+| T1        | 0.0279 (0.0277–0.0281)  | 0.0259 (0.0257–0.0261) | +0.0020            | −7.2%           | 13.86  | 1.12×10⁻⁴³  |
+| T2        | 0.0355 (0.0352–0.0359)  | 0.0330 (0.0328–0.0333) | +0.0025            | −7.0%           | 11.39  | 4.57×10⁻³⁰  |
+
+For BDNF, overall expected methylation 
+𝐸
+[
+𝑦
+]
+=
+(
+1
+−
+𝑝
+0
+)
+𝜇
+E[y]=(1−p
+0
+	​
+
+)μ was consistently lower in the Piano group compared with Controll across all time points. At T0, Controll was 0.0294 (0.0292–0.0296) vs Piano 0.0273 (0.0271–0.0275) (Δ = 0.0021; ~7% lower in Piano). At T1, Controll 0.0279 (0.0277–0.0281) vs Piano 0.0259 (0.0257–0.0261) (Δ = 0.0020; ~7% lower). At T2, Controll 0.0355 (0.0352–0.0359) vs Piano 0.0330 (0.0328–0.0333) (Δ = 0.0025; ~7% lower). Differences are small in absolute terms (~0.002–0.003), but stable in direction (~7% lower in Piano).
+
+
+```{r}
+bdnf_best <- glmmTMB(
+  methylierung ~ Standort + Zeitpunkt + Gruppe + Sex + rauchen +
+    scale(Age_start) + scale(CogTel) +
+    (1 | ID) + (0 + Zeitpunkt || ID) + (1 | CpG_position),
+  ziformula   = ~ Zeitpunkt,      # ZI by time (better than +Gruppe)
+  family = beta_family(link="logit"),
+  data = bdnf_nona
+)
+summary(bdnf_best)
+```
+
+
+
+
+# Other Stuff
+
 ```{r}
 library(dplyr)
 library(ggplot2)
