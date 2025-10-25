@@ -1,7 +1,8 @@
 ---
-title: "Linear models"
+title: "Linear models with stepwise selection"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
+lastmod: "?-11-2024"
 output: html
 ---
 

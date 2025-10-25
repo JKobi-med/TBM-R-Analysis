@@ -1,0 +1,198 @@
+---
+title: "Zero Inflated Beta Regression for Tau Methylation Data"
+author: "Jonas J. R. Koberschinski"
+date: "25-10-2025"
+lastmod: "25-10-2025"
+output: html
+---
+
+# Preparation
+## Load Required Libraries 
+```{r}
+library(tidyverse) # For data manipulation and visualization
+library(dplyr) # For data manipulation
+library(readxl) # For reading Excel files
+library(glmmTMB) # For generalized linear mixed models
+library(performance) # For model performance assessment
+library(DHARMa)
+# optional: library(emmeans)# For residual diagnostics
+library(ggplot2) # For data visualization
+```
+
+## Load Data
+```{r}
+tau <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+ 
+head(tau)
+#summary(tau)
+#str(tau)
+```
+
+## Subset Data and Drop NA
+
+```{r}
+# Create a subset of the data with relevant columns and drop rows with NA values
+tau_subset <- tau %>%
+  select(
+    ID,
+    standort_aus_andere_quelle,
+    Zeit,
+    Gruppe,
+    Sex,
+    Age_start,
+    CogTel,
+    CpG_position,
+    Psycholgical,
+    rauchen,
+    methylation
+  ) %>%
+  mutate(
+    ID = as.factor(ID),
+    standort_aus_andere_quelle = as.factor(standort_aus_andere_quelle),
+    Zeit = as.factor(Zeit),
+    Gruppe = as.factor(Gruppe),
+    Sex = as.factor(Sex),
+    CpG_position = as.factor(CpG_position),
+    CogTel = as.numeric(CogTel),
+    Psycholgical = as.numeric(Psycholgical),
+    rauchen = as.factor(rauchen),
+    methylation = as.numeric(methylation)
+  ) %>%
+  drop_na()
+
+str(tau_subset)
+```
+
+```{r}
+summary(tau_subset$methylation)
+range(tau_subset$methylation)
+sum(tau_subset$methylation == 1)  # Count how many exact 1s
+sum(tau_subset$methylation == 0)  # For reference on zeros
+```
+
+Ein einzelner Wert = 1
+
+```{r}
+tau_subset$methylation <- tau_subset$methylation[tau_subset$methylation == 1] <- 1 - 1e-9
+```
+
+
+## 
+
+# Model Fitting
+
+```{r}
+# model
+tau_glmm_1 <- glmmTMB(
+  methylation ~ Gruppe * Zeit + Sex + rauchen + Age_start + CogTel + Psycholgical +
+    (1 + Zeit | ID) + (1 | CpG_position),            # random intercepts + Zeit slope by ID
+  ziformula = ~ Gruppe + Zeit + (1 | CpG_position),  # drivers of exact zeros
+  dispformula = ~ 1 + (1 | CpG_position),            # allow CpG-specific dispersion (optional)
+  family = beta_family(link = "logit"),
+  data = d,
+  REML = FALSE
+)
+
+summary(tau_glmm_1)
+
+# diagnostics
+tau_glmm_1 <- simulateResiduals(fit, n = 1000)
+plot(tau_glmm_1)
+
+#(Optional) Marginal means / contrasts for Gruppe × Zeit
+# em <- emmeans(tau_glmm_1, ~ Gruppe * Zeit, type = "response")
+# pairs(em, by = "Zeit")  # or other contrasts
+
+```
+
+
+```{r}
+tau_glmm_1 <- glmmTMB(
+  methylation ~ Gruppe + Zeit + Sex + rauchen + (1|ID),            # random intercepts + Zeit slope by ID
+  ziformula = ~ Zeit + (1 | CpG_position),  # drivers of exact zeros
+  dispformula = ~ 1 + (1 | CpG_position), 
+  family = beta_family(link = "logit"),
+  data = tau_subset,
+  REML = FALSE
+)
+
+summary(tau_glmm_1)
+
+# diagnostics
+tau_glmm_1 <- simulateResiduals(fit, n = 1000)
+plot(tau_glmm_1)
+
+#(Optional) Marginal means / contrasts for Gruppe × Zeit
+# em <- emmeans(tau_glmm_1, ~ Gruppe * Zeit, type = "response")
+# pairs(em, by = "Zeit")  # or other contrasts
+
+```
+
+
+```{r}
+library(DHARMa)
+tau_glmm_1 <- simulateResiduals(fit, n = 1000)
+plot(tau_glmm_1)
+testUniformity(tau_glmm_1)
+testZeroInflation(tau_glmm_1)   # should NOT suggest extra zeros beyond your ziformula
+testDispersion(tau_glmm_1)
+
+```
+
+```{r}
+fit_phi <- update(
+  fit,
+  dispformula = ~ Zeit + Gruppe + (1 | ID) + (1 | CpG_position)
+)
+library(DHARMa)
+sim_phi <- simulateResiduals(fit_phi, n = 2000)
+plot(sim_phi); testUniformity(sim_phi); testDispersion(sim_phi); testZeroInflation(sim_phi)
+```
+
+
+
+```{r}
+glmmTMB(
+  methylation ~ Gruppe * Zeit + Sex + rauchen + Age_start + CogTel + Psycholgical +
+    (1 + Zeit | ID) + (1 | CpG_position),            # random intercepts + optional slope
+  ziformula = ~ Gruppe + Zeit + (1 | CpG_position),  # what drives exact zeros
+  dispformula = ~ 1 + (1 | CpG_position),            # allow CpG-specific dispersion (optional)
+  family = beta_family(link = "logit"),
+  data = d
+)
+
+```
+
+```{r}
+tau_glmm_CpG_ZeitID <- glmmTMB(
+  methylation ~ standort_aus_andere_quelle + Gruppe + Sex + Age_start + CogTel + Zeit + (1|CpG_position) + (1|Zeit:ID),
+  ziformula = ~1,
+  family = beta_family(link = "logit"),
+  data = tau_subset
+)
+summary(tau_glmm_CpG_ZeitID)
+```
+
+```{r}
+tau_glmm_CpG_zeit <- glmmTMB(
+  methylation ~ standort_aus_andere_quelle + Gruppe + Sex + Age_start + CogTel + Zeit + (1|CpG_position),
+  ziformula = ~1,
+  family = beta_family(link = "logit"),
+  data = tau_subset
+)
+summary(tau_glmm_CpG_zeit)
+```
+
+
+```{r}
+tau_glmm_CpG_ID <- glmmTMB(
+  methylation ~ standort_aus_andere_quelle + Gruppe + Sex + Age_start + CogTel + Zeit + (1|CpG_position) + (1|ID) + (1|Zeit:Gruppe),
+  ziformula = ~Zeit + Gruppe,
+  family = beta_family(link = "logit"),
+  data = tau_subset
+)
+summary(tau_glmm_CpG_ID)
+
+
+```
+

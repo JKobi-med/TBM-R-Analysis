@@ -1,7 +1,7 @@
 ---
 title: "BDNF - Multiple Linear Regression "
 author: "Jonas J.R. Koberschinski"
-data: "2024-11-18"
+date: "2024-11-18"
 output: html
 ---
 

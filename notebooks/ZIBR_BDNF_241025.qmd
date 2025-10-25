@@ -1,0 +1,465 @@
+---
+title: "Zero Inflated Beta Regression for BDNF Methylation Data"
+author: "Jonas J. R. Koberschinski"
+date: "24-10-2025"
+lastmod: "25-10-2025"
+output: html
+---
+
+# Preparation
+## Load libraries
+
+```{r}
+library(tidyverse) # For data manipulation and visualization
+library(dplyr) # For data manipulation
+library(readxl) # For reading Excel files
+library(glmmTMB) # For generalized linear mixed models
+library(performance) # For model performance assessment
+library(DHARMa) # For residual diagnostics
+library(ggplot2) # For data visualization
+```
+
+Zero-inflated Beta-Binomial models with the2 scDMV R package
+
+## Data import
+
+```{r}
+bdnf <- read_excel("~/Work/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+
+tau <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+
+psd95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+
+ ##first look at BDNF data
+head(bdnf)
+summary(bdnf)
+## Check the structure of the dataset
+str(bdnf)
+
+```
+
+## Subset Data and Drop NA
+
+```{r}
+# Remove rows with NA values in the 'methylierung' column
+bdnf_subset <- bdnf %>%
+  select(
+    ID,
+    Standort,
+    Zeitpunkt,
+    Gruppe,
+    Sex,
+    Age_start,
+    CogTel,
+    CpG_position,
+    rauchen,
+    methylierung
+  ) %>%
+  mutate(
+    ID = as.factor(ID),
+    Standort = as.factor(Standort),
+    Zeitpunkt = as.factor(Zeitpunkt),
+    Gruppe = as.factor(Gruppe),
+    Sex = as.factor(Sex),
+    CpG_position = as.factor(CpG_position),
+    CogTel = as.numeric(CogTel),
+    rauchen = as.factor(rauchen)
+  ) 
+bdnf_nona <- drop_na(bdnf_subset)
+str(bdnf_subset)
+```
+
+# Analysis
+## all cpgs
+
+### Normality check
+
+```{r}
+# Descriptive statistics for methylierung
+mean(bdnf_nona$methylierung)
+sd(bdnf_nona$methylierung)
+median(bdnf_nona$methylierung)
+
+# Another Histogram
+hist(bdnf_nona$methylierung, breaks = 60, main = "BDNF Methylation distribution", xlab = "Methylation")
+hist(tau$methylation, breaks = 60, main = "TAU Methylation distribution", xlab = "Methylation")
+hist(psd95$methylation, breaks = 60, main = "PSD95 Methylation distribution", xlab = "Methylation")
+
+# QQ plot
+## BDNF
+qqnorm(bdnf_nona$methylierung)
+qqline(bdnf_nona$methylierung, col = "red")
+
+## Tau
+qqnorm(tau$methylation)
+qqline(tau$methylation, col = "blue")
+
+## PSD95
+qqnorm(psd95$methylation)
+qqline(psd95$methylation, col = "green")
+
+
+# Shapiro-Wilk normality test
+shapiro.test(bdnf_nona$methylierung)
+
+# Boxplot to visualize methylierung distribution
+boxplot(bdnf_nona$methylierung, main="Boxplot of BDNF Methylation Levels", ylab="Methylation Levels")
+```
+
+zero-inflated Poisson distributions {\displaystyle \mu } = 0,114 {\displaystyle \pi } = 426
+
+```{r}
+#summary(m1 <- zeroinfl(bdnf_nona$methylierung ~ bdnf_nona$Zeitpunkt + bdnf_nona$Group | #bdnf_nona$id_umstrukturiereninst, data = bdnf_nona))
+```
+
+### Descriptive statistics for zero-inflation
+
+```{r}
+# Total count
+bdnf_nona %>%
+  count() # 3603
+
+
+# Count of zeros
+bdnf_nona %>%
+  filter(methylierung == 0) %>%
+  count() # 1643
+
+# Count of non-zeros
+bdnf_nona %>%
+  filter(methylierung > 0) %>%
+  count() # 1960
+
+# Proportion of zeros
+bdnf_nona %>%
+  summarise(prop_zero = mean(methylierung == 0))
+
+
+```
+
+```{r}
+bdnf_nona %>%
+  summarise(
+    total_mean = mean(methylierung),
+    nonzero_mean = mean(methylierung[methylierung > 0]),
+    n_total = n(),
+    n_zero = sum(methylierung == 0),
+    prop_zero = mean(methylierung == 0)
+  )
+
+```
+
+## Zero-inflated Beta-Binomial models
+
+### glmmTMB
+```{r}
+library(glmmTMB)
+
+# Zero-inflated Beta
+bdnf_glmm <- glmmTMB(
+  methylierung ~ Standort + Zeitpunkt + Gruppe + Sex + rauchen + Age_start + CogTel + (1|ID) + (1|CpG_position) + (0 + Zeitpunkt | ID),
+  ziformula = ~ Zeitpunkt + Gruppe,        # model for zeros
+  family = beta_family(link = "logit"),
+  data = bdnf_nona
+)
+summary(bdnf_glmm)
+#preds <- predict(mod, type="response")
+#range(preds)
+```
+```{r}
+library(DHARMa)
+sim <- simulateResiduals(bdnf_glmm, n = 2000)
+plot(sim); testUniformity(sim); testDispersion(sim); testZeroInflation(sim)
+```
+
+```{r}
+library(bbmle)
+fit_noIDSlope <- update(bdnf_glmm, formula = . ~ . - (0 + Zeitpunkt | ID))
+fit_noCpG     <- update(bdnf_glmm, formula = . ~ . - (1 | CpG_position))
+bbmle::AICtab(bdnf_glmm, fit_noIDSlope, fit_noCpG, sort = TRUE)
+
+```
+```{r}
+# Uncorrelated slopes for Zeitpunkt by ID
+fit_uncorr <- update(
+  bdnf_glmm,
+  formula = . ~ . - (0 + Zeitpunkt | ID) + (0 + Zeitpunkt || ID)
+)
+summary(fit_uncorr)
+
+# Compare fit
+bbmle::AICtab(bdnf_glmm, fit_uncorr, sort = TRUE)
+
+```
+```{r}
+fit_ZIzeit <- update(bdnf_glmm, ziformula = ~ Zeitpunkt)
+bbmle::AICtab(bdnf_glmm, fit_ZIzeit, sort = TRUE)
+
+```
+```{r}
+# 1) Use the simpler ZI:
+fit_final <- update(fit_uncorr, ziformula = ~ Zeitpunkt)
+
+# 2) Diagnostics
+library(DHARMa)
+sim <- simulateResiduals(fit_final, n = 2000)
+plot(sim); testUniformity(sim); testDispersion(sim); testZeroInflation(sim)
+
+# (Optional) confirm Hessian
+fit_final$sdr$pdHess      # should be TRUE
+fit_final$fit$convergence # should be 0
+```
+
+
+
+```{r}
+# Grid at typical covariates
+newd <- with(bdnf_nona, expand.grid(
+  Gruppe     = levels(Gruppe),
+  Zeitpunkt  = levels(Zeitpunkt),
+  Standort   = names(which.max(table(Standort))),
+  Sex        = names(which.max(table(Sex))),
+  rauchen    = names(which.max(table(rauchen))),
+  Age_start  = median(Age_start, na.rm=TRUE),
+  CogTel     = median(CogTel, na.rm=TRUE),
+  ID = NA, CpG_position = NA
+))
+
+mu <- predict(fit_final, newdata = newd, type = "response", se.fit = TRUE)  # beta mean
+p0 <- predict(fit_final, newdata = newd, type = "zprob",    se.fit = TRUE)  # zero prob
+Ey <- (1 - p0$fit) * mu$fit
+cbind(newd[, c("Gruppe","Zeitpunkt")], Ey)
+
+```
+
+
+```{r}
+library(emmeans)
+
+# Conditional (beta) mean
+em_mu <- emmeans(fit_final, ~ Gruppe * Zeitpunkt, component = "cond", type = "response")
+summary(em_mu)
+pairs(em_mu, by = "Zeitpunkt")
+
+# Zero probability
+em_zi <- emmeans(fit_final, ~ Zeitpunkt, component = "zi", type = "response")
+em_zi
+pairs(em_zi)  
+```
+```{r}
+# Conditional (beta) mean, response scale + pairwise group contrasts within each time
+em_mu <- emmeans(fit_final, ~ Gruppe * Zeitpunkt, component = "cond", type = "response")
+summary(em_mu)
+
+# Pairwise contrasts on the response scale (differences, not odds ratios)
+contrast(em_mu, method = "pairwise", by = "Zeitpunkt", type = "response")
+
+```
+```{r}
+newd <- with(bdnf_nona, expand.grid(
+  Gruppe     = levels(Gruppe),
+  Zeitpunkt  = levels(Zeitpunkt),
+  Standort   = names(which.max(table(Standort))),
+  Sex        = names(which.max(table(Sex))),
+  rauchen    = names(which.max(table(rauchen))),
+  Age_start  = median(Age_start, na.rm=TRUE),
+  CogTel     = median(CogTel, na.rm=TRUE),
+  ID = NA, CpG_position = NA
+))
+
+mu <- predict(fit_final, newdata = newd, type = "response", se.fit = TRUE)  # beta mean
+p0 <- predict(fit_final, newdata = newd, type = "zprob",    se.fit = TRUE)  # zero prob
+Ey <- (1 - p0$fit) * mu$fit
+cbind(newd[, c("Gruppe","Zeitpunkt")], Ey)
+
+```
+
+
+
+
+```{r}
+bdnf_glmm_final <- glmmTMB(
+  methylierung ~ Standort + Zeitpunkt + Gruppe + Sex + rauchen +
+                   Age_start + CogTel +
+                   (1 | CpG_position) +          # CpG random intercept
+                   (0 + Zeitpunkt || ID),        # uncorrelated time slopes by participant
+  ziformula = ~ Zeitpunkt,                        # zero-inflation depends only on time
+  family = beta_family(link = "logit"),
+  data = bdnf_nona
+)
+
+summary(bdnf_glmm_final)
+```
+
+ChatGPT Summary:# Summary of Zero-Inflated Beta Mixed Model for BDNF Methylation Data
+
+Final model:
+Zero-inflated beta mixed model with uncorrelated participant time slopes and CpG random intercepts; zero inflation depends only on measurement time.
+Fit quality: converged cleanly, no dispersion or zero-inflation problems, lowest AIC among tested candidates.
+Findings: the intervention (Piano) group shows a modest reduction in BDNF promoter methylation relative to controls, while the probability of complete lack of methylation (exact zeros) decreases at the final time point (T2).
+
+```{r}
+# You probably already have these model objects:
+#   bdnf_glmm      – full (correlated slopes, ZI with Gruppe+Zeitpunkt)
+#   fit_uncorr     – uncorrelated slopes, ZI with Gruppe+Zeitpunkt
+#   fit_ZIzeit     – uncorrelated slopes, ZI only with Zeitpunkt
+#   fit_noIDSlope  – no Zeit slopes
+#   fit_noCpG      – no CpG random intercept (failed)
+
+library(bbmle)
+
+AICtab(
+  bdnf_glmm,
+  fit_uncorr,
+  fit_ZIzeit,
+  fit_noIDSlope,
+  fit_noCpG,
+  sort = TRUE
+)
+
+```
+```{r}
+# Helper grid
+newd <- with(bdnf_nona, expand.grid(
+  Gruppe     = levels(Gruppe),
+  Zeitpunkt  = levels(Zeitpunkt),
+  Standort   = names(which.max(table(Standort))),
+  Sex        = names(which.max(table(Sex))),
+  rauchen    = names(which.max(table(rauchen))),
+  Age_start  = median(Age_start, na.rm=TRUE),
+  CogTel     = median(CogTel, na.rm=TRUE),
+  ID = NA, CpG_position = NA
+))
+
+# Predictions
+mu <- predict(fit_final, newdata=newd, type="response", se.fit=TRUE)
+p0 <- predict(fit_final, newdata=newd, type="zprob",    se.fit=TRUE)
+
+Ey <- (1 - p0$fit) * mu$fit
+Ey.SE <- sqrt((mu$se.fit * (1 - p0$fit))^2 + (p0$se.fit * mu$fit)^2)  # delta approximation
+Ey.lo <- plogis(qlogis(Ey) - 1.96 * Ey.SE)   # approximate 95 % CI on response scale
+Ey.hi <- plogis(qlogis(Ey) + 1.96 * Ey.SE)
+
+EY_tab <- cbind(newd[, c("Gruppe","Zeitpunkt")],
+                Mean = round(Ey, 4),
+                LCL = round(Ey.lo, 4),
+                UCL = round(Ey.hi, 4))
+EY_tab
+
+```
+
+
+
+
+ChatGPT:
+A zero-inflated beta mixed model with uncorrelated participant time slopes and CpG random intercepts (AIC = 206.9) provided the best fit.
+The intervention group (Piano) exhibited slightly lower BDNF promoter methylation (β = −0.082, p = 0.05).
+Zero inflation decreased at T2 versus baseline (p = 0.036), indicating fewer complete non-methylation observations.
+Between-CpG variability remained substantial (SD ≈ 0.44).
+Predicted overall methylation 
+𝐸
+[
+𝑦
+]
+=
+(
+1
+−
+𝑝
+0
+)
+𝜇
+E[y]=(1−p
+0
+	​
+
+)μ averaged 0.10–0.11 in controls and 0.09–0.10 in the Piano group across time points.
+
+Reduktion in Odds!
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# Daten vorbereiten
+bdnf_plot <- bdnf_nona %>%
+  mutate(is_zero = ifelse(methylierung == 0, 1, 0)) %>%
+  group_by(CpG_position, Gruppe) %>%
+  summarise(
+    mean_methyl = mean(methylierung[methylierung > 0], na.rm = TRUE),
+    prop_zero = mean(is_zero, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Beta-Teil (Mittelwert der Methylierung)
+p1 <- ggplot(bdnf_plot, aes(x = CpG_position, y = mean_methyl, fill = Gruppe)) +
+  geom_col(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Beta-Teil: Mittelwert der Methylierung (>0)",
+       y = "Mittelwert", x = "CpG Position") +
+  scale_fill_brewer(palette = "Set1")
+
+# Zero-Inflation Teil
+p2 <- ggplot(bdnf_plot, aes(x = CpG_position, y = prop_zero, fill = Gruppe)) +
+  geom_col(position = "dodge") +
+  theme_minimal() +
+  labs(title = "Zero-Inflation: Anteil Nullwerte",
+       y = "Proportion Nullwerte", x = "CpG Position") +
+  scale_fill_brewer(palette = "Set2")
+
+# Plots anzeigen
+library(gridExtra)
+grid.arrange(p1, p2, nrow = 2)
+
+```
+
+```{r}
+testDispersion(mod)
+```
+
+```{r}
+library(DHARMa)
+
+# Simulate residuals
+sim_res <- simulateResiduals(fittedModel = mod_CpG_ID, n = 1000)
+residuals(sim_res)
+
+# Plot residuals
+plot(sim_res)
+```
+
+https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
+
+```{r}
+check_model(mod)
+check_model(mod_CpG_ID)
+```
+
+## BDNF (High Variance CpGs)
+
+```{r}
+bdnf_reduced <- bdnf %>%
+  dplyr::select(methylierung, Group, Zeitpunkt, Standort, Geschlecht, Age_start, CogTel, id_umstrukturieren, CpG_position) %>%
+  dplyr::filter(CpG_position %in% c("m148", "m066", "m111", "m058", "m039")) #( maybe add m035)
+```
+
+```{r}
+hist(bdnf_reduced$methylierung, breaks = 60, main = "BDNF Methylation distribution", xlab = "Methylation")
+```
+
+```{r}
+library(glmmTMB)
+
+# Zero-inflated Beta
+mod <- glmmTMB(
+  methylierung ~ Standort + Zeitpunkt + Group + Geschlecht + Age_start + CogTel,
+  ziformula = ~ Group + Zeitpunkt,        # model for zeros
+  family = beta_family(link = "logit"),
+  data = bdnf_reduced
+)
+summary(mod)
+#preds <- predict(mod, type="response")
+#range(preds)
+```
+
+Bestes Modell (Geringste AIC) methylierung \~ Standort + Gruppe + Sex + Age_start + CogTel + Zeitpunkt + (1 \| CpG_position) + (1 \| ID)

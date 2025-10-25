@@ -1,11 +1,13 @@
 ---
-title: "LM nach PCA"
+title: "Linear models (PostPCA)"
 author: "Jonas J.R. Koberschinski"
 date: "20-10-2025"
+lastmod: "25-10-2025"
 output: html
 ---
 
 ## Data import
+
 ```{r}
 #| echo: true
 #| include: false
@@ -64,6 +66,7 @@ head(bdnf_mean_T2T0)
 #### T2-T0
 
 ##### mean
+
 ```{r}
 lm_bdnf_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
                   data = bdnf_mean_T2T0)
@@ -86,8 +89,8 @@ par(mfrow = c(2,2))
 plot(lm_bdnf_median_T2T0)
 ```
 
-
 #### T1 - T0
+
 ##### mean
 
 ```{r}
@@ -105,6 +108,7 @@ Gruppendifferenz!
 ##### median
 
 Gruppendifferenz bei mean nicht mehr vorhanden beim Median
+
 ```{r}
 lm_bdnf_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
                   data = bdnf_median_T1T0)
@@ -115,8 +119,8 @@ par(mfrow = c(2,2))
 plot(lm_bdnf_median_T1T0)
 ```
 
-
 #### T2 - T1
+
 ##### mean
 
 ```{r}
@@ -141,12 +145,12 @@ par(mfrow = c(2,2))
 plot(lm_bdnf_median_T2T1)
 ```
 
-
 ### Tau
 
 #### T2-T0
 
 ##### mean
+
 ```{r}
 lm_tau_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
                   data = tau_mean_T2T0)
@@ -170,10 +174,10 @@ par(mfrow = c(2,2))
 plot(lm_tau_median_T2T0)
 ```
 
-
 #### T1 - T0
 
 ##### mean
+
 ```{r}
 lm_tau_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
                   data = tau_mean_T1T0)
@@ -195,9 +199,11 @@ summary(lm_tau_median_T1T0)
 par(mfrow = c(2,2))
 plot(lm_tau_median_T1T0)
 ```
+
 Standortdifferenz im Median?
 
 #### T2 - T1
+
 ##### mean
 
 ```{r}
@@ -260,8 +266,8 @@ lm_psd95_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + 
 
 summary(lm_psd95_mean_T1T0)
 ```
-Standortdifferenz im Mean?
-##### median
+
+Standortdifferenz im Mean? \##### median
 
 ```{r}
 lm_psd95_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
@@ -269,10 +275,13 @@ lm_psd95_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel 
 
 summary(lm_psd95_median_T1T0)
 ```
+
 Keine Standortdifferenz im Mean? Dafür Geschlechtsdifferenz?!
 
 #### T2 - T1
+
 ##### mean
+
 ```{r}
 lm_psd95_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
                   data = psd95_mean_T2T1)
@@ -295,8 +304,3 @@ summary(lm_psd95_median_T2T1)
 par(mfrow = c(2,2))
 plot(lm_psd95_median_T2T1)
 ```
-
-
-
-
-

@@ -1,7 +1,8 @@
 ---
-title: "Principal Component Analysis"
-author: "Jonas J.R. Koberschinski"
+title: "Principal Component Analysis (PCA) using Covariance Matrix"
+author: "Jonas J. R. Koberschinski"
 date: "16-10-2025"
+
 format: html
 ---
 
@@ -351,6 +352,11 @@ head(ranked_psd95_cpgs)
 | 8 | p91 | 0.094 |
 | 9 | m400 | 0.086 |
 | 10 | m11 | 0.078 |
+
+ChatGPT:
+What to report
+
+“PC1 loadings show a sharp elbow after 3 CpGs (figure). We therefore analyze the top-3 CpGs that explain the majority of variability and provide sensitivity analyses using (i) all CpGs and (ii) a PC1-based composite.”
 
 ### Visualize ranked loadings
 

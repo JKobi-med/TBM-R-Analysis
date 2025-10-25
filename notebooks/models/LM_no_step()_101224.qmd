@@ -1,7 +1,8 @@
 ---
-title: "Linear_models_short_101224"
+title: "Linear Models (Short Version)"
 author: "Jonas J.R. Koberschinski"
-date: "14-11-2024"
+date: "21-11-2024"
+
 output: html
 ---
 
@@ -58,6 +59,9 @@ head(bdnf_mean_T2T0)
 ```
 
 ## LM: Regression analysis (Bivariate/multivariate)
+
+With dependent variable: Change in biomarker levels between timepoints (T2-T0, T1-T0, T2-T1)
+Without stepwise selection of predictors through step().
 
 ### BDNF
 

@@ -1,4 +1,4 @@
--- 
+--- 
 title: "Generalized Linear Models"
 author: "Jonas J. R. Koberschinski"
 date: "20-10-2025"
