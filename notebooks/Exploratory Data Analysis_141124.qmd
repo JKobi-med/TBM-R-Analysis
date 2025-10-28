@@ -264,8 +264,80 @@ to be continued
 #### PSD95
 to be continued
 
+```{r}
 
 
+library(dplyr)
+library(ggplot2)
+
+cpgl_sum <- eda_bdnf_long %>%
+  group_by(CpG) %>%
+  summarise(
+    q25   = quantile(Expression, 0.25, na.rm = TRUE),
+    median= median(Expression,         na.rm = TRUE),
+    q75   = quantile(Expression, 0.75, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+ggplot(cpgl_sum, aes(x = CpG)) +
+  geom_ribbon(aes(ymin = q25, ymax = q75, group = 1), alpha = 0.25) +   # IQR band
+  geom_line(aes(y = median, group = 1), linewidth = 1) +                # median
+  geom_point(aes(y = median), size = 2) +
+  labs(title = "BDNF CpGs — median with IQR",
+       x = "CpG", y = "Expression") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+```{r}
+library(dplyr)
+library(ggplot2)
+
+id_deciles <- eda_bdnf_long %>%
+  group_by(`ID.BDNF`) %>%
+  summarise(id_mean = mean(Expression, na.rm = TRUE), .groups = "drop") %>%
+  mutate(decile = ntile(id_mean, 10))
+
+decile_cpgl <- eda_bdnf_long %>%
+  inner_join(id_deciles, by = "ID.BDNF") %>%
+  group_by(decile, CpG) %>%
+  summarise(median = median(Expression, na.rm = TRUE), .groups = "drop")
+
+ggplot(decile_cpgl,
+       aes(x = CpG, y = median, group = factor(decile), color = factor(decile))) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  labs(title = "BDNF CpGs — ID mean decile profiles",
+       x = "CpG", y = "Median expression (within decile)", color = "Decile") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r}
+library(dplyr); library(tidyr); library(ggplot2)
+
+wide <- eda_bdnf_long %>%
+  select(`ID.BDNF`, CpG, Expression) %>%
+  pivot_wider(names_from = CpG, values_from = Expression)
+
+set.seed(1)
+k <- 8  # choose 6–12 for ~that many lines
+km <- kmeans(scale(wide[,-1]), centers = k, nstart = 25)
+
+centers <- as.data.frame(km$centers) |>
+  mutate(cluster = factor(seq_len(k))) |>
+  pivot_longer(-cluster, names_to = "CpG", values_to = "Expression")
+
+ggplot(centers, aes(CpG, Expression, group = cluster, color = cluster)) +
+  geom_line(linewidth = 1.1) +
+  geom_point(size = 1.5) +
+  labs(title = "BDNF CpGs — cluster centroid profiles",
+       x = "CpG", y = "Scaled expression", color = "Cluster") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
 
 ```{r}
 #BDNF
@@ -357,4 +429,66 @@ ggplot(eda_psd95_long, aes(x = CpG, y = Expression, group = `Zeitpunkt.PSD95`, c
        y = "Expression Level") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+## CpG summary table
+### BDNF
+```{r}
+library(dplyr)
+# Summary table for CpGs
+cpgl_table_bdnf <- eda_bdnf_long %>%
+  group_by(CpG) %>%
+  summarise(
+    n      = n(),
+    mean   = mean(Expression, na.rm = TRUE),
+    sd     = sd(Expression, na.rm = TRUE),
+    median = median(Expression, na.rm = TRUE),
+    q25    = quantile(Expression, 0.25, na.rm = TRUE),
+    q75    = quantile(Expression, 0.75, na.rm = TRUE),
+    min    = min(Expression, na.rm = TRUE),
+    max    = max(Expression, na.rm = TRUE),
+    .groups = "drop"
+  )
+print(cpgl_table_bdnf, n = Inf)
+```
+
+### Tau
+```{r}
+library(dplyr)
+# Summary table for CpGs
+cpgl_table_tau <- eda_tau_long %>%
+  group_by(CpG) %>%
+  summarise(
+    n      = n(),
+    mean   = mean(Expression, na.rm = TRUE),
+    sd     = sd(Expression, na.rm = TRUE),
+    median = median(Expression, na.rm = TRUE),
+    q25    = quantile(Expression, 0.25, na.rm = TRUE),
+    q75    = quantile(Expression, 0.75, na.rm = TRUE),
+    min    = min(Expression, na.rm = TRUE),
+    max    = max(Expression, na.rm = TRUE),
+    .groups = "drop"
+  )
+print(cpgl_table_tau, n = Inf)
+```
+
+### PSD95
+```{r}
+library(dplyr)
+# Summary table for CpGs
+cpgl_table_psd95 <- eda_psd95_long %>%
+  group_by(CpG) %>%
+  summarise(
+    n      = n(),
+    mean   = mean(Expression, na.rm = TRUE),
+    sd     = sd(Expression, na.rm = TRUE),
+    median = median(Expression, na.rm = TRUE),
+    q25    = quantile(Expression, 0.25, na.rm = TRUE),
+    q75    = quantile(Expression, 0.75, na.rm = TRUE),
+    min    = min(Expression, na.rm = TRUE),
+    max    = max(Expression, na.rm = TRUE),
+    .groups = "drop"
+  )
+print(cpgl_table_psd95, n = Inf)
 ```
