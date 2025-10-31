@@ -1,5 +1,5 @@
 ---
-title: "Principal Component Analysis"
+title: "Principal Component Analysis (correlation matrix)"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
 last_modified: "2025-10-16"
