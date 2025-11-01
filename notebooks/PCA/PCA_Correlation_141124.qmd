@@ -48,7 +48,29 @@ PCA is effectively done on the correlation matrix.
 ```{r}
 cpg_bdnf <- bdnf[11:20]
 pca_bdnf <- prcomp(na.omit(cpg_bdnf), scale = TRUE) #prcomp() centers by default!
+```
+### Normality diagnostics
+```{r}
+# Perform Shapiro-Wilk test for normality on each principal component
+shapiro_p <- sapply(pc_scores, function(z) {
+  n <- length(z)
+  if (n >= 3 && n <= 5000) shapiro.test(z)$p.value else NA_real_
+})
+shapiro_tab <- data.frame(PC = names(shapiro_p),
+                          p_value = as.numeric(shapiro_p),
+                          BH_adj = p.adjust(shapiro_p, method = "BH"))
+print(shapiro_tab)
 
+# Quick QQ-plots for the first two PCs
+par(mfrow = c(1, 2))
+qqnorm(pc_scores[[1]], main = "QQ plot: PC1"); qqline(pc_scores[[1]])
+qqnorm(pc_scores[[2]], main = "QQ plot: PC2"); qqline(pc_scores[[2]])
+par(mfrow = c(1, 1))
+
+```
+
+
+```{r}
 # scaling = standardizing each CpG (mean = 0, sd = 1).
 # PCA is effectively done on the correlation matrix.
 

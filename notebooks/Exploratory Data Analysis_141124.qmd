@@ -151,6 +151,239 @@ describe(psd95_mean_wide)
 describe(psd95_median_wide)
 ```
 
+## Cross-Tabulations and Chi-Squared Tests
+### BDNF
+
+```{r}
+library(dplyr)
+library(crosstable)
+library(forcats)
+library(tibble)
+
+# 1) Variable labels (edit text as you see fit)
+bdnf_labels <- read.table(header = TRUE, text = "
+name      label
+ID        'Participant ID'
+Standort  'Site'
+Gruppe    'Group'
+Sex       'Sex'
+Age_start 'Age at baseline (years)'
+CogTel    'CogTel total score'
+T0        'BDNF at T0'
+T1        'BDNF at T1'
+T2        'BDNF at T2'
+")
+
+# 2) Recode, factor, and attach labels
+bdnf2 <- bdnf_mean_wide %>%
+  mutate(
+    ID = as.integer(ID),
+
+    # Tidy up site coding (adjust labels to your real site names if known)
+    Standort = case_when(
+      Standort %in% c(0, "0") ~ "Site_0",
+      Standort %in% c(1, "1") ~ "Site_1",
+      TRUE ~ as.character(Standort)
+    ),
+
+    # Fix the group typo and keep as readable factor
+    Gruppe = recode(Gruppe, "Controll" = "Control"),
+
+    # Expand sex codes
+    Sex = recode(Sex, "F" = "Female", "M" = "Male"),
+
+    # Make categorical variables factors (ordered by frequency)
+    across(c(Standort, Gruppe, Sex), ~ fct_infreq(as.factor(.x)))
+  ) %>%
+  import_labels(bdnf_labels, name_from = "name", label_from = "label") %>%
+  as_tibble()
+
+# Optional: quick crosstable like in your mtcars example
+# crosstable(bdnf2, by = Gruppe, cols = c(Sex, Age_start, CogTel, T0:T2), total = "both")
+
+```
+
+
+```{r}
+# Crosstable of numeric + categorical vars by Group, keeping participant ID
+crosstable(
+  bdnf2,
+  c(Age_start, CogTel, T0:T2, Sex),
+  by = Gruppe,
+  showNA = "ifany",
+  total = "both"
+) %>%
+  as_flextable(keep_id = TRUE)
+
+
+```
+
+```{r}
+# 1) Build the 2x2 table
+tab <- with(bdnf2, table(Sex, Gruppe))
+tab
+#        Gruppe
+# Sex     Control Piano
+# Female       46    37
+# Male         31    30
+
+# 2) Chi-squared test of independence (adds Yates correction by default)
+chisq.test(tab)
+
+# If any expected cell < 5, prefer Fisher's exact:
+# fisher.test(tab)
+
+# 3) Effect size (phi for 2x2) = sqrt(chi2 / N)
+chi <- suppressWarnings(chisq.test(tab, correct = FALSE))
+phi <- sqrt(unname(chi$statistic) / sum(tab))
+phi
+
+# 4) Two-sample proportion test for "male share" as an alternative view
+prop.test(x = c(tab["Male","Control"], tab["Male","Piano"]),
+          n = c(colSums(tab)["Control"], colSums(tab)["Piano"]))
+```
+
+```{r}
+bdnf_long2 <- bdnf_long %>%
+  mutate(Stratum = interaction(Time, drop = TRUE))  # e.g., T0.Control, T0.Piano, ...
+
+crosstable(
+  bdnf_long,
+  c(Age_start, CogTel, Sex, Gruppe, BDNF),
+  by = Stratum,
+  showNA = "ifany",
+  total = "both",
+  test = TRUE # adds global test across strata
+) %>%
+  as_flextable()
+
+```
+### Tau
+```{r}
+# 1) Variable labels (edit text as you see fit)
+tau_labels <- read.table(header = TRUE, text = "
+name      label
+ID        'Participant ID'
+Standort  'Site'
+Gruppe    'Group'
+Sex       'Sex'
+Age_start 'Age at baseline (years)'
+CogTel    'CogTel total score'
+T0        'Tau at T0'
+T1        'Tau at T1'
+T2        'Tau at T2'
+")
+
+# 2) Recode, factor, and attach labels
+tau2 <- tau_mean_wide %>%
+  mutate(
+    ID = as.integer(ID),
+
+    # Tidy up site coding (adjust labels to your real site names if known)
+    Standort = case_when(
+      Standort %in% c(0, "0") ~ "Site_0",
+      Standort %in% c(1, "1") ~ "Site_1",
+      TRUE ~ as.character(Standort)
+    ),
+
+    # Fix the group typo and keep as readable factor
+    Gruppe = recode(Gruppe, "Controll" = "Control"),
+
+    # Expand sex codes
+    Sex = recode(Sex, "F" = "Female", "M" = "Male"),
+
+    # Make categorical variables factors (ordered by frequency)
+    across(c(Standort, Gruppe, Sex), ~ fct_infreq(as.factor(.x)))
+  ) %>%
+  import_labels(tau_labels, name_from = "name", label_from = "label") %>%
+  as_tibble()
+
+```
+
+```{r}
+
+tau_long <- tau2 %>%
+  pivot_longer(T0:T2, names_to = "Time", values_to = "TAU") %>%
+  mutate(Time = factor(Time, levels = c("T0","T1","T2")),
+         Gruppe = factor(Gruppe),
+         ID = factor(ID))
+tau_long2 <- tau_long %>%
+  mutate(Stratum = interaction(Time, Gruppe, drop = TRUE))  # e.g., T0.Control, T0.Piano, ...
+
+crosstable(
+  tau_long2,
+  c(Age_start, CogTel, Sex, TAU),
+  by = Stratum,
+  showNA = "ifany",
+  total = "both",
+  test = TRUE # adds global test across strata
+) %>%
+  as_flextable()
+
+```
+### PSD95
+```{r}
+# 1) Variable labels (edit text as you see fit)
+psd95_labels <- read.table(header = TRUE, text = "
+name      label
+ID        'Participant ID'
+Standort  'Site'
+Gruppe    'Group'
+Sex       'Sex'
+Age_start 'Age at baseline (years)'
+CogTel    'CogTel total score'
+T0        'PSD95 at T0'
+T1        'PSD95 at T1'
+T2        'PSD95 at T2'
+")
+
+# 2) Recode, factor, and attach labels
+psd952 <- psd95_mean_wide %>%
+  mutate(
+    ID = as.integer(ID),
+
+    # Tidy up site coding (adjust labels to your real site names if known)
+    Standort = case_when(
+      Standort %in% c(0, "0") ~ "Site_0",
+      Standort %in% c(1, "1") ~ "Site_1",
+      TRUE ~ as.character(Standort)
+    ),
+
+    # Fix the group typo and keep as readable factor
+    Gruppe = recode(Gruppe, "Controll" = "Control"),
+
+    # Expand sex codes
+    Sex = recode(Sex, "F" = "Female", "M" = "Male"),
+
+    # Make categorical variables factors (ordered by frequency)
+    across(c(Standort, Gruppe, Sex), ~ fct_infreq(as.factor(.x)))
+  ) %>%
+  import_labels(tau_labels, name_from = "name", label_from = "label") %>%
+  as_tibble()
+
+```
+
+```{r}
+
+psd95_long <- psd952 %>%
+  pivot_longer(T0:T2, names_to = "Time", values_to = "PSD95") %>%
+  mutate(Time = factor(Time, levels = c("T0","T1","T2")),
+         Gruppe = factor(Gruppe),
+         ID = factor(ID))
+psd95_long2 <- psd95_long %>%
+  mutate(Stratum = interaction(Time, Gruppe, drop = TRUE))  # e.g., T0.Control, T0.Piano, ...
+
+crosstable(
+  psd95_long2,
+  c(Age_start, CogTel, Sex, PSD95),
+  by = Stratum,
+  showNA = "ifany",
+  total = "both",
+  test = TRUE # adds global test across strata
+) %>%
+  as_flextable()
+
+```
 
 ## Normality Tests
 
@@ -214,64 +447,174 @@ Siehe "Python_violinplots.ipynb"
 
 ### Lineplots
 
-#### BDNF
 ```{r}
-#line Plot
-library(ggplot2)
-library(tidyr)
-
-# Reshape the data into long format
-eda_bdnf_long <- pivot_longer(eda_bdnf[c(1:14)], 
-                              cols = 5:14, 
-                              names_to = "CpG", 
-                              values_to = "Expression")
-
-
-# Create the line plot
-ggplot(eda_bdnf_long, aes(x = `CpG`, y = Expression, group = `ID.BDNF`, color = `Group.BDNF`)) +
-  geom_line() +  # Connect data points with lines
-  geom_point() + # Optionally add points to show individual values
-  labs(title = "Line Plot of the BDNF-CpGs by Group", 
-       x = "CpGs BDNF", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
-
-
-# Create the line plot
-ggplot(eda_bdnf_long, aes(x = `CpG`, y = Expression, group = `ID.BDNF`, color = `Zeitpunkt.BDNF`)) +
-  geom_line() +  # Connect data points with lines
-  geom_point() + # Optionally add points to show individual values
-  labs(title = "Line Plot of the BDNF-CpGs by Zeitpunkt", 
-       x = "CpGs BDNF", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
-
-# Create the line plot
-ggplot(eda_bdnf_long, aes(x = `CpG`, y = Expression, group = `ID.BDNF`, color = `ID.BDNF`)) +
-  geom_line() +  # Connect data points with lines
-  geom_point() + # Optionally add points to show individual values
-  labs(title = "Line Plot of the BDNF-CpGs by ID", 
-       x = "CpGs BDNF", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels for readability
-```
-#### Tau
-to be continued
-
-#### PSD95
-to be continued
-
-```{r}
-
-
 library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(rlang)
+library(tibble)
+
+# ==== column ranges (yours) ====
+bdnf_cols <- 5:14
+tau_cols  <- 19:67
+psd_cols  <- 72:116
+
+# ==== helper: build long df & keep CpG order ====
+make_long <- function(df, cols) {
+  levs <- names(df)[cols]
+  df %>%
+    pivot_longer(cols = all_of(cols), names_to = "CpG", values_to = "Expression") %>%
+    mutate(CpG = factor(CpG, levels = levs),
+           Expression = suppressWarnings(as.numeric(Expression)))
+}
+
+# ==== helper: median + IQR ====
+plot_median_iqr <- function(long_df, title) {
+  long_df %>%
+    group_by(CpG) %>%
+    summarise(
+      q25 = quantile(Expression, 0.25, na.rm = TRUE),
+      median = median(Expression, na.rm = TRUE),
+      q75 = quantile(Expression, 0.75, na.rm = TRUE),
+      .groups = "drop"
+    ) %>%
+    ggplot(aes(CpG)) +
+    geom_ribbon(aes(ymin = q25, ymax = q75, group = 1), alpha = 0.25) +
+    geom_line(aes(y = median, group = 1), linewidth = 1) +
+    geom_point(aes(y = median), size = 2) +
+    labs(title = title, x = "CpG", y = "Expression") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+# ==== helper: decile profiles (10 typical lines) ====
+plot_deciles <- function(long_df, id_col, title) {
+  idq <- enquo(id_col)
+
+  id_deciles <- long_df %>%
+    group_by(!!idq) %>%
+    summarise(id_mean = mean(Expression, na.rm = TRUE), .groups = "drop") %>%
+    mutate(decile = ntile(id_mean, 10))
+
+  decile_cpgl <- long_df %>%
+    inner_join(id_deciles, by = as_name(idq)) %>%
+    group_by(decile, CpG) %>%
+    summarise(median = median(Expression, na.rm = TRUE), .groups = "drop")
+
+  ggplot(decile_cpgl,
+         aes(CpG, median, group = factor(decile), color = factor(decile))) +
+    geom_line(linewidth = 1) + geom_point(size = 1.5) +
+    labs(title = title, x = "CpG", y = "Median expression", color = "Decile") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+# ==== helper: k-means centroid profiles (~k typical lines) ====
+plot_kmeans <- function(long_df, id_col, k = 8, title = NULL) {
+  idq <- enquo(id_col)
+
+  wide <- long_df %>%
+    pivot_wider(
+      id_cols    = !!idq,
+      names_from = CpG,
+      values_from= Expression,
+      values_fn  = ~ median(.x, na.rm = TRUE),
+      values_fill= NA_real_
+    )
+  stopifnot(!any(sapply(wide, is.list)))
+
+  mat <- wide %>% select(-!!idq) %>% data.matrix()
+  for (j in seq_len(ncol(mat))) {
+    mj <- median(mat[, j], na.rm = TRUE)
+    mat[is.na(mat[, j]), j] <- mj
+  }
+
+  set.seed(1)
+  km <- kmeans(scale(mat), centers = k, nstart = 25)
+
+  centers <- as.data.frame(km$centers) %>%
+    rownames_to_column("cluster") %>%
+    pivot_longer(-cluster, names_to = "CpG", values_to = "Expression") %>%
+    mutate(cluster = factor(cluster),
+           CpG = factor(CpG, levels = names(wide)[-1]))
+
+  ggplot(centers, aes(CpG, Expression, group = cluster, color = cluster)) +
+    geom_line(linewidth = 1.1) + geom_point(size = 1.4) +
+    labs(title = ifelse(is.null(title), "Cluster centroid profiles (scaled)", title),
+         x = "CpG", y = "Scaled expression", color = "Cluster") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+}
+
+# ==== build long data for all three panels ====
+bdnf_long  <- make_long(eda_bdnf,   bdnf_cols)
+tau_long   <- make_long(eda_tau,    tau_cols)
+psd95_long <- make_long(eda_psd95,  psd_cols)
+
+# ==== BDNF plots ====
+plot_median_iqr(bdnf_long,  "BDNF CpGs — median with IQR")
+plot_deciles(   bdnf_long,  ID.BDNF,  "BDNF CpGs — ID decile profiles")
+plot_kmeans(    bdnf_long,  ID.BDNF,  k = 8, title = "BDNF CpGs — cluster centroid profiles (scaled)")
+
+# ==== Tau plots ====
+plot_median_iqr(tau_long,   "Tau CpGs — median with IQR")
+plot_deciles(   tau_long,   ID.Tau,   "Tau CpGs — ID decile profiles")
+plot_kmeans(    tau_long,   ID.Tau,   k = 8, title = "Tau CpGs — cluster centroid profiles (scaled)")
+
+# ==== PSD95 plots ====
+plot_median_iqr(psd95_long, "PSD95 CpGs — median with IQR")
+plot_deciles(   psd95_long, ID.PSD95, "PSD95 CpGs — ID decile profiles")
+plot_kmeans(    psd95_long, ID.PSD95, k = 8, title = "PSD95 CpGs — cluster centroid profiles (scaled)")
+
+```
+
+
+### Lineplots by Zeitpunkt
+
+```{r}
+library(dplyr)
+library(tidyr)
 library(ggplot2)
 
-cpgl_sum <- eda_bdnf_long %>%
-  group_by(CpG) %>%
+# Column ranges you already use
+bdnf_cols <- 5:14
+tau_cols  <- 19:67
+psd_cols  <- 72:116
+
+# --- 1) Build a unified long dataset (keeps CpG order for each gene) ---
+bdnf_levels <- names(eda_bdnf)[bdnf_cols]
+tau_levels  <- names(eda_tau)[tau_cols]
+psd_levels  <- names(eda_psd95)[psd_cols]
+
+bdnf_long <- eda_bdnf %>%
+  pivot_longer(all_of(bdnf_cols), names_to = "CpG", values_to = "Expression") %>%
+  transmute(Gene = "BDNF",
+            ID   = ID.BDNF,
+            Zeit = factor(Zeitpunkt.BDNF),
+            CpG  = factor(CpG, levels = bdnf_levels),
+            Expression = suppressWarnings(as.numeric(Expression)))
+
+tau_long <- eda_tau %>%
+  pivot_longer(all_of(tau_cols), names_to = "CpG", values_to = "Expression") %>%
+  transmute(Gene = "Tau",
+            ID   = ID.Tau,
+            Zeit = factor(Zeit.Tau),
+            CpG  = factor(CpG, levels = tau_levels),
+            Expression = suppressWarnings(as.numeric(Expression)))
+
+psd95_long <- eda_psd95 %>%
+  pivot_longer(all_of(psd_cols), names_to = "CpG", values_to = "Expression") %>%
+  transmute(Gene = "PSD95",
+            ID   = ID.PSD95,
+            Zeit = factor(Zeitpunkt.PSD95),
+            CpG  = factor(CpG, levels = psd_levels),
+            Expression = suppressWarnings(as.numeric(Expression)))
+
+all_long <- bind_rows(bdnf_long, tau_long, psd95_long)
+
+# --- A) Zeit summary per gene: median ± IQR (faceted by Gene) ---
+zeit_sum <- all_long %>%
+  group_by(Gene, Zeit, CpG) %>%
   summarise(
     q25   = quantile(Expression, 0.25, na.rm = TRUE),
     median= median(Expression,         na.rm = TRUE),
@@ -279,156 +622,27 @@ cpgl_sum <- eda_bdnf_long %>%
     .groups = "drop"
   )
 
-ggplot(cpgl_sum, aes(x = CpG)) +
-  geom_ribbon(aes(ymin = q25, ymax = q75, group = 1), alpha = 0.25) +   # IQR band
-  geom_line(aes(y = median, group = 1), linewidth = 1) +                # median
-  geom_point(aes(y = median), size = 2) +
-  labs(title = "BDNF CpGs — median with IQR",
+ggplot(zeit_sum, aes(CpG, median, group = Zeit, color = Zeit)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.6) +
+  geom_errorbar(aes(ymin = q25, ymax = q75), width = 0.15, alpha = 0.5) +
+  facet_wrap(~ Gene, scales = "free_x", ncol = 1) +
+  labs(title = "CpG profiles by Zeit (median ± IQR)",
        x = "CpG", y = "Expression") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-```
-```{r}
-library(dplyr)
-library(ggplot2)
-
-id_deciles <- eda_bdnf_long %>%
-  group_by(`ID.BDNF`) %>%
-  summarise(id_mean = mean(Expression, na.rm = TRUE), .groups = "drop") %>%
-  mutate(decile = ntile(id_mean, 10))
-
-decile_cpgl <- eda_bdnf_long %>%
-  inner_join(id_deciles, by = "ID.BDNF") %>%
-  group_by(decile, CpG) %>%
-  summarise(median = median(Expression, na.rm = TRUE), .groups = "drop")
-
-ggplot(decile_cpgl,
-       aes(x = CpG, y = median, group = factor(decile), color = factor(decile))) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 1.5) +
-  labs(title = "BDNF CpGs — ID mean decile profiles",
-       x = "CpG", y = "Median expression (within decile)", color = "Decile") +
+# --- B) Spaghetti per ID (faint) + LOESS per Zeit (bold), faceted by Gene ---
+ggplot(all_long, aes(CpG, Expression, color = Zeit)) +
+  geom_line(aes(group = interaction(Gene, Zeit, ID)), alpha = 0.15, linewidth = 0.4) +
+  geom_point(alpha = 0.15, size = 0.6) +
+  geom_smooth(se = FALSE, linewidth = 1.2) +   # one smooth per Zeit (because color=Zeit)
+  facet_wrap(~ Gene, scales = "free_x", ncol = 1) +
+  labs(title = "Changes in CpG expression by Zeit (per gene)",
+       x = "CpG", y = "Expression") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-```
-
-```{r}
-library(dplyr); library(tidyr); library(ggplot2)
-
-wide <- eda_bdnf_long %>%
-  select(`ID.BDNF`, CpG, Expression) %>%
-  pivot_wider(names_from = CpG, values_from = Expression)
-
-set.seed(1)
-k <- 8  # choose 6–12 for ~that many lines
-km <- kmeans(scale(wide[,-1]), centers = k, nstart = 25)
-
-centers <- as.data.frame(km$centers) |>
-  mutate(cluster = factor(seq_len(k))) |>
-  pivot_longer(-cluster, names_to = "CpG", values_to = "Expression")
-
-ggplot(centers, aes(CpG, Expression, group = cluster, color = cluster)) +
-  geom_line(linewidth = 1.1) +
-  geom_point(size = 1.5) +
-  labs(title = "BDNF CpGs — cluster centroid profiles",
-       x = "CpG", y = "Scaled expression", color = "Cluster") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
-
-```{r}
-#BDNF
-eda_bdnf_long <- pivot_longer(eda_bdnf, 
-                              cols = 5:14, 
-                              names_to = "CpG", 
-                              values_to = "Expression")
-#Tau
-eda_tau_long <- pivot_longer(eda_tau, 
-                              cols = 19:67, 
-                              names_to = "CpG", 
-                              values_to = "Expression")
-# PSD95
-eda_psd95_long <- pivot_longer(eda_psd95, 
-                              cols = 72:116, 
-                              names_to = "CpG", 
-                              values_to = "Expression")
-
-# Create the line plot showing individual changes between CpGs
-#BDNF
-ggplot(eda_bdnf_long, aes(x = CpG, y = Expression, group = `ID.BDNF`, color = `ID.BDNF`)) +
-  geom_line(size = 0.5) +
-  geom_point(size = 1) +
-  geom_smooth(method = "loess", se = FALSE, aes(group = CpG), size = 1) +  # Add smooth trend lines
-  labs(title = "Change in Expression of BDNF-CpGs Between IDs", 
-       x = "CpGs BDNF", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-#Tau
-ggplot(eda_tau_long, aes(x = CpG, y = Expression, group = `ID.Tau`, color = `ID.Tau`)) +
-  geom_line(size = 0.5) +
-  geom_point(size = 1) +
-  geom_smooth(method = "loess", se = FALSE, aes(group = CpG), size = 1) +  # Add smooth trend lines
-  labs(title = "Change in Expression of Tau-CpGs Between IDss", 
-       x = "CpGs Tau", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-#PSD95
-ggplot(eda_psd95_long, aes(x = CpG, y = Expression, group = `ID.PSD95`, color = `ID.PSD95`)) +
-  geom_line(size = 0.5) +
-  geom_point(size = 1) +
-  geom_smooth(method = "loess", se = FALSE, aes(group = CpG), size = 1) +  # Add smooth trend lines
-  labs(title = "Change in Expression of PSD95-CpGs Between IDs", 
-       x = "CpGs PSD95", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
-**Cave: Vergleich mit Boxplot!**
-
-```{r}
-# Line für Zeitpunkt
-# Create the line plot showing individual changes between CpGs
-#BDNF
-ggplot(eda_bdnf_long, aes(x = CpG, y = Expression, group = `Zeitpunkt.BDNF`, color = `Zeitpunkt.BDNF`)) +
-  geom_line(size = 0.5) +
-  geom_point(size = 1) +
-  geom_smooth(method = "loess", se = FALSE, aes(group = CpG), size = 1) +  # Add smooth trend lines
-  labs(title = "Change in Expression of BDNF-CpGs Between Time Points", 
-       x = "Group BDNF", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-#Tau
-ggplot(eda_tau_long, aes(x = CpG, y = Expression, group = `Zeit.Tau`, color = `Zeit.Tau`)) +
-  geom_line(size = 0.5) +
-  geom_point(size = 1) +
-  geom_smooth(method = "loess", se = FALSE, aes(group = CpG), size = 1) +  # Add smooth trend lines
-  labs(title = "Change in Expression of Tau-CpGs Between Time Points", 
-       x = "Group Tau", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-
-#PSD95
-ggplot(eda_psd95_long, aes(x = CpG, y = Expression, group = `Zeitpunkt.PSD95`, color = `Zeitpunkt.PSD95`, na.rm = TRUE)) +
-  geom_line(size = 0.5) +
-  geom_point(size = 1) +
-  geom_smooth(method = "loess", se = FALSE, aes(group = CpG), size = 1) +  # Add smooth trend lines
-  labs(title = "Change in Expression of PSD95-CpGs Between Time Points", 
-       x = "Group PSD95", 
-       y = "Expression Level") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
 

@@ -1,0 +1,140 @@
+---
+title: "Crosstables"
+author: "Jonas J. R. Koberschinski"
+---
+
+# Preparation
+## Load libraries
+
+```{r}
+library(tidyverse) # For data manipulation and visualization
+library(dplyr) # For data manipulation
+library(readxl) # For reading Excel files
+```
+
+Zero-inflated Beta-Binomial models with the2 scDMV R package
+
+## Data import
+
+```{r}
+bdnf <- read_excel("~/Work/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+
+tau <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+
+psd95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+
+ ##first look at BDNF data
+head(bdnf)
+summary(bdnf)
+## Check the structure of the dataset
+str(bdnf)
+
+```
+
+`
+## Crosstables
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(janitor)
+
+# --- 1) Start from your subset (adds types you wanted) ---
+bdnf_subset <- bdnf %>%
+  select(ID, Standort, Zeitpunkt, Gruppe, Sex, Age_start, CogTel,
+         CpG_position, rauchen, methylierung) %>%
+  mutate(
+    ID            = as.factor(ID),
+    Standort      = as.factor(Standort),
+    Zeitpunkt     = as.factor(Zeitpunkt),
+    Gruppe        = as.factor(Gruppe),
+    Sex           = as.factor(Sex),
+    CpG_position  = as.factor(CpG_position),
+    CogTel        = as.numeric(CogTel),
+    rauchen       = as.factor(rauchen),
+    methylierung  = suppressWarnings(as.numeric(methylierung))
+  )
+```
+
+```{r}
+bdnf_subset %>% tabyl(Standort, Zeitpunkt) %>% adorn_totals(c("row","col"))
+
+```
+
+```{r}
+#| message: false
+library(dplyr)
+library(tidyr)
+library(flextable)
+library(janitor)
+library(stringr)
+library(purrr)
+
+# ---- 1) Subject × Zeitpunkt summary (avg across CpGs) -----------------------
+# Keep Zeitpunkte ordered nicely (T0, T1, T2 if present; otherwise observed order)
+maybe_levels <- c("T0","T1","T2")
+z_levels <- intersect(maybe_levels, unique(as.character(bdnf_subset$Zeitpunkt)))
+if (length(z_levels) == 0) z_levels <- unique(as.character(bdnf_subset$Zeitpunkt))
+
+sub_tp <- bdnf_subset %>%
+  mutate(Zeitpunkt = factor(as.character(Zeitpunkt), levels = z_levels)) %>%
+  group_by(ID, Zeitpunkt) %>%
+  summarise(
+    methylierung = mean(methylierung, na.rm = TRUE),
+    Standort = dplyr::first(na.omit(Standort)),
+    Gruppe   = dplyr::first(na.omit(Gruppe)),
+    Sex      = dplyr::first(na.omit(Sex)),
+    rauchen  = dplyr::first(na.omit(rauchen)),
+    Age_start= suppressWarnings(dplyr::first(na.omit(Age_start))),
+    CogTel   = suppressWarnings(dplyr::first(na.omit(CogTel))),
+    .groups = "drop"
+  )
+
+# Optional: tertiles for continuous covariates so they can appear as "rows"
+sub_tp <- sub_tp %>%
+  mutate(
+    Age_start_tertile = if (sum(!is.na(Age_start)) >= 3) ntile(Age_start, 3) else NA_integer_,
+    CogTel_tertile    = if (sum(!is.na(CogTel))    >= 3) ntile(CogTel, 3)    else NA_integer_
+  ) %>%
+  mutate(
+    Age_start_tertile = factor(Age_start_tertile, labels = c("Low", "Mid", "High")),
+    CogTel_tertile    = factor(CogTel_tertile,    labels = c("Low", "Mid", "High"))
+  )
+
+# ---- 2) Build the single cross-table ---------------------------------------
+row_vars <- c("Standort", "Gruppe", "Sex", "rauchen", "Age_start_tertile", "CogTel_tertile")
+row_vars <- intersect(row_vars, names(sub_tp))  # keep only what exists
+
+fmt_cell <- function(x) {
+  x <- x[!is.na(x)]
+  n <- length(x)
+  if (n == 0) return("—")
+  sprintf("%.2f (%.2f)\n(n=%d)", mean(x), sd(x), n)
+}
+
+# Compute stats for each variable level × Zeitpunkt
+long_rows <- map_dfr(row_vars, function(v) {
+  sub_tp %>%
+    filter(!is.na(.data[[v]])) %>%
+    group_by(Variable = v, Level = .data[[v]], Zeitpunkt) %>%
+    summarise(Stat = fmt_cell(methylierung), .groups = "drop")
+})
+
+# Wide table with Zeitpunkt as columns, Variable/Level as rows
+xtab <- long_rows %>%
+  tidyr::pivot_wider(names_from = Zeitpunkt, values_from = Stat) %>%
+  arrange(Variable, Level)
+
+# ---- 3) Flextable (prints in RStudio Viewer) --------------------------------
+ft <- flextable(xtab) |>
+  set_caption("Methylierung (mean (SD), n) by categories (rows) and Zeitpunkt (columns)") |>
+  merge_v(j = "Variable") |>
+  valign(j = "Variable", valign = "top") |>
+  theme_booktabs() |>
+  autofit() |>
+  align(align = "center", part = "all")
+
+print(ft, preview = "viewer")
+
+```
+

@@ -66,6 +66,19 @@ Without stepwise selection of predictors through step().
 ### BDNF
 
 #### T2-T0
+##### 
+```{r}
+y <- bdnf_mean_T2T0$T2_T0
+n <- length(y)
+
+par(mfrow = c(1,2))
+hist(y, breaks = 30, main = "T2_T0: Histogram", xlab = "T2_T0", freq = FALSE)
+lines(density(y), lwd = 2)
+qqnorm(y, main = "QQ plot: T2_T0"); qqline(y, col = "red")
+par(mfrow = c(1,1))
+
+shapiro.test(y)
+```
 
 ##### mean
 ```{r}
@@ -76,6 +89,9 @@ summary(lm_bdnf_mean_T2T0)
 
 par(mfrow = c(2,2))
 plot(lm_bdnf_mean_T2T0)
+res <- residuals(lm_bdnf_mean_T2T0)
+
+shapiro.test(res) 
 ```
 
 ##### median

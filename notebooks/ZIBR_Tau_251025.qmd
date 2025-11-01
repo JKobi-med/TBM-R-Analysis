@@ -63,6 +63,7 @@ tau_subset <- tau %>%
 str(tau_subset)
 ```
 
+
 ```{r}
 summary(tau_subset$methylation)
 range(tau_subset$methylation)
@@ -74,6 +75,14 @@ Ein einzelner Wert = 1
 
 ```{r}
 tau_subset$methylation[tau_subset$methylation == 1] <- 1 - 1e-9
+```
+
+```{r}
+qqplot <- ggplot(tau_subset, aes(sample = methylation)) +
+  stat_qq() +
+  stat_qq_line() +
+  labs(title = "QQ Plot of Methylation Data", x = "Theoretical Quantiles", y = "Sample Quantiles")  
+print(qqplot)
 ```
 
 
