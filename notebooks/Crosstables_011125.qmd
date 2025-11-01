@@ -31,7 +31,12 @@ str(bdnf)
 
 ```
 
-`
+```{r}
+qqplot(bdnf$methylierung)
+shapiro.test(tau$methylation)
+shapiro.test(psd95$methylation)
+```
+
 ## Crosstables
 
 ```{r}
@@ -60,18 +65,58 @@ bdnf_subset <- bdnf %>%
 bdnf_subset %>% tabyl(Standort, Zeitpunkt) %>% adorn_totals(c("row","col"))
 
 ```
-
 ```{r}
 #| message: false
 library(dplyr)
 library(tidyr)
-library(flextable)
-library(janitor)
-library(stringr)
 library(purrr)
+library(flextable)
 
-# ---- 1) Subject × Zeitpunkt summary (avg across CpGs) -----------------------
-# Keep Zeitpunkte ordered nicely (T0, T1, T2 if present; otherwise observed order)
+# ---------- helpers ----------
+first_non_na <- function(x) { y <- x[!is.na(x)]; if (length(y)) y[1] else NA }
+
+fmt_cell <- function(x) {
+  x <- x[!is.na(x)]
+  n <- length(x)
+  if (n == 0) return("—")
+  sprintf("%.2f (%.2f)\n(n=%d)", mean(x), sd(x), n)
+}
+
+fmt_p <- function(p) {
+  if (is.na(p)) return("n/a")
+  if (p < 0.001) return("<0.001")
+  sprintf("%.3f", p)
+}
+
+p_rows_for_var <- function(df, var, z_levels) {
+  purrr::map_dfr(z_levels, function(z) {
+    d <- df %>% dplyr::filter(Zeitpunkt == z, !is.na(.data[[var]]), !is.na(methylierung))
+    if (nrow(d) == 0) return(data.frame(Variable = var, Level = "p-value", Zeitpunkt = z, Stat = "n/a"))
+
+    groups <- split(d$methylierung, d[[var]])
+    groups <- groups[lengths(groups) > 0]
+    k <- length(groups)
+
+    if (k < 2) {
+      pv <- NA_real_
+    } else if (k == 2) {
+      if (all(lengths(groups) >= 2)) {
+        pv <- suppressWarnings(stats::wilcox.test(groups[[1]], groups[[2]], exact = FALSE)$p.value)
+      } else {
+        pv <- NA_real_
+      }
+    } else {
+      if (sum(lengths(groups) >= 2) >= 2) {
+        pv <- stats::kruskal.test(x = d$methylierung, g = as.factor(d[[var]]))$p.value
+      } else {
+        pv <- NA_real_
+      }
+    }
+    data.frame(Variable = var, Level = "p-value", Zeitpunkt = z, Stat = paste0("p=", fmt_p(pv)))
+  })
+}
+
+# ---------- 1) Subject × Zeitpunkt summary (avg across CpGs) ----------
 maybe_levels <- c("T0","T1","T2")
 z_levels <- intersect(maybe_levels, unique(as.character(bdnf_subset$Zeitpunkt)))
 if (length(z_levels) == 0) z_levels <- unique(as.character(bdnf_subset$Zeitpunkt))
@@ -81,60 +126,561 @@ sub_tp <- bdnf_subset %>%
   group_by(ID, Zeitpunkt) %>%
   summarise(
     methylierung = mean(methylierung, na.rm = TRUE),
-    Standort = dplyr::first(na.omit(Standort)),
-    Gruppe   = dplyr::first(na.omit(Gruppe)),
-    Sex      = dplyr::first(na.omit(Sex)),
-    rauchen  = dplyr::first(na.omit(rauchen)),
-    Age_start= suppressWarnings(dplyr::first(na.omit(Age_start))),
-    CogTel   = suppressWarnings(dplyr::first(na.omit(CogTel))),
+    Standort = first_non_na(Standort),
+    Gruppe   = first_non_na(Gruppe),
+    Sex      = first_non_na(Sex),
+    rauchen  = first_non_na(rauchen),
     .groups = "drop"
   )
 
-# Optional: tertiles for continuous covariates so they can appear as "rows"
-sub_tp <- sub_tp %>%
-  mutate(
-    Age_start_tertile = if (sum(!is.na(Age_start)) >= 3) ntile(Age_start, 3) else NA_integer_,
-    CogTel_tertile    = if (sum(!is.na(CogTel))    >= 3) ntile(CogTel, 3)    else NA_integer_
-  ) %>%
-  mutate(
-    Age_start_tertile = factor(Age_start_tertile, labels = c("Low", "Mid", "High")),
-    CogTel_tertile    = factor(CogTel_tertile,    labels = c("Low", "Mid", "High"))
-  )
+# ---------- 2) Build rows (levels) + p-value rows ----------
+row_vars <- intersect(c("Standort","Gruppe","Sex","rauchen"), names(sub_tp))
 
-# ---- 2) Build the single cross-table ---------------------------------------
-row_vars <- c("Standort", "Gruppe", "Sex", "rauchen", "Age_start_tertile", "CogTel_tertile")
-row_vars <- intersect(row_vars, names(sub_tp))  # keep only what exists
-
-fmt_cell <- function(x) {
-  x <- x[!is.na(x)]
-  n <- length(x)
-  if (n == 0) return("—")
-  sprintf("%.2f (%.2f)\n(n=%d)", mean(x), sd(x), n)
-}
-
-# Compute stats for each variable level × Zeitpunkt
-long_rows <- map_dfr(row_vars, function(v) {
+# Level summaries
+long_levels <- purrr::map_dfr(row_vars, function(v) {
   sub_tp %>%
     filter(!is.na(.data[[v]])) %>%
-    group_by(Variable = v, Level = .data[[v]], Zeitpunkt) %>%
+    group_by(Variable = v, Level = as.character(.data[[v]]), Zeitpunkt) %>%
     summarise(Stat = fmt_cell(methylierung), .groups = "drop")
 })
 
-# Wide table with Zeitpunkt as columns, Variable/Level as rows
-xtab <- long_rows %>%
-  tidyr::pivot_wider(names_from = Zeitpunkt, values_from = Stat) %>%
-  arrange(Variable, Level)
+# P-value rows (per Zeitpunkt)
+long_p <- purrr::map_dfr(row_vars, ~ p_rows_for_var(sub_tp, .x, z_levels))
 
-# ---- 3) Flextable (prints in RStudio Viewer) --------------------------------
+# Combine and mark p rows
+long_all <- bind_rows(long_levels, long_p) %>%
+  mutate(is_p = (Level == "p-value"))
+
+# ---------- 3) Wide table: Zeitpunkt as columns ----------
+xtab <- long_all %>%
+  tidyr::pivot_wider(names_from = Zeitpunkt, values_from = Stat) %>%
+  { missing_cols <- setdiff(z_levels, names(.));
+    for (cc in missing_cols) .[[cc]] <- NA_character_;
+    .
+  } %>%
+  arrange(Variable, is_p, Level) %>%
+  select(Variable, Level, all_of(z_levels))   # drop is_p after sorting
+
+# ---------- 4) Flextable ----------
 ft <- flextable(xtab) |>
-  set_caption("Methylierung (mean (SD), n) by categories (rows) and Zeitpunkt (columns)") |>
+  set_caption(
+    "Methylierung mean (SD), n by category (rows) and Zeitpunkt (columns).
+     p-values compare category levels within each Zeitpunkt (Wilcoxon for 2; Kruskal–Wallis for ≥3)."
+  merge_v(j = "Variable") |>
+  ) |>
+  valign(j = "Variable", valign = "top") |>
+  theme_booktabs() |>
+  autofit() |>
+  align(align = "center", part = "all")
+
+print(f)
+
+```
+
+```{r}
+# --- TAU crosstable: Zeit as columns, rows = categories; value = methylation
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(flextable)
+
+# Standardize names if needed
+if ("Rauchen" %in% names(tau) && !"rauchen" %in% names(tau)) {
+  tau <- dplyr::rename(tau, rauchen = Rauchen)
+}
+if ("Methylation" %in% names(tau) && !"methylation" %in% names(tau)) {
+  tau <- dplyr::rename(tau, methylation = Methylation)
+}
+
+safe_first <- function(x) {
+  x2 <- x[!is.na(x)]
+  if (length(x2) == 0) return(NA)
+  dplyr::first(x2)
+}
+fmt_cell <- function(x) {
+  x <- x[!is.na(x)]; n <- length(x)
+  if (n == 0) return("—")
+  sprintf("%.2f (%.2f)\n(n=%d)", mean(x), sd(x), n)
+}
+fmt_p <- function(p) ifelse(is.na(p), "n/a", ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
+
+# Keep only needed columns & coerce types
+need <- intersect(c("ID","standort_aus_andere_quelle","Zeit","Gruppe","Sex","rauchen","methylation"), names(tau))
+dat  <- tau[, need, drop = FALSE] %>%
+  mutate(
+    ID = as.factor(ID),
+    across(c(standort_aus_andere_quelle, Gruppe, Sex, rauchen), ~ if (is.null(.x)) NULL else as.factor(.x)),
+    Zeit         = as.factor(Zeit),
+    methylation  = suppressWarnings(as.numeric(methylation))
+  )
+
+# Order timepoints
+maybe_levels <- c("T0","T1","T2")
+z_levels <- intersect(maybe_levels, unique(as.character(dat$Zeit)))
+if (length(z_levels) == 0) z_levels <- unique(as.character(dat$Zeit))
+dat <- dat %>% mutate(Zeit = factor(as.character(Zeit), levels = z_levels))
+
+# Subject × Zeit: average across repeats
+sub_tp <- dat %>%
+  group_by(ID, Zeit) %>%
+  summarise(
+    value   = mean(methylation, na.rm = TRUE),
+    Standort = safe_first(standort_aus_andere_quelle),
+    Gruppe   = safe_first(Gruppe),
+    Sex      = safe_first(Sex),
+    rauchen  = safe_first(rauchen),
+    .groups = "drop"
+  )
+
+row_vars <- intersect(c("standort_aus_andere_quelle","Gruppe","Sex","rauchen"), names(sub_tp))
+if (length(row_vars) == 0) stop("No categorical variables among: standort_aus_andere_quelle, Gruppe, Sex, rauchen")
+
+# p-values per variable per Zeit
+p_rows_for_var <- function(df_sub, var, z_levels) {
+  purrr::map_dfr(z_levels, function(z) {
+    d <- df_sub %>% filter(Zeit == z, !is.na(.data[[var]]), !is.na(value))
+    if (nrow(d) == 0) return(tibble(Variable = var, Level = "p-value", Zeit = z, Stat = "n/a"))
+    groups <- split(d$value, d[[var]]); groups <- groups[lengths(groups) > 0]
+    k <- length(groups)
+    if (k < 2) {
+      pv <- NA_real_
+    } else if (k == 2) {
+      pv <- tryCatch(suppressWarnings(wilcox.test(groups[[1]], groups[[2]], exact = FALSE)$p.value),
+                     error = function(e) NA_real_)
+    } else {
+      pv <- tryCatch(kruskal.test(x = d$value, g = as.factor(d[[var]]))$p.value,
+                     error = function(e) NA_real_)
+    }
+    tibble(Variable = var, Level = "p-value", Zeit = z, Stat = paste0("p=", fmt_p(pv)))
+  })
+}
+
+# Level summaries
+long_levels <- purrr::map_dfr(row_vars, function(v) {
+  sub_tp %>%
+    filter(!is.na(.data[[v]])) %>%
+    group_by(Variable = v, Level = as.character(.data[[v]]), Zeit) %>%
+    summarise(Stat = fmt_cell(value), .groups = "drop")
+})
+long_p <- purrr::map_dfr(row_vars, ~ p_rows_for_var(sub_tp, .x, z_levels))
+
+long_all <- bind_rows(long_levels, long_p) %>% mutate(is_p = (Level == "p-value"))
+
+xtab <- long_all %>%
+  pivot_wider(names_from = Zeit, values_from = Stat) %>%
+  { missing <- setdiff(z_levels, names(.)); for (cc in missing) .[[cc]] <- NA_character_; . } %>%
+  arrange(Variable, is_p, Level) %>%
+  select(Variable, Level, all_of(z_levels))  # drop is_p after sort
+
+ft <- flextable(xtab) |>
+  set_caption("TAU — methylation: mean (SD), n by category (rows) and Zeit (columns); p-values per Zeit.") |>
   merge_v(j = "Variable") |>
   valign(j = "Variable", valign = "top") |>
   theme_booktabs() |>
   autofit() |>
   align(align = "center", part = "all")
 
-print(ft, preview = "viewer")
+print(ft)
+
+```
+
+
+```{r}
+# --- PSD95 crosstable: Zeitpunkt as columns, rows = categories; value = methylation
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(flextable)
+
+# If needed, standardize column names
+if ("Rauchen" %in% names(psd95) && !"rauchen" %in% names(psd95)) {
+  psd95 <- dplyr::rename(psd95, rauchen = Rauchen)
+}
+if ("Methylation" %in% names(psd95) && !"methylation" %in% names(psd95)) {
+  psd95 <- dplyr::rename(psd95, methylation = Methylation)
+}
+
+safe_first <- function(x) {
+  x2 <- x[!is.na(x)]
+  if (length(x2) == 0) return(NA)
+  dplyr::first(x2)
+}
+fmt_cell <- function(x) {
+  x <- x[!is.na(x)]; n <- length(x)
+  if (n == 0) return("—")
+  sprintf("%.2f (%.2f)\n(n=%d)", mean(x), sd(x), n)
+}
+fmt_p <- function(p) ifelse(is.na(p), "n/a", ifelse(p < 0.001, "<0.001", sprintf("%.3f", p)))
+
+# Keep only needed columns & coerce types
+need <- intersect(c("ID","standort_aus_andere_quelle","Zeitpunkt","Gruppe","Sex","rauchen","methylation"), names(psd95))
+dat  <- psd95[, need, drop = FALSE] %>%
+  mutate(
+    ID = as.factor(ID),
+    across(c(standort_aus_andere_quelle, Gruppe, Sex, rauchen), ~ if (is.null(.x)) NULL else as.factor(.x)),
+    Zeitpunkt   = as.factor(Zeitpunkt),
+    methylation = suppressWarnings(as.numeric(methylation))
+  )
+
+# Order timepoints (T0, T1, T2 if present; else observed order)
+maybe_levels <- c("T0","T1","T2")
+z_levels <- intersect(maybe_levels, unique(as.character(dat$Zeitpunkt)))
+if (length(z_levels) == 0) z_levels <- unique(as.character(dat$Zeitpunkt))
+dat <- dat %>% mutate(Zeitpunkt = factor(as.character(Zeitpunkt), levels = z_levels))
+
+# Subject × Zeitpunkt: average across repeats (e.g., CpGs)
+sub_tp <- dat %>%
+  group_by(ID, Zeitpunkt) %>%
+  summarise(
+    value   = mean(methylation, na.rm = TRUE),
+    Standort = safe_first(standort_aus_andere_quelle),
+    Gruppe   = safe_first(Gruppe),
+    Sex      = safe_first(Sex),
+    rauchen  = safe_first(rauchen),
+    .groups = "drop"
+  )
+
+row_vars <- intersect(c("Standort","Gruppe","Sex","rauchen"), names(sub_tp))
+if (length(row_vars) == 0) stop("No categorical variables among: Standort, Gruppe, Sex, rauchen")
+
+# p-values per variable per Zeitpunkt
+p_rows_for_var <- function(df_sub, var, z_levels) {
+  purrr::map_dfr(z_levels, function(z) {
+    d <- df_sub %>% filter(Zeitpunkt == z, !is.na(.data[[var]]), !is.na(value))
+    if (nrow(d) == 0) return(tibble(Variable = var, Level = "p-value", Zeitpunkt = z, Stat = "n/a"))
+    groups <- split(d$value, d[[var]]); groups <- groups[lengths(groups) > 0]
+    k <- length(groups)
+    if (k < 2) {
+      pv <- NA_real_
+    } else if (k == 2) {
+      pv <- tryCatch(suppressWarnings(wilcox.test(groups[[1]], groups[[2]], exact = FALSE)$p.value),
+                     error = function(e) NA_real_)
+    } else {
+      pv <- tryCatch(kruskal.test(x = d$value, g = as.factor(d[[var]]))$p.value,
+                     error = function(e) NA_real_)
+    }
+    tibble(Variable = var, Level = "p-value", Zeitpunkt = z, Stat = paste0("p=", fmt_p(pv)))
+  })
+}
+
+# Level summaries
+long_levels <- purrr::map_dfr(row_vars, function(v) {
+  sub_tp %>%
+    filter(!is.na(.data[[v]])) %>%
+    group_by(Variable = v, Level = as.character(.data[[v]]), Zeitpunkt) %>%
+    summarise(Stat = fmt_cell(value), .groups = "drop")
+})
+long_p <- purrr::map_dfr(row_vars, ~ p_rows_for_var(sub_tp, .x, z_levels))
+
+long_all <- bind_rows(long_levels, long_p) %>% mutate(is_p = (Level == "p-value"))
+
+xtab <- long_all %>%
+  pivot_wider(names_from = Zeitpunkt, values_from = Stat) %>%
+  { missing <- setdiff(z_levels, names(.)); for (cc in missing) .[[cc]] <- NA_character_; . } %>%
+  arrange(Variable, is_p, Level) %>%
+  select(Variable, Level, all_of(z_levels))  # drop is_p after sort
+
+ft <- flextable(xtab) |>
+  set_caption("PSD95 — methylation: mean (SD), n by category (rows) and Zeitpunkt (columns); p-values per Zeitpunkt.") |>
+  merge_v(j = "Variable") |>
+  valign(j = "Variable", valign = "top") |>
+  theme_booktabs() |>
+  autofit() |>
+  align(align = "center", part = "all")
+
+print(ft)
+
+```
+
+## BDNF — use only m148, m066, m111, m058 (time = Zeitpunkt, value = methylierung)
+
+```{r}
+# --- BDNF crosstable (Zeitpunkt as columns), filtered CpGs: m148,m066,m111,m058
+library(dplyr); library(tidyr); library(purrr); library(flextable)
+
+# ---- config ----
+cpg_keep <- c("m148","m066","m111","m058")
+
+# ---- helpers ----
+safe_first <- function(x){ x2 <- x[!is.na(x)]; if (!length(x2)) return(NA); dplyr::first(x2) }
+fmt_cell <- function(x){ x <- x[!is.na(x)]; n <- length(x); if(!n) return("—"); sprintf("%.2f (%.2f)\n(n=%d)", mean(x), sd(x), n) }
+fmt_p <- function(p){ if(is.na(p)) "n/a" else if(p < 0.001) "<0.001" else sprintf("%.3f", p) }
+
+# Standardize names
+bdnf2 <- bdnf
+if ("Rauchen" %in% names(bdnf2) && !"rauchen" %in% names(bdnf2)) bdnf2 <- rename(bdnf2, rauchen = Rauchen)
+if ("standort_aus_andere_quelle" %in% names(bdnf2) && !"Standort" %in% names(bdnf2)) bdnf2 <- rename(bdnf2, Standort = standort_aus_andere_quelle)
+
+# Detect CpG column
+cp_candidates <- c("CpG","CpG_position","cpg","CpG_Site","cpg_position")
+cp_col <- cp_candidates[cp_candidates %in% names(bdnf2)][1]
+if (is.na(cp_col)) stop("No CpG column found. Tried: ", paste(cp_candidates, collapse=", "))
+
+# Keep required columns, coerce types, filter CpGs
+need <- intersect(c("ID","Standort","Zeitpunkt","Gruppe","Sex","rauchen","methylierung", cp_col), names(bdnf2))
+dat <- bdnf2[, need, drop = FALSE] %>%
+  rename(CpG = all_of(cp_col)) %>%
+  filter(as.character(CpG) %in% cpg_keep) %>%
+  mutate(
+    ID = as.factor(ID),
+    across(c(Standort, Gruppe, Sex, rauchen), ~ if (!is.null(.x)) as.factor(.x) else .x),
+    Zeitpunkt    = as.factor(Zeitpunkt),
+    methylierung = suppressWarnings(as.numeric(methylierung))
+  )
+
+# Order timepoints
+maybe_levels <- c("T0","T1","T2")
+z_levels <- intersect(maybe_levels, unique(as.character(dat$Zeitpunkt)))
+if (!length(z_levels)) z_levels <- unique(as.character(dat$Zeitpunkt))
+dat <- mutate(dat, Zeitpunkt = factor(as.character(Zeitpunkt), levels = z_levels))
+
+# Subject × Zeitpunkt: mean over selected CpGs (and any repeats)
+sub_tp <- dat %>%
+  group_by(ID, Zeitpunkt) %>%
+  summarise(
+    value   = mean(methylierung, na.rm = TRUE),
+    Standort = safe_first(Standort),
+    Gruppe   = safe_first(Gruppe),
+    Sex      = safe_first(Sex),
+    rauchen  = safe_first(rauchen),
+    .groups = "drop"
+  )
+
+row_vars <- intersect(c("Standort","Gruppe","Sex","rauchen"), names(sub_tp))
+if (!length(row_vars)) stop("No categorical variables among: Standort, Gruppe, Sex, rauchen")
+
+# p-values per variable per Zeitpunkt
+p_rows_for_var <- function(df_sub, var, z_lv){
+  map_dfr(z_lv, function(z){
+    d <- df_sub %>% filter(Zeitpunkt == z, !is.na(.data[[var]]), !is.na(value))
+    if (!nrow(d)) return(tibble(Variable=var, Level="p-value", Zeitpunkt=z, Stat="n/a"))
+    groups <- split(d$value, d[[var]]); groups <- groups[lengths(groups)>0]; k <- length(groups)
+    pv <- if (k<2) NA_real_ else if (k==2)
+      tryCatch(suppressWarnings(wilcox.test(groups[[1]], groups[[2]], exact=FALSE)$p.value), error=function(e) NA_real_)
+    else
+      tryCatch(kruskal.test(x=d$value, g=as.factor(d[[var]]))$p.value, error=function(e) NA_real_)
+    tibble(Variable=var, Level="p-value", Zeitpunkt=z, Stat=paste0("p=", fmt_p(pv)))
+  })
+}
+
+# Level summaries + p rows
+long_levels <- map_dfr(row_vars, \(v) sub_tp %>%
+  filter(!is.na(.data[[v]])) %>%
+  group_by(Variable=v, Level=as.character(.data[[v]]), Zeitpunkt) %>%
+  summarise(Stat=fmt_cell(value), .groups="drop"))
+
+long_p <- map_dfr(row_vars, ~ p_rows_for_var(sub_tp, .x, z_levels))
+long_all <- bind_rows(long_levels, long_p) %>% mutate(is_p = Level=="p-value")
+
+xtab <- long_all %>%
+  pivot_wider(names_from=Zeitpunkt, values_from=Stat) %>%
+  { missing <- setdiff(z_levels, names(.)); for (cc in missing) .[[cc]] <- NA_character_; . } %>%
+  arrange(Variable, is_p, Level) %>%
+  select(Variable, Level, all_of(z_levels))
+
+ft <- flextable(xtab) |>
+  set_caption(paste0("BDNF — filtered CpGs: ", paste(cpg_keep, collapse=", "),
+                     " — methylierung mean (SD), n by category (rows) and Zeitpunkt (columns); p-values per Zeitpunkt.")) |>
+  merge_v(j="Variable") |>
+  valign(j="Variable", valign="top") |>
+  theme_booktabs() |>
+  autofit() |>
+  align(align="center", part="all")
+
+print(ft)
+
+```
+## TAU — use only m331, m337, m310, m315, m323 (time = Zeit, value = methylation)
+```{r}
+# --- TAU crosstable (Zeit as columns), filtered CpGs: m331,m337,m310, m315, m323
+library(dplyr); library(tidyr); library(purrr); library(flextable)
+
+cpg_keep <- c("m331","m337","m310","m315","m323")
+
+safe_first <- function(x){ x2 <- x[!is.na(x)]; if (!length(x2)) return(NA); dplyr::first(x2) }
+fmt_cell <- function(x){ x <- x[!is.na(x)]; n <- length(x); if(!n) return("—"); sprintf("%.2f (%.2f)\n(n=%d)", mean(x), sd(x), n) }
+fmt_p <- function(p){ if(is.na(p)) "n/a" else if(p < 0.001) "<0.001" else sprintf("%.3f", p) }
+
+tau2 <- tau
+if ("Rauchen" %in% names(tau2) && !"rauchen" %in% names(tau2)) tau2 <- rename(tau2, rauchen = Rauchen)
+if ("Methylation" %in% names(tau2) && !"methylation" %in% names(tau2)) tau2 <- rename(tau2, methylation = Methylation)
+if ("standort_aus_andere_quelle" %in% names(tau2) && !"Standort" %in% names(tau2)) tau2 <- rename(tau2, Standort = standort_aus_andere_quelle)
+
+cp_candidates <- c("CpG","CpG_position","cpg","CpG_Site","cpg_position")
+cp_col <- cp_candidates[cp_candidates %in% names(tau2)][1]
+if (is.na(cp_col)) stop("No CpG column found in tau. Tried: ", paste(cp_candidates, collapse=", "))
+
+need <- intersect(c("ID","Standort","Zeit","Gruppe","Sex","rauchen","methylation", cp_col), names(tau2))
+dat <- tau2[, need, drop = FALSE] %>%
+  rename(CpG = all_of(cp_col)) %>%
+  filter(as.character(CpG) %in% cpg_keep) %>%
+  mutate(
+    ID = as.factor(ID),
+    across(c(Standort, Gruppe, Sex, rauchen), ~ if (!is.null(.x)) as.factor(.x) else .x),
+    Zeit        = as.factor(Zeit),
+    methylation = suppressWarnings(as.numeric(methylation))
+  )
+
+maybe_levels <- c("T0","T1","T2")
+z_levels <- intersect(maybe_levels, unique(as.character(dat$Zeit)))
+if (!length(z_levels)) z_levels <- unique(as.character(dat$Zeit))
+dat <- mutate(dat, Zeit = factor(as.character(Zeit), levels = z_levels))
+
+sub_tp <- dat %>%
+  group_by(ID, Zeit) %>%
+  summarise(
+    value   = mean(methylation, na.rm = TRUE),
+    Standort = safe_first(Standort),
+    Gruppe   = safe_first(Gruppe),
+    Sex      = safe_first(Sex),
+    rauchen  = safe_first(rauchen),
+    .groups = "drop"
+  )
+
+row_vars <- intersect(c("Standort","Gruppe","Sex","rauchen"), names(sub_tp))
+if (!length(row_vars)) stop("No categorical variables among: Standort, Gruppe, Sex, rauchen")
+
+p_rows_for_var <- function(df_sub, var, z_lv){
+  map_dfr(z_lv, function(z){
+    d <- df_sub %>% filter(Zeit == z, !is.na(.data[[var]]), !is.na(value))
+    if (!nrow(d)) return(tibble(Variable=var, Level="p-value", Zeit=z, Stat="n/a"))
+    groups <- split(d$value, d[[var]]); groups <- groups[lengths(groups)>0]; k <- length(groups)
+    pv <- if (k<2) NA_real_ else if (k==2)
+      tryCatch(suppressWarnings(wilcox.test(groups[[1]], groups[[2]], exact=FALSE)$p.value), error=function(e) NA_real_)
+    else
+      tryCatch(kruskal.test(x=d$value, g=as.factor(d[[var]]))$p.value, error=function(e) NA_real_)
+    tibble(Variable=var, Level="p-value", Zeit=z, Stat=paste0("p=", fmt_p(pv)))
+  })
+}
+
+long_levels <- map_dfr(row_vars, \(v) sub_tp %>%
+  filter(!is.na(.data[[v]])) %>%
+  group_by(Variable=v, Level=as.character(.data[[v]]), Zeit) %>%
+  summarise(Stat=fmt_cell(value), .groups="drop"))
+
+long_p <- map_dfr(row_vars, ~ p_rows_for_var(sub_tp, .x, z_levels))
+long_all <- bind_rows(long_levels, long_p) %>% mutate(is_p = Level=="p-value")
+
+xtab <- long_all %>%
+  pivot_wider(names_from=Zeit, values_from=Stat) %>%
+  { missing <- setdiff(z_levels, names(.)); for (cc in missing) .[[cc]] <- NA_character_; . } %>%
+  arrange(Variable, is_p, Level) %>%
+  select(Variable, Level, all_of(z_levels))
+
+ft <- flextable(xtab) |>
+  set_caption(paste0("TAU — filtered CpGs: ", paste(cpg_keep, collapse=", "),
+                     " — methylation mean (SD), n by category (rows) and Zeit (columns); p-values per Zeit.")) |>
+  merge_v(j="Variable") |>
+  valign(j="Variable", valign="top") |>
+  theme_booktabs() |>
+  autofit() |>
+  align(align="center", part="all")
+
+print(ft)
+
+```
+
+## PSD95 — use only p95, p60, p23 (time = Zeitpunkt, value = methylation)
+```{r}
+# --- PSD95 crosstable (Zeitpunkt as columns) using CpG_Position; keep p95, p60, p23
+library(dplyr)
+library(tidyr)
+library(purrr)
+library(flextable)
+
+# Keep these CpGs only
+cpg_keep <- c("p95","p60","p23")
+cp_col   <- "CpG_Position"
+
+# Helpers
+safe_first <- function(x){ x2 <- x[!is.na(x)]; if (!length(x2)) return(NA); dplyr::first(x2) }
+fmt_cell  <- function(x){ x <- x[!is.na(x)]; n <- length(x); if(!n) return("—"); sprintf("%.2f (%.2f)\n(n=%d)", mean(x), sd(x), n) }
+fmt_p     <- function(p){ if(is.na(p)) "n/a" else if(p < 0.001) "<0.001" else sprintf("%.3f", p) }
+
+# Standardize column names we rely on
+psd95_2 <- psd95
+if ("Rauchen" %in% names(psd95_2) && !"rauchen" %in% names(psd95_2)) psd95_2 <- dplyr::rename(psd95_2, rauchen = Rauchen)
+if ("Methylation" %in% names(psd95_2) && !"methylation" %in% names(psd95_2)) psd95_2 <- dplyr::rename(psd95_2, methylation = Methylation)
+if ("standort_aus_andere_quelle" %in% names(psd95_2) && !"Standort" %in% names(psd95_2)) psd95_2 <- dplyr::rename(psd95_2, Standort = standort_aus_andere_quelle)
+
+# Keep only needed columns and filter CpGs
+need <- intersect(c("ID","Standort","Zeitpunkt","Gruppe","Sex","rauchen","methylation", cp_col), names(psd95_2))
+dat  <- psd95_2[, need, drop = FALSE] %>%
+  dplyr::rename(CpG = all_of(cp_col)) %>%
+  dplyr::mutate(CpG = as.character(CpG)) %>%
+  dplyr::filter(tolower(CpG) %in% tolower(cpg_keep)) %>%
+  dplyr::mutate(
+    ID = as.factor(ID),
+    across(c(Standort, Gruppe, Sex, rauchen), ~ as.factor(.x)),
+    Zeitpunkt   = factor(as.character(Zeitpunkt)),
+    methylation = suppressWarnings(as.numeric(methylation))
+  )
+
+# Order timepoints T0/T1/T2 if present; else observed order
+maybe_levels <- c("T0","T1","T2")
+z_levels <- intersect(maybe_levels, levels(dat$Zeitpunkt))
+if (length(z_levels) == 0) z_levels <- levels(dat$Zeitpunkt)
+dat$Zeitpunkt <- factor(dat$Zeitpunkt, levels = z_levels)
+
+# Subject × Zeitpunkt: average across selected CpGs
+sub_tp <- dat %>%
+  dplyr::group_by(ID, Zeitpunkt) %>%
+  dplyr::summarise(
+    value    = mean(methylation, na.rm = TRUE),
+    Standort = safe_first(Standort),
+    Gruppe   = safe_first(Gruppe),
+    Sex      = safe_first(Sex),
+    rauchen  = safe_first(rauchen),
+    .groups = "drop"
+  )
+
+row_vars <- intersect(c("Standort","Gruppe","Sex","rauchen"), names(sub_tp))
+stopifnot(length(row_vars) > 0)
+
+# P-values per variable per Zeitpunkt
+p_rows_for_var <- function(df_sub, var, z_lv){
+  purrr::map_dfr(z_lv, function(z){
+    d <- df_sub %>% dplyr::filter(Zeitpunkt == z, !is.na(.data[[var]]), !is.na(value))
+    if (!nrow(d)) return(tibble(Variable=var, Level="p-value", Zeitpunkt=z, Stat="n/a"))
+    groups <- split(d$value, d[[var]]); groups <- groups[lengths(groups)>0]; k <- length(groups)
+    pv <- if (k<2) NA_real_ else if (k==2)
+      tryCatch(suppressWarnings(wilcox.test(groups[[1]], groups[[2]], exact=FALSE)$p.value), error=function(e) NA_real_)
+    else
+      tryCatch(kruskal.test(x=d$value, g=as.factor(d[[var]]))$p.value, error=function(e) NA_real_)
+    tibble(Variable=var, Level="p-value", Zeitpunkt=z, Stat=paste0("p=", fmt_p(pv)))
+  })
+}
+
+# Level summaries + p rows
+long_levels <- purrr::map_dfr(row_vars, function(v){
+  sub_tp %>%
+    dplyr::filter(!is.na(.data[[v]])) %>%
+    dplyr::group_by(Variable = v, Level = as.character(.data[[v]]), Zeitpunkt) %>%
+    dplyr::summarise(Stat = fmt_cell(value), .groups = "drop")
+})
+long_p   <- purrr::map_dfr(row_vars, ~ p_rows_for_var(sub_tp, .x, z_levels))
+long_all <- dplyr::bind_rows(long_levels, long_p) %>% dplyr::mutate(is_p = (Level == "p-value"))
+
+# Wider, ensure all timepoint columns exist, sort rows
+xtab <- long_all %>%
+  tidyr::pivot_wider(names_from = Zeitpunkt, values_from = Stat)
+missing_cols <- setdiff(z_levels, names(xtab))
+if (length(missing_cols) > 0) for (cc in missing_cols) xtab[[cc]] <- NA_character_
+xtab <- xtab %>% dplyr::arrange(Variable, is_p, Level) %>% dplyr::select(Variable, Level, all_of(z_levels))
+
+# Flextable
+ft <- flextable(xtab) |>
+  set_caption(paste0(
+    "PSD95 — CpG_Position filtered to: ", paste(cpg_keep, collapse=", "),
+    " — methylation mean (SD), n by category (rows) and Zeitpunkt (columns); p-values per Zeitpunkt."
+  )) |>
+  merge_v(j = "Variable") |>
+  valign(j = "Variable", valign = "top") |>
+  theme_booktabs() |>
+  autofit() |>
+  align(align = "center", part = "all")
+
+print(ft)
 
 ```
 
