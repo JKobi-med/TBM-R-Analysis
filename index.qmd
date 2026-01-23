@@ -121,17 +121,13 @@ editor:
 
 # Background
 
-
-
 # Methods {#sec-data-methods}
 
 ## Study design
 
 piano group and active control group
 
-Blood samples were taken at three different time points.
-The first (T0) one week before the weekly cycle of practical or theoretical music lessons were started.
-The second (T1) after 6 months and the third (T2) again after 6 months so one year after T0. 
+Blood samples were taken at three different time points. The first (T0) one week before the weekly cycle of practical or theoretical music lessons were started. The second (T1) after 6 months and the third (T2) again after 6 months so one year after T0.
 
 Because multiple tests were performed on each inidivuals time point (not only blood samples but also fMRI as part of the original study) T0 fell between March and June 2019, T1 between August 2019 and February 2020 and T2 between June 2020 and November 2020.
 
@@ -139,100 +135,67 @@ Auch in meiner Untersuchung? *A small subgroup of participants were recruited as
 
 ## Study participants
 
-The participants of the study cohort were recruted at the Geneva Musical Minds Lab, Geneva School of Health Sciences, University of Applied Sciences and Arts Western Switzerland (HES-SO), Geneva, Switzerland and the Hannover Medical School, Dept. for Clinical Psychiatry, Social Psychiatry and Psychotherapy, Division of Clinical Psychology and Sexual Medicine in corporation with the Institut für Musikphysiologie und Musiker-Medizin Hochschule für Musik, Theater und Medien affiliated to the Hochschule für Musik, Theater und Medien Hannover.
-Possibility for participation was made public through newspaper advertisement and posters in public places. 
-Table 1 summarizes relevant demographic information about the study cohort. 
-Some requirements had been to be met for volunteers to participate in the study. They had to be in overall good health, right-handed, retired and not relying relieingon hearing aids.
-
+The participants of the study cohort were recruted at the Geneva Musical Minds Lab, Geneva School of Health Sciences, University of Applied Sciences and Arts Western Switzerland (HES-SO), Geneva, Switzerland and the Hannover Medical School, Dept. for Clinical Psychiatry, Social Psychiatry and Psychotherapy, Division of Clinical Psychology and Sexual Medicine in corporation with the Institut für Musikphysiologie und Musiker-Medizin Hochschule für Musik, Theater und Medien affiliated to the Hochschule für Musik, Theater und Medien Hannover. Possibility for participation was made public through newspaper advertisement and posters in public places. Table 1 summarizes relevant demographic information about the study cohort. Some requirements had been to be met for volunteers to participate in the study. They had to be in overall good health, right-handed, retired and not relying relieingon hearing aids.
 
 ## Measurement of DNA methylation
 
-## target genes
+### Target Genes
 
-## DNA isolation
+We focused on the primer regions of three genes commonly neuroplasticity-associated and hypthecised being potentially epigenetically modifiable by playing the piano: BDNF4, PSD95, MAPT (Tau).
 
-To analyze the methylation of the genes Genomic DNA (gDNA) was isolated in the Institute of Molecular and Translational Therapeutic Strategies of Hannover Medical School according to standard procedures from 50 µL blood using the DNeasy Blood & Tissue Kit (Qiagen #69506) and stored at −20 °C. DNA samples were diluted in 96-well plates to a fixed concentration of 10 ng/µl. The blood samples were received anonymized and prior to gDNA isolation the order of the samples was further randomized to minimize potential batch effects.
+### DNA isolation
 
-## Gene Amplification and Sequencing
+Genomic DNA (gDNA) was isolated at the Institute of Molecular and Translational Therapeutic Strategies of Hannover Medical School from 50 µL blood using the "NucleoMag Blood 200 µl" kit (MACHEREY-NAGEL GmbH & Co. KG, Düren, Deutschland) in concordance with the instructions of the manufacturer. The isolated gDNA was stored at -20 °C. The blood samples have been received anonymized and prior to gDNA isolation. Then the samples were additionaly randomized *(by doing what?)* to minimize potential batch effects. DNA samples were diluted in 96-well plates to a fixed concentration of 10 ng/µl.
 
-Ensembl
+### Bisulfite Conversion
 
-The genes of interest (BDNF, PSD95, and Tau) were amplified using polymerase chain reaction (PCR) followed by Sanger sequencing. The extracted gDNA was bisulfite-converted using Sanger sequencing (Kit ergänzen). PCR primers (Sequenz ergänzen) were designed speicfically designed with Genious (version: Pro 5.6.7; Biomatters Ltd., Auckland, Neuseeland) and orderd from the corporation Metabion GmbH (Martinsried, Deutschland). cioconductor
+The gDNA of all samples was then bisullfite converted via the "EZ-96 DNA Methylation-Lightning™ MagPrep" kit (Zymo Research Corporation, Irvine, CA, USA) also following the manufacturers instructions.
 
+### Primer design
 
-**Table 1. Primers used in PCR**
-| Target | Primer name | Sequence (5′→3′) |
-|---|---|---|
-| **BDNF** | BDNF_fwd1_18 | 5′-GGGGGAGGATTAATTGAGTTAGTTTTG-3′ |
-| **BDNF** | BDNF_rev_20 | 5′-ATATATACTCCTTCTATTCTACAACAA-3′ |
-| **BDNF** | BDNF_fwd2_19 | 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′ |
-| **BDNF** | BDNF_rev_20 | 5′-ATATATACTCCTTCTATTCTACAACAA-3′ |
-| **PSD95** | 1341_PSD95_Fw_a | 5′-TGGGAATTTGATTTGTTTAGA-3′ |
-| **PSD95** | 1342_PDS95_Fw_i | 5′-AGAGTTAGTTGGGAAAAGAGA-3′ |
-| **PSD95** | 1343_PSD95_Rev_i | 5′-TCCTCTTCTATCCCATCCTAT-3′ |
-| **PSD95** | 1344_PSD95_Rev_a | 5′-TAACTACAATAACTTAAACCCCT-3′ |
-| **Tau** | 271_MEX_Primer_Tau_Fw_a | 5′-TAATAAAAAAGGTGGGAAAAAA-3′ |
-| **Tau** | 272_MEX_Primer_Tau_Fw_i | 5′-AAAGGAAGTAGTTTGGGG-3′ |
-| **Tau** | 273_MEX_Primer_Tau_Rev | 5′-AACCTCCCCAAAAAAAAAAA-3′ |
+With Ensembl and Geneious Pro 5.6.7 the primer regions of our target genes were located and the sequences of the primer regions analyzed. Aided by Biocalculator (metabion), NetPrimer (Premier Biosoft), Methyl Primer Express v1.0 (Applied Biosystems) and Bisulfite Primer Seeker (Zymo) we designed primers for PCR with bisulfite-converted DNA (see Table 1) and sequencing primers (Table 2) - later used to prepare Sanger Sequencing - and orderd these primers from metabion GmbH (Martinsried, Deutschland).
 
-**Table 2. Primer used in sequencing PCR**
-| Target | Primer name | Sequence (5′→3′) |
-|---|---|---|
-| **BDNF** | BDNF_seqrev_21 | 5′-ACAAAAAAATTTCATACTAA-3′ |
+**Table 1. Primers used in PCR** \| Target \| Primer name \| Sequence (5′→3′) \| \|---\|---\|---\| \| **BDNF** \| BDNF_fwd1_18 \| 5′-GGGGGAGGATTAATTGAGTTAGTTTTG-3′ \| \| **BDNF** \| BDNF_rev_20 \| 5′-ATATATACTCCTTCTATTCTACAACAA-3′ \| \| **BDNF** \| BDNF_fwd2_19 \| 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′ \| \| **BDNF** \| BDNF_rev_20 \| 5′-ATATATACTCCTTCTATTCTACAACAA-3′ \| \| **PSD95** \| 1341_PSD95_Fw_a \| 5′-TGGGAATTTGATTTGTTTAGA-3′ \| \| **PSD95** \| 1342_PDS95_Fw_i \| 5′-AGAGTTAGTTGGGAAAAGAGA-3′ \| \| **PSD95** \| 1343_PSD95_Rev_i \| 5′-TCCTCTTCTATCCCATCCTAT-3′ \| \| **PSD95** \| 1344_PSD95_Rev_a \| 5′-TAACTACAATAACTTAAACCCCT-3′ \| \| **Tau** \| 271_MEX_Primer_Tau_Fw_a \| 5′-TAATAAAAAAGGTGGGAAAAAA-3′ \| \| **Tau** \| 272_MEX_Primer_Tau_Fw_i \| 5′-AAAGGAAGTAGTTTGGGG-3′ \| \| **Tau** \| 273_MEX_Primer_Tau_Rev \| 5′-AACCTCCCCAAAAAAAAAAA-3′ \|
 
+**Table 2. Primer used in sequencing PCR** \| Target \| Primer name \| Sequence (5′→3′) \| \|---\|---\|---\| \| **BDNF** \| BDNF_seqrev_21 \| 5′-ACAAAAAAATTTCATACTAA-3′ \| **other sequencing primers are missing**
 
-Products were purified using a standard PCR purification kit?
+### Gene Amplification
 
-Sanger Sequencing was then performed on the purified PCR products with bio. This method was chosen for its high accuracy in detecting methylation at single-nucleotide resolution (Sanger et al., 1977). Sequencing reactions were carried out using fluorescently labeled dideoxynucleotides, and the resulting sequences were analyzed to identify CpG methylation patterns.
+The primers were dissolved in nuclease-free water. The proportions have been predetermined by the manufacturer. The stock solution 100 pmol. It was then used to derive a working solution of 20 pmol (1:5). Both solutions were prexserved atg -20 °C. Amplification was then performed together with HotStarTaq® PCR Master Mix Kit (Qiagen, Hilden, Deutschland). The samples were then puriefed with the PCR purification kit "CleanNGS" (CleanNA, Waddinxveen, Niederlande).
 
-## CpG Sites and Methylation Analysis
+### Sanger Sequencing
 
-CpG sites—regions of DNA where a cytosine nucleotide is followed by a guanine nucleotide—are often found in gene promoters and are key regulators of gene expression. Methylation at these sites can silence gene expression, making them critical points of study in understanding gene regulation (Bird, 2002). For each of the three genes (BDNF, PSD95, and Tau), multiple CpG sites were identified within the promoter or other regulatory regions to assess their methylation status. By examining these CpG islands, we aimed to determine whether the degree of methylation differed between the intervention (piano lessons) and control groups.
+The purfied PCR prodcus were sequenced with the BigDye Terminator v3.1 Cycle Sequencing Kit (Applied Biosystems, Foster City, CA, USA) and the sequencing primers mentioned above (Table 2). The sequencing product were purifed with the "CleanDTR" kit (CleanNA, Waddinxveen, Niederlande).
 
-## Data Processing via ESME
+Then using the Applied Biosystems' 3500 Genetic Analyzer (ABI 3500xL) Capillary electrophoresis was performed.
 
-methylation status individual CpG quantified Epigenetic Sequencing Methylation Analysis software (ESME)
+### Data Processing via ESME
 
-ESME calculates the percentage of methylation at each CpG site by determining the ratio of methylated cytosines to total cytosines (methylated + unmethylated) for each site. 
-providing decimal values
-
-Depending on the quality of the measurments some were ignored. Which were dropped?
+The data derived from the ABI 3500xL was then processed with Epigenetic Sequencing Methylation (ESME) analysis software.
 
 ## Data Structuring and Statistical Analysis
 
-For data structuring and transformation Excel, SPSS and R (Version, using following packages: tidyverse, dplyr, readxl) were used. After structuring the data, R was used to analyze the data. Descriptive statistics we perforemd using the ... Principal Component Analysis (PCA). Plots were designed using the ggplot2 and ggplot... package.
-We performed modelling with 3 different types of models. Linear models. The difference of 2 time points was modelled (T2 - T0, T1 - T0 and T2 - T1) and after that used as the depenedet variable. 
+For data structuring and transformation Excel, SPSS and R (4.5.2), *using the following packages: tidyverse, dplyr, readxl ...* . After structuring the data, R (4.5.2) was used to analyze the data. Principal Component Analysis (PCA) was done with the prcomp package (...). Descriptive statistics we perforemd using the ... Plots were designed using the ggplot2 and ... package.
+
+We performed modelling with 3 different types of models. Linear models. The difference of 2 time points was modelled (T2 - T0, T1 - T0 and T2 - T1) and after that used as the depenedet variable.
 
 Generalized Linear model (GLM) with the ... package
 
 Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZIBR) were performed using the glmmTMB package for modelling and DHARMa for residual diagnostics.
 
-
-*In the model, time was treated as a repeated measure, and the group (piano vs. control) was included as a fixed factor. Methylation percentages at each CpG site (expressed as continuous variables) were the dependent variables. We also included interaction terms to assess whether the change in methylation over time differed between the piano and control groups. The model used a logit link function to handle the proportion-based methylation data, ensuring the analysis accurately reflected the bounded nature of the dependent variable (0 to 1). Model significance was assessed at p \< 0.05, and Bonferroni corrections were applied to account for multiple comparisons across the different CpG sites and genes. Model fit was evaluated using the Akaike Information Criterion (AIC) and Bayesian Information Criterion (BIC) to compare the fit of different models and ensure robustness in detecting group differences over time (McCullagh & Nelder, 1989).*
-
-## Modelling
-
-
 # Results
 
 ## General
-|                         |              |               |
-|-------------------------|--------------|---------------|
-|                         | Piano Group  | Control Group |
-| Mean Age +/- SD (years) | 68.9 +/- 2.9 | 69.5 +/- 4    |
-| Min./Max.               | 64/76        | 62/78         |
-| N                       | 29???        | 26???         |
-| Female/Male (%)         | 44.8/55.2    | 38.5/61.5     |
+
+\| \| \| \| \|-------------------------\|--------------\|---------------\| \|   \| Piano Group \| Control Group \| \| Mean Age +/- SD (years) \| 68.9 +/- 2.9 \| 69.5 +/- 4 \| \| Min./Max. \| 64/76 \| 62/78 \| \| N \| 29??? \| 26??? \| \| Female/Male (%) \| 44.8/55.2 \| 38.5/61.5 \|
 
 Table 1: Demographics of the study cohort
 
-At T0 blood samples of 155 were analzyed, 130? at T1 and 105 for T2. 
+At T0 blood samples of 155 were analzyed, 130? at T1 and 105 for T2.
 
-## PCA
+## Principal component analysis
 
-Showed that specific CpGs drove the variance specifically for Tau and PSD95.
-Assessing the covariacne matrix, large differences in variance between the CpGs were seen.
-
+Showed that specific CpGs drove the variance specifically for Tau and PSD95. Assessing the covariacne matrix, large differences in variance between the CpGs were seen.
 
 ## Methylation Levels
 
@@ -243,11 +206,13 @@ Assessing the covariacne matrix, large differences in variance between the CpGs 
 
 ### Group differences
 
+Our main goal we aimed to determine whether the degree of methylation differed between the intervention (piano lessons) and control groups.
+
 -   Bei BDNF zeigt sich eine leichte Differenz zwischen der Kontrollgruppe (Median: 0.07, Mean: 0.07326) und der Pianogruppe (Median: 0.064, Mean: 0.06598), welche eine niedrigere Metyhlierung (Median: -0.006, Mean: -0.00728) aufwies. **Streuungsmaße?**
 -   Weiterhin zeigen sich für die arithmetischen Mittel von BDNF und PSD95 zwei Modi.
 -   Tau war unimodal.
 
-### Time differencesd
+### Time differences
 
 -   Bei BDNF zeigt sich, dass sich die Mittelwerte (Arithmetisch und Median) von T0 zu T1 leicht absenken und zu T2 wieder über das Niveau von T0 ansteigen.
 -   Bei Tau steigt das arithmetische Mittel der Methylierung leicht von T0 zu T1 und hält das Niveau bei T2.
@@ -266,34 +231,31 @@ The null hypothesis of our study was that playing the piano has no effect on the
 # Declarations
 
 ## Ethics approval and consent to participate
+
 The study protocol was reviewed and approved by the Hannover Medical School ethics committee (approval number 3604-2017). All study participants gave their written informed consent to participate in the study.
 
 ## Consent for publication
+
 Not applicable.
 
 ## Availability of data and materials
-Data are available from the corresponding author upon request via jonas.koberschinski@mhb-fontane.de and via https://github.com/JKobi-med/Promotion.
+
+Data are available from the corresponding author upon request via jonas.koberschinski\@mhb-fontane.de and via https://github.com/JKobi-med/Promotion.
 
 ## Competing interests
+
 The authors have no competing interests to declare.
 
 ## Funding
+
 This work was funded by the Swiss National Science Foundation (grant no. 100019E-170410 to Clara E. James) and the German Research Foundation (grant no. 323965454 to Eckart Altenmüller). Financial support in Switzerland was also provided by the Med. Kurt Fries Foundation, the Dalle Molle Foundation, and the Edith Maryon Foundation (to Clara E. James).
 
 ## Author Contributions
-Conceptualization: T.H.C.K.
-Methodology: K.Jü., C.S., S.C., K.Ja., J.K.
-Software: S.C., C.S., K.Jü., K.Ja., J.K.
-Formal Analysis: S.C., K.Ja., C.S.
-Investigation: S.C., C.B., K.Jü.
-Resources: T.H.C.K., C.B., S.B., H.F.
-Writing – original draft preparation: J.K.
-Writing – review and editing: S.C., C.S., K. Jü., H.F., S.B., C. B., T.H.C.K.
-Visualization, K.Ja., J.K.
-Supervision, T.H.C.K., C.B., H.F., S.B.
-All authors have read and agreed to the published version of the manuscript.
+
+Conceptualization: T.H.C.K. Methodology: K.Jü., C.S., S.C., K.Ja., J.K. Software: S.C., C.S., K.Jü., K.Ja., J.K. Formal Analysis: S.C., K.Ja., C.S. Investigation: S.C., C.B., K.Jü. Resources: T.H.C.K., C.B., S.B., H.F. Writing – original draft preparation: J.K. Writing – review and editing: S.C., C.S., K. Jü., H.F., S.B., C. B., T.H.C.K. Visualization, K.Ja., J.K. Supervision, T.H.C.K., C.B., H.F., S.B. All authors have read and agreed to the published version of the manuscript.
 
 ## Acknowledgement
+
 The first author would like to thank Martin Max Schumacher, PhD, for his expert assistance and kind support.
 
 ## References {.unnumbered}

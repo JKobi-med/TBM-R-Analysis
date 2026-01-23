@@ -124,25 +124,23 @@ print(interaction_plot_bdnf)
 ```
 
 ```{r}
-
-
-interaction_plot_smoking_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = rauchen, colour = rauchen)) +
-  geom_line() +
-  geom_point() +
-  geom_errorbar(
-    aes(
-      ymin = mean_methylierung_bdnf - se_methylierung_bdnf,
-      ymax = mean_methylierung_bdnf + se_methylierung_bdnf
-    ),
-    width = 0.2
-  ) +
-  theme_classic() +
-  labs(
-    title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
-    x = "Time Point",
-    y = "Mean Methylation Levels"
-  )
-print(interaction_plot_smoking_bdnf)
+#interaction_plot_smoking_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = rauchen, colour = rauchen)) +
+#  geom_line() +
+#  geom_point() +
+#  geom_errorbar(
+#    aes(
+#      ymin = mean_methylierung_bdnf - se_methylierung_bdnf,
+#      ymax = mean_methylierung_bdnf + se_methylierung_bdnf
+#    ),
+#    width = 0.2
+#  ) +
+#  theme_classic() +
+#  labs(
+#    title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+#    x = "Time Point",
+#    y = "Mean Methylation Levels"
+#  )
+#print(interaction_plot_smoking_bdnf)
 
 ```
 

@@ -128,8 +128,11 @@ tau_glmm_1 <- glmmTMB(
 summary(tau_glmm_1)
 
 # diagnostics
-tau_glmm_1 <- simulateResiduals(fit, n = 1000)
-plot(tau_glmm_1)
+tau_glmm_dia_1 <- simulateResiduals(tau_glmm_1, n = 1000)
+plot(tau_glmm_dia_1)
+testUniformity(tau_glmm_dia_1)
+testZeroInflation(tau_glmm_dia_1)   # should NOT suggest extra zeros beyond your ziformula
+testDispersion(tau_glmm_dia_1)
 
 #(Optional) Marginal means / contrasts for Gruppe × Zeit
 # em <- emmeans(tau_glmm_1, ~ Gruppe * Zeit, type = "response")
@@ -138,24 +141,16 @@ plot(tau_glmm_1)
 ```
 
 
-```{r}
-library(DHARMa)
-tau_glmm_1 <- simulateResiduals(fit, n = 1000)
-plot(tau_glmm_1)
-testUniformity(tau_glmm_1)
-testZeroInflation(tau_glmm_1)   # should NOT suggest extra zeros beyond your ziformula
-testDispersion(tau_glmm_1)
 
-```
 
 ```{r}
-fit_phi <- update(
-  fit,
-  dispformula = ~ Zeit + Gruppe + (1 | ID) + (1 | CpG_position)
-)
-library(DHARMa)
-sim_phi <- simulateResiduals(fit_phi, n = 2000)
-plot(sim_phi); testUniformity(sim_phi); testDispersion(sim_phi); testZeroInflation(sim_phi)
+#fit_phi <- update(
+#  fit,
+#  dispformula = ~ Zeit + Gruppe + (1 | ID) + (1 | CpG_position)
+#)
+#library(DHARMa)
+#sim_phi <- simulateResiduals(fit_phi, n = 2000)
+#plot(sim_phi); testUniformity(sim_phi); testDispersion(sim_phi); testZeroInflation(sim_phi)
 ```
 
 
@@ -167,7 +162,7 @@ glmmTMB(
   ziformula = ~ Gruppe + Zeit + (1 | CpG_position),  # what drives exact zeros
   dispformula = ~ 1 + (1 | CpG_position),            # allow CpG-specific dispersion (optional)
   family = beta_family(link = "logit"),
-  data = d
+  data = tau_subset
 )
 
 ```
@@ -177,7 +172,8 @@ tau_glmm_CpG_ZeitID <- glmmTMB(
   methylation ~ standort_aus_andere_quelle + Gruppe + Sex + Age_start + CogTel + Zeit + (1|CpG_position) + (1|Zeit:ID),
   ziformula = ~1,
   family = beta_family(link = "logit"),
-  data = tau_subset
+  data = tau_subset,
+  REML = FALSE
 )
 summary(tau_glmm_CpG_ZeitID)
 ```
@@ -187,7 +183,8 @@ tau_glmm_CpG_zeit <- glmmTMB(
   methylation ~ standort_aus_andere_quelle + Gruppe + Sex + Age_start + CogTel + Zeit + (1|CpG_position),
   ziformula = ~1,
   family = beta_family(link = "logit"),
-  data = tau_subset
+  data = tau_subset,
+  REML = FALSE
 )
 summary(tau_glmm_CpG_zeit)
 ```
@@ -198,7 +195,8 @@ tau_glmm_CpG_ID <- glmmTMB(
   methylation ~ standort_aus_andere_quelle + Gruppe + Sex + Age_start + CogTel + Zeit + (1|CpG_position) + (1|ID) + (1|Zeit:Gruppe),
   ziformula = ~Zeit + Gruppe,
   family = beta_family(link = "logit"),
-  data = tau_subset
+  data = tau_subset,
+  REML = FALSE
 )
 summary(tau_glmm_CpG_ID)
 
@@ -269,6 +267,7 @@ fit_numSlope <- glmmTMB(
 )
 summary(fit_numSlope)
 ```
+
 ```{r}
 fit_tau_best <- fit_numSlope         # your first model: (1 + Zeit_num | ID), ziformula = ~ Zeit
 fit_tau_ZI0  <- update(fit_tau_best, ziformula = ~ 1)

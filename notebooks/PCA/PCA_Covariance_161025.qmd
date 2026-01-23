@@ -599,6 +599,8 @@ What to report
 ### Visualize ranked loadings
 
 ```{r}
+#| label: PSD95-loadings
+#| fig-cap: "Absolute PC1 Loadings (PSD95 CpGs)"
 plot(ranked_psd95_cpgs, type = "b", main = "Absolute PC1 Loadings (PSD95 CpGs)",
      ylab = "|Loading|", xlab = "Ranked CpGs")
 abline(v = 4, col = "red", lty = 2, lwd = 2)

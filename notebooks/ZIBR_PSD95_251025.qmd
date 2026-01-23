@@ -126,71 +126,70 @@ testDispersion(sim_phi)
 ```
 
 ```{r}
-psd95_subset$obs <- seq_len(nrow(psd95_subset))
+#psd95_subset$obs <- seq_len(nrow(psd95_subset))
 
-psd95_glmm_CpG_ID_olre <- update(
-  psd95_glmm_CpG_ID,
-  formula = . ~ . + (1 | obs)
-)
+#psd95_glmm_CpG_ID_olre <- update(
+#  psd95_glmm_CpG_ID,
+#  formula = . ~ . + (1 | obs)
+#)
 
-library(DHARMa)
-sim_olre <- simulateResiduals(psd95_glmm_CpG_ID_olre, n = 1500)
-testDispersion(sim_olre)
+#library(DHARMa)
+#sim_olre <- simulateResiduals(psd95_glmm_CpG_ID_olre, n = 1500)
+#testDispersion(sim_olre)
+```
+
+```{r}
+#psd95_glmm_CpG_ID_olre <- glmmTMB(
+#  methylation ~ standort_aus_andere_quelle + Gruppe * Zeitpunkt +
+#    Sex + rauchen + Age_start_sc + CogTel_sc +
+#    (1 | CpG_Position) + (1 | ID) + (0 + Zeitpunkt || ID) + (1 | obs),
+#  ziformula = ~ Zeitpunkt + Gruppe,
+#  dispformula = ~ 1 + (1 | CpG_Position),
+#  family = beta_family(link = "logit"),
+#  data = psd95_subset,
+#  control = glmmTMBControl(
+#    optimizer = optim,
+#    optArgs = list(method = "BFGS"),
+#    parallel = 1
+#  )
+#)
+#summary(psd95_glmm_CpG_ID_olre)
+```
+
+```{r}
+#psd95_glmm_CpG_ID_olre <- update(
+#  psd95_glmm_CpG_ID,
+#  formula = . ~ . + (1 | obs),
+#  start = list(theta = c(log(0.05)))  # tiny variance
+#)
+```
+
+```{r}
+#psd95_glmm_CpG_ID_olre <- update(
+#  psd95_glmm_CpG_ID,
+#  formula = . ~ . + (1 | obs),
+#  control = glmmTMBControl(optimizer = optim, optArgs = list(method="nlminb"))
+#)
 
 ```
 
 ```{r}
-psd95_glmm_CpG_ID_olre <- glmmTMB(
-  methylation ~ standort_aus_andere_quelle + Gruppe * Zeitpunkt +
-    Sex + rauchen + Age_start_sc + CogTel_sc +
-    (1 | CpG_Position) + (1 | ID) + (0 + Zeitpunkt || ID) + (1 | obs),
-  ziformula = ~ Zeitpunkt + Gruppe,
-  dispformula = ~ 1 + (1 | CpG_Position),
-  family = beta_family(link = "logit"),
-  data = psd95_subset,
-  control = glmmTMBControl(
-    optimizer = optim,
-    optArgs = list(method = "BFGS"),
-    parallel = 1
-  )
-)
-summary(psd95_glmm_CpG_ID_olre)
+#psd95_glmm_CpG_OLREtest <- glmmTMB(
+#  methylation ~ standort_aus_andere_quelle + Gruppe * Zeitpunkt +
+#    Sex + rauchen + Age_start_sc + CogTel_sc +
+#    (1 | CpG_Position) + (1 | obs) + (1 | ID) + (0 + Zeitpunkt || ID),
+#  ziformula = ~ Zeitpunkt + Gruppe,
+#  family = beta_family(link="logit"),
+#  data = psd95_subset
+#)
+
+#summary(psd95_glmm_CpG_OLREtest)
 ```
 
 ```{r}
-psd95_glmm_CpG_ID_olre <- update(
-  psd95_glmm_CpG_ID,
-  formula = . ~ . + (1 | obs),
-  start = list(theta = c(log(0.05)))  # tiny variance
-)
-```
-
-```{r}
-psd95_glmm_CpG_ID_olre <- update(
-  psd95_glmm_CpG_ID,
-  formula = . ~ . + (1 | obs),
-  control = glmmTMBControl(optimizer = optim, optArgs = list(method="nlminb"))
-)
-
-```
-
-```{r}
-psd95_glmm_CpG_OLREtest <- glmmTMB(
-  methylation ~ standort_aus_andere_quelle + Gruppe * Zeitpunkt +
-    Sex + rauchen + Age_start_sc + CogTel_sc +
-    (1 | CpG_Position) + (1 | obs) + (1 | ID) + (0 + Zeitpunkt || ID),
-  ziformula = ~ Zeitpunkt + Gruppe,
-  family = beta_family(link="logit"),
-  data = psd95_subset
-)
-
-summary(psd95_glmm_CpG_OLREtest)
-```
-
-```{r}
-library(DHARMa)
-sim_olre <- simulateResiduals(psd95_glmm_CpG_OLREtest, n = 1500)
-testDispersion(sim_olre)
+#library(DHARMa)
+#sim_olre <- simulateResiduals(psd95_glmm_CpG_OLREtest, n = 1500)
+#testDispersion(sim_olre)
 
 ```
 

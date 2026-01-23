@@ -31,12 +31,6 @@ str(bdnf)
 
 ```
 
-```{r}
-qqplot(bdnf$methylierung)
-shapiro.test(tau$methylation)
-shapiro.test(psd95$methylation)
-```
-
 ## Crosstables
 
 ```{r}
@@ -166,14 +160,14 @@ ft <- flextable(xtab) |>
   set_caption(
     "Methylierung mean (SD), n by category (rows) and Zeitpunkt (columns).
      p-values compare category levels within each Zeitpunkt (Wilcoxon for 2; Kruskal–Wallis for ≥3)."
-  merge_v(j = "Variable") |>
   ) |>
+  merge_v(j = "Variable") |>
   valign(j = "Variable", valign = "top") |>
   theme_booktabs() |>
   autofit() |>
   align(align = "center", part = "all")
 
-print(f)
+ft
 
 ```
 

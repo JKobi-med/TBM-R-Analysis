@@ -458,25 +458,25 @@ grid.arrange(p1, p2, nrow = 2)
 ```
 
 ```{r}
-testDispersion(mod)
+#testDispersion(mod)
 ```
 
 ```{r}
-library(DHARMa)
+#library(DHARMa)
 
 # Simulate residuals
-sim_res <- simulateResiduals(fittedModel = mod_CpG_ID, n = 1000)
-residuals(sim_res)
+#sim_res <- simulateResiduals(fittedModel = mod_CpG_ID, n = 1000)
+#residuals(sim_res)
 
 # Plot residuals
-plot(sim_res)
+#plot(sim_res)
 ```
 
 https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
 
 ```{r}
-check_model(mod)
-check_model(mod_CpG_ID)
+#check_model(mod)
+#check_model(mod_CpG_ID)
 ```
 
 ## BDNF (High Variance CpGs)

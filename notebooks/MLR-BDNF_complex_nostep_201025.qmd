@@ -109,15 +109,15 @@ step(lm_bdnf_median_T2T1)
 library(visreg)
 
 #T2-T0
-visreg(bdnf_mean_T2T0, gg = TRUE)
-visreg(bdnf_median_T2T0, gg = TRUE)
+visreg(lm_bdnf_mean_T2T0, gg = TRUE)
+visreg(lm_bdnf_median_T2T0, gg = TRUE)
 
 #T1-T0
-visreg(bdnf_mean_T1T0, "Gruppe", gg = TRUE)
-visreg(bdnf_median_T1T0, "CogTel", by = "Gruppe", gg = TRUE)
+visreg(lm_bdnf_mean_T1T0, "Gruppe", gg = TRUE)
+visreg(lm_bdnf_median_T1T0, "CogTel", by = "Gruppe", gg = TRUE)
 
 #T2-T1
-visreg(bdnf_mean_T2T1, gg = TRUE)
-visreg(bdnf_median_T2T1, gg = TRUE)
+visreg(lm_bdnf_mean_T2T1, gg = TRUE)
+visreg(lm_bdnf_median_T2T1, gg = TRUE)
 ```
 
