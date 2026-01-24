@@ -25,13 +25,13 @@ author:
       - Formal Analysis
       - Writing – review and editing
     affiliations:
-      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover Medical School, Hannover Germany
+      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover Medical School, Hannover, Germany
   - name: Helge Frieling
     corresponding: false
     roles:
       - Resources
     affiliations:
-      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover Medical School, Hannover Germany
+      - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover Medical School, Hannover, Germany
   - name: Christopher Sinke
     orcid: 0000-0003-1716-6229
     corresponding: false
@@ -233,24 +233,20 @@ At T0 blood samples of 155 were analzyed, 130? at T1 and 105 for T2.
 
 ## Principal component analysis (PCA) {#sec-results-pca}
 
-We performed PCA for every gene using the correlation matrix.
-(BDNF: PC1 28.81%, PC2 16.84%; Tau: PC1 29.02%, PC2 9.22%; PSD95: PC1 17.10%, PC2 11.61%)
+We performed principal component analyses (PCA) separately for each gene, using the correlation matrix.
+Across genes, the first two principal components explained only a moderate proportion of total variance (BDNF: PC1 28.81%, PC2 16.84%; Tau: PC1 29.02%, PC2 9.22%; PSD95: PC1 17.10%, PC2 11.61%).
+Accordingly, the scree plots (@fig-scree-all) show only a gradual decrease of explained variance across subsequent components.
 
+Furthermore, biplots of the first two principal components did not indicate a differing clustering pattern between the two group at any timepoint (@fig-pca-genes). Although the apparent group-wise configuration for PSD95 varied somewhat across time points, this pattern did not amount to a consistent clustering difference.
 
-Scree plots
+Noticably, inspecting the loadings revelaed that the variance explained by PC1 was driven primarily by a small fraction of CpGs in every gene (@fig-pc1-loadings). For BDNF, m148, m066, m111 and m058 have been the strongest contributors; for Tau, m331, m337, m310, m315 and m323; and for PSD95: "p95", "p60", "p23".
+By ranking the absolute PC1 loadings every gene showed an "elbow" pattern (BDNF: between the 4th and 5th CpG; Tau: between the 4th and 5th CpG; PSD95: after the 3rd CpG; @fig-pc1-loadings; see also @tbl-supp-pca-bdnf–@tbl-supp-pca-psd95 for loading ranks).
 
-No real clustering for timepoint or group has been as seen in @fig-pca-genes, - even if the group clusters for psd95 changed somewhat over time.
-What was noticable is that specifix CpGs mainly drove the variance more than others did.
-For BDNF: m148, m066, m111 and m058.
-For Tau: m331, m337, m310, m315,
-Ranking the loadings of the first Principial component made that particularly clear for Tau, after the fith or six a clear genu is seen, and even more so for PSD95, where after the forth loading a clear knee is seen (see @fig-pc1-loadings; see also @tbl-supp-pca-bdnf–@tbl-supp-pca-psd95 for PC1 loading ranks).
-So, large differences in the variance of the CpGs have been seen.
-Looking on at the methylation values of every CpG on every gene that becomes particulatry clear. (@fig-boxplots-cpg-all)
-For tau the promoterregion nbefore the primer in most indivuals is not methylated. only some after the Primer.
-For PSD95 it is the other way around. In the beginning of the promoter region the CpGs are partly methylated, but for most CpGs the median is 0%.
-For BDNF it is mixed.
-
-Because of that we, made models for every gene trwice. We first modeld with all CpGs and than only with the most variance CpGs.
+This concentration of variance is also evident in the methylation distributions across CpGs (@fig-boxplots-cpg-all).
+For Tau, methylation was largely limieted to upstream CpGs, whereas downstream CpGs were rarely methylated across individuals.
+In contrast, for PSD95, CpGs near the end of the promoter region showed notable methylation patterns, while most other sites where mostly none-methylated with little or no inter-individual variability.
+For BDNF, a comparably localized pattern was less apparent.
+These observations motivated stratifying subsequent analyses by considering (i) all CpGs and (ii) only CpGs exhibiting higher inter-individual variability.
 
 {{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pca-genes >}}
 
@@ -258,7 +254,64 @@ Because of that we, made models for every gene trwice. We first modeld with all 
 
 {{< embed notebooks/eda.qmd#fig-boxplots-cpg-all >}}
 
+*
+(ChatGPT:
+What else you typically need to report when describing PCA in a results section
 
+Here’s what is commonly expected (you already cover some of it):
+
+1) Purpose and data structure
+
+What the PCA is summarizing (e.g., CpG methylation profiles per gene).
+
+What constitutes an observation (individual × time point?) and what constitutes a variable (CpGs).
+
+Whether PCA was run separately per time point or on pooled data (and if pooled, how repeated measures were handled).
+
+2) Pre-processing choices (very important for methylation)
+
+Whether you used beta values or M-values (and why), and whether any transformation was applied.
+
+Missing data handling (imputation? exclusion?).
+
+Scaling/centering decisions (you used a correlation matrix → implies standardization; stating this explicitly helps).
+
+3) Justification for the correlation vs covariance matrix
+
+A short reason, e.g., CpGs may differ in variance/range so standardization is appropriate.
+
+4) How many PCs were retained and why
+
+Criteria used: scree/elbow, Kaiser criterion (eigenvalue > 1), cumulative variance threshold, or parallel analysis.
+
+If you did not retain PCs for downstream modeling because variance explained was low or no group separation was observed, say so explicitly.
+
+5) Group comparison approach
+
+If you conclude “no clustering,” it’s stronger to back this with a quantitative check, e.g.:
+
+distances in PC space, PERMANOVA on the original features, MANOVA on selected PCs, or a classifier with cross-validation.
+
+At minimum: report group centroids and dispersion (or confidence ellipses) in PC space.
+
+6) Interpretation of loadings
+
+You identified dominant CpGs: good. Also report:
+
+direction/sign of loadings (what higher PC1 means biologically/statistically),
+
+whether the same CpGs dominate across time points (stability).
+
+7) Sensitivity/robustness
+
+Because methylation has many near-zero sites, it’s useful to state whether results change when restricting to variable CpGs (which you plan) and how “variable” was defined (e.g., SD threshold, IQR, proportion methylated).
+
+8) Reproducibility details
+
+Software/package and version, PCA method (e.g., SVD, eigen decomposition), and any plotting conventions (biplot scaling).
+
+If you want, I can also (a) tighten this further into a very concise “Results” paragraph, or (b) draft a short “Methods—PCA” paragraph that matches the reporting checklist above.)
+*
 
 ## Methylation Analysis
 

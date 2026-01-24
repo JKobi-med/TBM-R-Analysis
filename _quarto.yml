@@ -5,10 +5,18 @@ execute:
   freeze: false
   warning: false
   message: false
-  
+
 format:
   html:
-   embed-resources: true
+    embed-resources: true
   docx: default
   jats: default
   pdf: default
+  elsevier-pdf:
+    keep-tex: true
+    # Pick one of these:
+    journal:
+      formatting: review      # "review" is roomy; try "preprint" if you want tighter
+      model: 3p              # common Elsevier model; good single-column look
+      layout: onecolumn      # onecolumn reads more like JAMA/NEJM than 2-col
+      cite-style: number     # numeric citations (common in medical journals)
