@@ -161,6 +161,40 @@ autoplot(pca_bdnf_res, data = na.omit(bdnf[c(1:22)]), colour = 'Sex',
 
 
 ```{r}
+#| label: fig-bdnf-pca-group-timepoint
+#| fig-cap: "BDNF PCA biplot. Points colored by Gruppe, faceted by Zeitpunkt; loadings shown as arrows with labels; 95% normal ellipses per group."
+#| fig-width: 15
+#| fig-height: 6
+
+library(ggfortify)
+library(ggplot2)
+
+bdnf$Age_start <- as.numeric(bdnf$Age_start)
+bdnf$CogTel    <- as.numeric(bdnf$CogTel)
+
+autoplot(
+  pca_bdnf_res,
+  data = na.omit(bdnf[c(1:22)]),
+  colour = "Gruppe",
+  loadings = TRUE,
+  loadings.colour = "steelblue",
+  loadings.label = TRUE,
+  loadings.label.colour = "firebrick",
+  loadings.label.size = 3,
+  frame = TRUE,
+  frame.type = "norm",
+  frame.level = 0.95,
+  frame.alpha = 0.15
+) +
+  scale_size_continuous(range = c(2, 6)) +
+  facet_wrap(~Zeitpunkt) +
+  theme_classic() +
+  labs(title = "BDNF PCA by Group (faceted by timepoint)")
+
+
+```
+```{r}
+
 library(ggfortify)
 library(ggplot2)
 
@@ -172,7 +206,6 @@ autoplot(
   pca_bdnf_res,
   data = na.omit(bdnf[c(1:22)]),
   colour = "Gruppe",            # point color by group
-  shape  = "Sex",               # point shape by sex
   loadings = TRUE,
   loadings.colour = "steelblue",        # <-- arrows
   loadings.label = TRUE,
@@ -183,11 +216,10 @@ autoplot(
   frame.level = 0.95,           # 95% ellipse
   frame.alpha = 0.15            # transparency for overlap
 ) +
-  scale_shape_manual(values = c(16, 17)) +      # custom shapes for Sex
   scale_size_continuous(range = c(2, 6)) +      # min/max point size
   facet_wrap(~Zeitpunkt) +                       # separate panels for each timepoint
   theme_classic() +
-  ggtitle("BDNF PCA: Color by Group, Shape by Sex, Size by Age, Facet by Timepoint")
+  ggtitle("BDNF PCA: Color by Group Facet by Timepoint")
 
 ```
 
@@ -269,6 +301,7 @@ ggplot() +
 
 
 ### Ranking BDNF loadings
+
 ```{r}
 # Rank CpGs by influence on PC1
 ranked_bdnf_cpgs <- sort(abs(bdnf_loading_scores), decreasing =
@@ -292,6 +325,7 @@ head(ranked_bdnf_cpgs)
 
 
 ### Visualize ranked loadings
+
 ```{r}
 plot(ranked_bdnf_cpgs, type = "b", main = "Absolute PC1 Loadings (BDNF CpGs)",
      ylab = "|Loading|", xlab = "Ranked CpGs")
@@ -550,7 +584,6 @@ autoplot(
   pca_psd95_res,
   data = na.omit(psd95[c(1:57,353)]),
   colour = "Gruppe",            # point color by group
-  shape  = "Sex",               # point shape by sex
   loadings = TRUE,
   loadings.colour = "steelblue",        # <-- arrows
   loadings.label = TRUE,
@@ -561,7 +594,6 @@ autoplot(
   frame.level = 0.95,           # 95% ellipse
   frame.alpha = 0.15            # transparency for overlap
 ) +
-  scale_shape_manual(values = c(16, 17)) +      # custom shapes for Sex
   scale_size_continuous(range = c(2, 6)) +      # min/max point size
   facet_wrap(~Zeitpunkt) +                       # separate panels for each timepoint
   theme_classic() +
@@ -599,10 +631,160 @@ What to report
 ### Visualize ranked loadings
 
 ```{r}
-#| label: PSD95-loadings
+#| label: fig-psd95-loadings
 #| fig-cap: "Absolute PC1 Loadings (PSD95 CpGs)"
 plot(ranked_psd95_cpgs, type = "b", main = "Absolute PC1 Loadings (PSD95 CpGs)",
      ylab = "|Loading|", xlab = "Ranked CpGs")
-abline(v = 4, col = "red", lty = 2, lwd = 2)
+abline(v = 3.5, col = "red", lty = 2, lwd = 2)
 ```
 Die ersten 3 CpG scheinen die wesentlichen zu sein, wie in den Boxplots zu erkennen!
+
+
+
+
+
+
+
+
+## all for manuscript figures
+
+### biplot
+```{r}
+#| label: fig-pca-genes
+#| fig-cap: "PCA biplots for BDNF, Tau, and PSD95. Points colored by group; faceted by timepoint; loadings shown; 95% normal ellipses."
+#| fig-width: 16
+#| fig-height: 14
+
+library(ggfortify)
+library(ggplot2)
+library(patchwork)
+
+p_bdnf <- autoplot(
+  pca_bdnf_res,
+  data = na.omit(bdnf[1:22]),
+  colour = "Gruppe",
+  loadings = TRUE,
+  loadings.colour = "steelblue",
+  loadings.label = TRUE,
+  loadings.label.colour = "firebrick",
+  loadings.label.size = 3,
+  frame = TRUE,
+  frame.type = "norm",
+  frame.level = 0.95,
+  frame.alpha = 0.15
+) +
+  facet_wrap(~Zeitpunkt) +
+  theme_classic() +
+  labs(title = "BDNF")
+
+p_tau <- autoplot(
+  pca_tau_res,
+  data = na.omit(tau[1:57]),
+  colour = "Gruppe",
+  loadings = TRUE,
+  loadings.colour = "steelblue",
+  loadings.label = TRUE,
+  loadings.label.colour = "firebrick",
+  loadings.label.size = 3,
+  frame = TRUE,
+  frame.type = "norm",
+  frame.level = 0.95,
+  frame.alpha = 0.15
+) +
+  facet_wrap(~Zeit) +   # keep your column name here
+  theme_classic() +
+  labs(title = "Tau")
+
+p_psd95 <- autoplot(
+  pca_psd95_res,
+  data = na.omit(psd95[1:54]),
+  colour = "Gruppe",
+  loadings = TRUE,
+  loadings.colour = "steelblue",
+  loadings.label = TRUE,
+  loadings.label.colour = "firebrick",
+  loadings.label.size = 3,
+  frame = TRUE,
+  frame.type = "norm",
+  frame.level = 0.95,
+  frame.alpha = 0.15
+) +
+  facet_wrap(~Zeitpunkt) +
+  theme_classic() +
+  labs(title = "PSD95")
+
+# combine into one figure (3 rows)
+(p_bdnf / p_tau / p_psd95) +
+  plot_layout(guides = "collect") &
+  theme(legend.position = "right")
+
+```
+
+### Scree plots
+
+```{r}
+#| label: fig-scree-all
+#| fig-cap: "Scree plots showing percent variance explained by principal components for BDNF, Tau, and PSD95."
+#| fig-width: 10
+#| fig-height: 11
+
+op <- par(no.readonly = TRUE)
+par(mfrow = c(3, 1), mar = c(4.2, 4.5, 3, 1))
+
+barplot(pca_bdnf_var_per,
+        main = "BDNF Scree Plot",
+        xlab = "Principal Component",
+        ylab = "Percent Variation")
+
+barplot(pca_tau_var_per,
+        main = "Tau Scree Plot",
+        xlab = "Principal Component",
+        ylab = "Percent Variation")
+
+barplot(pca_psd95_var_per,
+        main = "PSD95 Scree Plot",
+        xlab = "Principal Component",
+        ylab = "Percent Variation")
+
+par(op)
+
+```
+
+
+### loadings
+
+
+
+```{r}
+#| label: fig-pc1-loadings
+#| fig-cap: "Absolute PC1 loadings ranked for BDNF, Tau, and PSD95 CpGs. Red dashed line indicates the cutoff."
+#| fig-width: 10
+#| fig-height: 9
+
+op <- par(no.readonly = TRUE)
+
+par(
+  mfrow = c(3, 1),          # 3 rows, 1 column
+  mar   = c(4.2, 4.2, 3, 1) # margins: bottom, left, top, right
+)
+
+plot(ranked_bdnf_cpgs, type = "b",
+     main = "Absolute PC1 Loadings (BDNF CpGs)",
+     ylab = "|Loading|", xlab = "Ranked CpGs")
+abline(v = 4.5, col = "red", lty = 2, lwd = 2)
+
+plot(ranked_tau_cpgs, type = "b",
+     main = "Absolute PC1 Loadings (Tau CpGs)",
+     ylab = "|Loading|", xlab = "Ranked CpGs")
+abline(v = 5.5, col = "red", lty = 2, lwd = 2)
+
+plot(ranked_psd95_cpgs, type = "b",
+     main = "Absolute PC1 Loadings (PSD95 CpGs)",
+     ylab = "|Loading|", xlab = "Ranked CpGs")
+abline(v = 3.5, col = "red", lty = 2, lwd = 2)
+
+par(op)
+
+```
+
+

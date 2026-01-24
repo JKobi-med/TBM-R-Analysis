@@ -1,7 +1,9 @@
 ---
 title: TBM impact on methylation of neuroplasticity-associated genes (BDNF, Tau, PSD95)
 author:
-  - name: Jonas Janik Ralf Koberschinski
+  - name:
+      given: "Jonas Janik Ralf"
+      family: "Koberschinski" 
     orcid: 0009-0008-9633-5601
     corresponding: true
     email: jonas.koberschinski@mhb-fontane.de
@@ -15,14 +17,6 @@ author:
       - Brandenburg Medical School, Neuruppin, Germany
       - Laboratory of Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover Medical School, Hannover, Germany
       - Devision of Clinical Psychology and Sexual Medicine, Dept. of Psychiatry, Social Psychiatry and Psychotherapy, Hannover Medical School, Hannover, Germany
-  - name: Martin Max Schumacher
-    orcid: 0000-0001-9538-8682
-    corresponding: false
-    roles:
-      - Formal Analysis
-      - Visualization
-    affiliations:
-      - Switzerland
   - name: Kirsten Jahn
     corresponding: false
     roles: 
@@ -54,10 +48,13 @@ author:
     roles:
       - Methodology
       - Software
-      - Writing – review and editingMeasurement of telomere lengths
+      - Writing – review and editing
+      - Measurement of telomere lengths
     affiliations:
       - Devision of Clinical Psychology and Sexual Medicine, Dept. of Psychiatry, Social Psychiatry and Psychotherapy, Hannover Medical School, Hannover, Germany
-  - name: Clara E. James
+  - name: 
+      given: "Clara Eline"
+      family: James
     orcid: 0000-0001-7480-0682
     corresponding: false
     roles: []
@@ -84,7 +81,9 @@ author:
     affiliations:
       - Institute of Music Physiology and Musicians′ Medicine, Hannover University of Music, Drama and Media, Hannover, Germany
       - Center for Systems Neuroscience, Hannover, Germany
-  - name: Tillmann Horst Christoph Krüger
+  - name: 
+      given: "Tillmann Horst Christoph"
+      family: Krüger
     orcid: 0000-0002-6583-1433
     corresponding: false
     roles:
@@ -109,17 +108,21 @@ plain-language-summary: |
 key-points:
   -
   -
-date: 2024-11-15
+date: 2026-01-24
 bibliography: references.bib
 citation:
   container-title: Epigenetics Music
 number-sections: true
-editor: 
-  markdown: 
+editor:
+  markdown:
     wrap: 72
 ---
 
-# Background
+
+# Background {#sec-background}
+
+To make music
+
 
 # Methods {#sec-data-methods}
 
@@ -135,7 +138,9 @@ Auch in meiner Untersuchung? *A small subgroup of participants were recruited as
 
 ## Study participants
 
-The participants of the study cohort were recruted at the Geneva Musical Minds Lab, Geneva School of Health Sciences, University of Applied Sciences and Arts Western Switzerland (HES-SO), Geneva, Switzerland and the Hannover Medical School, Dept. for Clinical Psychiatry, Social Psychiatry and Psychotherapy, Division of Clinical Psychology and Sexual Medicine in corporation with the Institut für Musikphysiologie und Musiker-Medizin Hochschule für Musik, Theater und Medien affiliated to the Hochschule für Musik, Theater und Medien Hannover. Possibility for participation was made public through newspaper advertisement and posters in public places. Table 1 summarizes relevant demographic information about the study cohort. Some requirements had been to be met for volunteers to participate in the study. They had to be in overall good health, right-handed, retired and not relying relieingon hearing aids.
+The participants of the study cohort were recruted at the Geneva Musical Minds Lab, Geneva School of Health Sciences, University of Applied Sciences and Arts Western Switzerland (HES-SO), Geneva, Switzerland and the Hannover Medical School, Dept. for Clinical Psychiatry, Social Psychiatry and Psychotherapy, Division of Clinical Psychology and Sexual Medicine in corporation with the Institut für Musikphysiologie und Musiker-Medizin Hochschule für Musik, Theater und Medien affiliated to the Hochschule für Musik, Theater und Medien Hannover. 
+Possibility for participation was made public through newspaper advertisement and posters in public places.
+@tbl-demographics summarizes relevant demographic information about the study cohort. Some requirements had been to be met for volunteers to participate in the study. They had to be in overall good health, right-handed, retired and not relying on hearing aids.
 
 ## Measurement of DNA methylation
 
@@ -145,7 +150,11 @@ We focused on the primer regions of three genes commonly neuroplasticity-associa
 
 ### DNA isolation
 
-Genomic DNA (gDNA) was isolated at the Institute of Molecular and Translational Therapeutic Strategies of Hannover Medical School from 50 µL blood using the "NucleoMag Blood 200 µl" kit (MACHEREY-NAGEL GmbH & Co. KG, Düren, Deutschland) in concordance with the instructions of the manufacturer. The isolated gDNA was stored at -20 °C. The blood samples have been received anonymized and prior to gDNA isolation. Then the samples were additionaly randomized *(by doing what?)* to minimize potential batch effects. DNA samples were diluted in 96-well plates to a fixed concentration of 10 ng/µl.
+Genomic DNA (gDNA) was isolated at the Institute of Molecular and Translational Therapeutic Strategies of Hannover Medical School from 50 µL blood using the "NucleoMag Blood 200 µl" kit (MACHEREY-NAGEL GmbH & Co. KG, Düren, Deutschland) in concordance with the instructions of the manufacturer.
+The isolated gDNA was stored at -20 °C.
+The blood samples have been received anonymized and prior to gDNA isolation.
+Then the samples were additionaly randomized *(by doing what?)* to minimize potential batch effects.
+DNA samples were diluted in 96-well plates to a fixed concentration of 10 ng@tbl-demographics/µl.
 
 ### Bisulfite Conversion
 
@@ -153,11 +162,33 @@ The gDNA of all samples was then bisullfite converted via the "EZ-96 DNA Methyla
 
 ### Primer design
 
-With Ensembl and Geneious Pro 5.6.7 the primer regions of our target genes were located and the sequences of the primer regions analyzed. Aided by Biocalculator (metabion), NetPrimer (Premier Biosoft), Methyl Primer Express v1.0 (Applied Biosystems) and Bisulfite Primer Seeker (Zymo) we designed primers for PCR with bisulfite-converted DNA (see Table 1) and sequencing primers (Table 2) - later used to prepare Sanger Sequencing - and orderd these primers from metabion GmbH (Martinsried, Deutschland).
+With Ensembl and Geneious Pro 5.6.7 the primer regions of our target genes were located and the sequences of the primer regions analyzed. Aided by Biocalculator (metabion), NetPrimer (Premier Biosoft), Methyl Primer Express v1.0 (Applied Biosystems) and Bisulfite Primer Seeker (Zymo) we designed primers for PCR with bisulfite-converted DNA (see @tbl-primers-pcr) and sequencing primers (@tbl-primers-seq) - later used to prepare Sanger Sequencing - and orderd these primers from metabion GmbH (Martinsried, Deutschland).
 
-**Table 1. Primers used in PCR** \| Target \| Primer name \| Sequence (5′→3′) \| \|---\|---\|---\| \| **BDNF** \| BDNF_fwd1_18 \| 5′-GGGGGAGGATTAATTGAGTTAGTTTTG-3′ \| \| **BDNF** \| BDNF_rev_20 \| 5′-ATATATACTCCTTCTATTCTACAACAA-3′ \| \| **BDNF** \| BDNF_fwd2_19 \| 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′ \| \| **BDNF** \| BDNF_rev_20 \| 5′-ATATATACTCCTTCTATTCTACAACAA-3′ \| \| **PSD95** \| 1341_PSD95_Fw_a \| 5′-TGGGAATTTGATTTGTTTAGA-3′ \| \| **PSD95** \| 1342_PDS95_Fw_i \| 5′-AGAGTTAGTTGGGAAAAGAGA-3′ \| \| **PSD95** \| 1343_PSD95_Rev_i \| 5′-TCCTCTTCTATCCCATCCTAT-3′ \| \| **PSD95** \| 1344_PSD95_Rev_a \| 5′-TAACTACAATAACTTAAACCCCT-3′ \| \| **Tau** \| 271_MEX_Primer_Tau_Fw_a \| 5′-TAATAAAAAAGGTGGGAAAAAA-3′ \| \| **Tau** \| 272_MEX_Primer_Tau_Fw_i \| 5′-AAAGGAAGTAGTTTGGGG-3′ \| \| **Tau** \| 273_MEX_Primer_Tau_Rev \| 5′-AACCTCCCCAAAAAAAAAAA-3′ \|
 
-**Table 2. Primer used in sequencing PCR** \| Target \| Primer name \| Sequence (5′→3′) \| \|---\|---\|---\| \| **BDNF** \| BDNF_seqrev_21 \| 5′-ACAAAAAAATTTCATACTAA-3′ \| **other sequencing primers are missing**
+| Target    | Primer name             | Sequence (5′→3′)                  |
+|-----------|-------------------------|-----------------------------------|
+| **BDNF**  | BDNF_fwd1_18            | 5′-GGGGGAGGATTAATTGAGTTAGTTTTG-3′ |
+| **BDNF**  | BDNF_rev_20             | 5′-ATATATACTCCTTCTATTCTACAACAA-3′ |
+| **BDNF**  | BDNF_fwd2_19            | 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′    |
+| **BDNF**  | BDNF_rev_20             | 5′-ATATATACTCCTTCTATTCTACAACAA-3′ |
+| **PSD95** | 1341_PSD95_Fw_a         | 5′-TGGGAATTTGATTTGTTTAGA-3′       |
+| **PSD95** | 1342_PDS95_Fw_i         | 5′-AGAGTTAGTTGGGAAAAGAGA-3′       |
+| **PSD95** | 1343_PSD95_Rev_i        | 5′-TCCTCTTCTATCCCATCCTAT-3′       |
+| **PSD95** | 1344_PSD95_Rev_a        | 5′-TAACTACAATAACTTAAACCCCT-3′     |
+| **Tau**   | 271_MEX_Primer_Tau_Fw_a | 5′-TAATAAAAAAGGTGGGAAAAAA-3′      |
+| **Tau**   | 272_MEX_Primer_Tau_Fw_i | 5′-AAAGGAAGTAGTTTGGGG-3′          |
+| **Tau**   | 273_MEX_Primer_Tau_Rev  | 5′-AACCTCCCCAAAAAAAAAAA-3′        |
+
+: Primers used in PCR {#tbl-primers-pcr}
+
+
+| Target   | Primer name    | Sequence (5′→3′)           |
+|----------|----------------|----------------------------|
+| **BDNF** | BDNF_seqrev_21 | 5′-ACAAAAAAATTTCATACTAA-3′ |
+
+: Primers used in sequencing PCR {#tbl-primers-seq}
+
+*Note: Other sequencing primers are missing.*
 
 ### Gene Amplification
 
@@ -165,7 +196,7 @@ The primers were dissolved in nuclease-free water. The proportions have been pre
 
 ### Sanger Sequencing
 
-The purfied PCR prodcus were sequenced with the BigDye Terminator v3.1 Cycle Sequencing Kit (Applied Biosystems, Foster City, CA, USA) and the sequencing primers mentioned above (Table 2). The sequencing product were purifed with the "CleanDTR" kit (CleanNA, Waddinxveen, Niederlande).
+The purfied PCR prodcus were sequenced with the BigDye Terminator v3.1 Cycle Sequencing Kit (Applied Biosystems, Foster City, CA, USA) and th e sequencing primers mentioned above (@tbl-primers-seq). The sequencing product were purifed with the "CleanDTR" kit (CleanNA, Waddinxveen, Niederlande).
 
 Then using the Applied Biosystems' 3500 Genetic Analyzer (ABI 3500xL) Capillary electrophoresis was performed.
 
@@ -183,22 +214,55 @@ Generalized Linear model (GLM) with the ... package
 
 Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZIBR) were performed using the glmmTMB package for modelling and DHARMa for residual diagnostics.
 
-# Results
+# Results {#sec-results}
 
 ## General
 
-\| \| \| \| \|-------------------------\|--------------\|---------------\| \|   \| Piano Group \| Control Group \| \| Mean Age +/- SD (years) \| 68.9 +/- 2.9 \| 69.5 +/- 4 \| \| Min./Max. \| 64/76 \| 62/78 \| \| N \| 29??? \| 26??? \| \| Female/Male (%) \| 44.8/55.2 \| 38.5/61.5 \|
+375 samples have been sequenced.
 
-Table 1: Demographics of the study cohort
+| Characteristic        | Piano Group | Control Group |
+|-----------------------|------------:|--------------:|
+| Mean age ± SD (years) |  68.9 ± 2.9 |    69.5 ± 4.0 |
+| Min / Max             |     64 / 76 |       62 / 78 |
+| N                     |          29 |            26 |
+| Female / Male (%)     | 44.8 / 55.2 |   38.5 / 61.5 |
+
+: Demographics of the study cohort {#tbl-demographics}
 
 At T0 blood samples of 155 were analzyed, 130? at T1 and 105 for T2.
 
-## Principal component analysis
+## Principal component analysis (PCA) {#sec-results-pca}
 
-Showed that specific CpGs drove the variance specifically for Tau and PSD95. Assessing the covariacne matrix, large differences in variance between the CpGs were seen.
+We performed PCA for every gene using the correlation matrix.
+(BDNF: PC1 28.81%, PC2 16.84%; Tau: PC1 29.02%, PC2 9.22%; PSD95: PC1 17.10%, PC2 11.61%)
 
-## Methylation Levels
 
+Scree plots
+
+No real clustering for timepoint or group has been as seen in @fig-pca-genes, - even if the group clusters for psd95 changed somewhat over time.
+What was noticable is that specifix CpGs mainly drove the variance more than others did.
+For BDNF: m148, m066, m111 and m058.
+For Tau: m331, m337, m310, m315,
+Ranking the loadings of the first Principial component made that particularly clear for Tau, after the fith or six a clear genu is seen, and even more so for PSD95, where after the forth loading a clear knee is seen (see @fig-pc1-loadings; see also @tbl-supp-pca-bdnf–@tbl-supp-pca-psd95 for PC1 loading ranks).
+So, large differences in the variance of the CpGs have been seen.
+Looking on at the methylation values of every CpG on every gene that becomes particulatry clear. (@fig-boxplots-cpg-all)
+For tau the promoterregion nbefore the primer in most indivuals is not methylated. only some after the Primer.
+For PSD95 it is the other way around. In the beginning of the promoter region the CpGs are partly methylated, but for most CpGs the median is 0%.
+For BDNF it is mixed.
+
+Because of that we, made models for every gene trwice. We first modeld with all CpGs and than only with the most variance CpGs.
+
+{{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pca-genes >}}
+
+{{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pc1-loadings >}}
+
+{{< embed notebooks/eda.qmd#fig-boxplots-cpg-all >}}
+
+
+
+## Methylation Analysis
+
+### Methylation Level
 -   Die Gene sind allgemein eher gering methyliert (Mean \< 0,08, Median \< 0,04). **Hohe Expressionsrate!**
 -   Dabei ist PSD95 am geringsten und BDNF am höchsten metyhyliert.
 -   Bei Tau sind die CpGs promoterfern mehr meyhtliert - bei PSD95 umgekehrt (*Boxplots mit CpG-Methylierung der Gene!*)
@@ -218,9 +282,33 @@ Our main goal we aimed to determine whether the degree of methylation differed b
 -   Bei Tau steigt das arithmetische Mittel der Methylierung leicht von T0 zu T1 und hält das Niveau bei T2.
 -   Bei PSD95 verbleibt der Median der Methylierung gleichbleibend bei 0, während das arithmetische Mittel der Methylierung von T0 zu T1 steigt aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
 
-### Tests und Modelle
 
-# Discussion
+### Plots with all CpGs
+
+
+
+{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-no-group >}}
+{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-by-gene >}}
+
+
+
+
+
+
+### Plots with only reduced CpGs
+according to @sec-results-pca we also filtered for the high variance CpGs.
+
+#### Time
+{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-no-group-filtered-genes >}}
+
+#### Group
+{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-by-filtered-gene >}}
+
+
+
+## Models
+
+# Discussion {#sec-discussion}
 
 The null hypothesis of our study was that playing the piano has no effect on the methylation of neuroplasticity-associated genes like BDNF, PSD95 and Tau. Despite of Tau the null hypothesis could be rejected.
 
@@ -254,11 +342,93 @@ This work was funded by the Swiss National Science Foundation (grant no. 100019E
 
 Conceptualization: T.H.C.K. Methodology: K.Jü., C.S., S.C., K.Ja., J.K. Software: S.C., C.S., K.Jü., K.Ja., J.K. Formal Analysis: S.C., K.Ja., C.S. Investigation: S.C., C.B., K.Jü. Resources: T.H.C.K., C.B., S.B., H.F. Writing – original draft preparation: J.K. Writing – review and editing: S.C., C.S., K. Jü., H.F., S.B., C. B., T.H.C.K. Visualization, K.Ja., J.K. Supervision, T.H.C.K., C.B., H.F., S.B. All authors have read and agreed to the published version of the manuscript.
 
+## Use of AI tools
+
+ChatGPT (OpenAI) was used to aid in draft preparation (particularly language and style), development of R code and summarizing/clarifying statistical output for reporting. All analyses, interpretations, and manuscript text were reviewed and verified by the authors. The first author takes full responsibilty for the accuracy and integrity of the work.
+
 ## Acknowledgement
 
-The first author would like to thank Martin Max Schumacher, PhD, for his expert assistance and kind support.
+The first author would like to thank Martin Max Schumacher, PhD, and Kai Wenger, PhD, for there expert assistance and kind support.
 
-## References {.unnumbered}
+# References
 
-::: {#refs}
-:::
+
+
+
+
+
+# Supplementary material {#sec-supp}
+
+
+## Supplementary Methods {#sec-supp-methods}
+
+## Supplementary Tables {#sec-supp-tables}
+
+### PCA
+
+#### BDNF
+| Rank | CpG  | |Loading| |
+|------|------|----------:|
+| 1    | m148 | 0.612     |
+| 2    | m066 | 0.453     |
+| 3    | m111 | 0.431     |
+| 4    | m058 | 0.422     |
+| 5    | m039 | 0.215     |
+| 6    | m035 | 0.076     |
+| 7    | m087 | 0.053     |
+| 8    | m024 | 0.029     |
+| 9    | p020 | 0.022     |
+| 10   | p018 | 0.013     |
+
+: PC1 loading ranks for BDNF CpGs. {#tbl-supp-pca-bdnf}
+
+
+
+#### Tau
+
+| Rank | CpG  | |Loading| |
+|------|------|----------:|
+| 1    | m331 | 0.4438    |
+| 2    | m337 | 0.4236    |
+| 3    | m310 | 0.3856    |
+| 4    | m315 | 0.3843    |
+| 5    | m323 | 0.3771    |
+| 6    | m306 | 0.2459    |
+| 7    | m219 | 0.1652    |
+| 8    | m300 | 0.1489    |
+| 9    | m293 | 0.1295    |
+| 10   | m207 | 0.1246    |
+
+: PC1 loading ranks for Tau CpGs (top ten contributors). {#tbl-supp-pca-tau}
+
+
+
+
+
+
+#### PSD95
+
+
+
+| Rank | CpG  | |Loading| |
+|------|------|----------:|
+| 1    | p95  | **0.664**     |
+| 2    | p60  | **0.484**     |
+| 3    | p23  | **0.445**     |
+| 4    | m35  | 0.153     |
+| 5    | m28  | 0.103     |
+| 6    | m418 | 0.097     |
+| 7    | m24  | 0.094     |
+| 8    | p91  | 0.094     |
+| 9    | m400 | 0.086     |
+| 10   | m11  | 0.078     |
+
+: PC1 loading ranks for PSD95 CpGs (top ten contributors). {#tbl-supp-pca-psd95}
+
+
+
+## Supplementary Figures {#sec-supp-figures}
+
+### Scree Plots
+
+{{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-scree-all >}}

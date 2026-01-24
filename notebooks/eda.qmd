@@ -182,7 +182,6 @@ describe(psd95_median_wide)
 
 ### Boxplots
 ```{r}
-#| label: boxplots-cpg
 eda_bdnf <- cpg
 bdnfcols_to_modify <- 5:14
 
@@ -210,15 +209,31 @@ print(colnames(eda_psd95[c(72:116)]))
 #par(mfrow = c(3, 3))
 #layout(matrix(c(0, 1, 0, 2, 2, 2, 3, 3, 3), nrow = 3, byrow = TRUE))
 #with()!
+```
+
+
+```{r}
+#| label: fig-boxplot-cpg-bdnf
+
 boxplot(eda_bdnf[, c(5:14)], 
         xlab = "CpGs", 
         ylab = "Methylation Level", 
         main = "Boxplot of the BDNF-CpGs")
+```
+
+
+```{r}
+#| label: fig-boxplot-cpg-tau
 
 boxplot(eda_tau[, c(19:67)], 
         xlab = "CpGs", 
         ylab = "Methylation Level", 
         main = "Boxplot of the Tau-CpGs")
+```
+
+
+```{r}
+#| label: fig-boxplot-cpg-psd95
 
 boxplot(eda_psd95[, c(72:116)], 
         xlab = "CpGs", 
@@ -226,6 +241,35 @@ boxplot(eda_psd95[, c(72:116)],
         main = "Boxplot of the PSD95-CpGs")
 
 ```
+
+```{r}
+#| label: fig-boxplots-cpg-all
+#| fig-cap: "Boxplots of CpG methylation levels for BDNF, Tau, and PSD95."
+#| fig-width: 12
+#| fig-height: 10
+
+op <- par(no.readonly = TRUE)
+par(mfrow = c(3, 1), mar = c(6, 4, 3, 1), oma = c(0, 0, 1, 0))
+
+boxplot(eda_bdnf[, 5:14],
+        xlab = "CpGs", ylab = "Methylation Level",
+        main = "BDNF CpGs",
+        las = 2, cex.axis = 0.8)
+
+boxplot(eda_tau[, 19:67],
+        xlab = "CpGs", ylab = "Methylation Level",
+        main = "Tau CpGs",
+        las = 2, cex.axis = 0.6)
+
+boxplot(eda_psd95[, 72:116],
+        xlab = "CpGs", ylab = "Methylation Level",
+        main = "PSD95 CpGs",
+        las = 2, cex.axis = 0.6)
+
+par(op)
+```
+
+
 #### Zoom to methlyated CpGs in Tau and PSD95
 siehe "131124_TBM mit Martin.qmd" ab Zeile 1074
 
@@ -370,7 +414,6 @@ plot_median_iqr(tau_cpg_long, "Tau CpGs — median with IQR")
 plot_deciles(   tau_cpg_long, ID.Tau,   "Tau CpGs — ID decile profiles")
 plot_kmeans(    tau_cpg_long, ID.Tau,   k = 8,
 title = "Tau CpGs — cluster centroid profiles (scaled)")
-
 # PSD95
 
 plot_median_iqr(psd95_cpg_long, "PSD95 CpGs — median with IQR")

@@ -1,25 +1,29 @@
 % Options for packages loaded elsewhere
+% Options for packages loaded elsewhere
 \PassOptionsToPackage{unicode}{hyperref}
 \PassOptionsToPackage{hyphens}{url}
 \PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
 %
 \documentclass[
-]{agujournal2019}
-
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrartcl}
+\usepackage{xcolor}
 \usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math}
+  \usepackage{unicode-math} % this also loads fontspec
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
 \usepackage{lmodern}
-\ifPDFTeX\else  
-    % xetex/luatex font selection
+\ifPDFTeX\else
+  % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -37,9 +41,6 @@
 }{% if KOMA class
   \KOMAoptions{parskip=half}}
 \makeatother
-\usepackage{xcolor}
-\setlength{\emergencystretch}{3em} % prevent overfull lines
-\setcounter{secnumdepth}{5}
 % Make \paragraph and \subparagraph free-standing
 \makeatletter
 \ifx\paragraph\undefined\else
@@ -65,8 +66,7 @@
 \makeatother
 
 
-\providecommand{\tightlist}{%
-  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
 \usepackage{etoolbox}
@@ -78,56 +78,35 @@
 \makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-% Scale images if necessary, so that they will not overflow the page
-% margins by default, and it is still possible to overwrite the defaults
-% using explicit options in \includegraphics[width, height, ...]{}
-\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
 % Set default figure placement to htbp
-\makeatletter
 \def\fps@figure{htbp}
 \makeatother
-% definitions for citeproc citations
-\NewDocumentCommand\citeproctext{}{}
-\NewDocumentCommand\citeproc{mm}{%
-  \begingroup\def\citeproctext{#2}\cite{#1}\endgroup}
-\makeatletter
- % allow citations to break across lines
- \let\@cite@ofmt\@firstofone
- % avoid brackets around text for \cite:
- \def\@biblabel#1{}
- \def\@cite#1#2{{#1\if@tempswa , #2\fi}}
-\makeatother
-\newlength{\cslhangindent}
-\setlength{\cslhangindent}{1.5em}
-\newlength{\csllabelwidth}
-\setlength{\csllabelwidth}{3em}
-\newenvironment{CSLReferences}[2] % #1 hanging-indent, #2 entry-spacing
- {\begin{list}{}{%
-  \setlength{\itemindent}{0pt}
-  \setlength{\leftmargin}{0pt}
-  \setlength{\parsep}{0pt}
-  % turn on hanging indent if param 1 is 1
-  \ifodd #1
-   \setlength{\leftmargin}{\cslhangindent}
-   \setlength{\itemindent}{-1\cslhangindent}
-  \fi
-  % set entry spacing
-  \setlength{\itemsep}{#2\baselineskip}}}
- {\end{list}}
-\usepackage{calc}
-\newcommand{\CSLBlock}[1]{\hfill\break\parbox[t]{\linewidth}{\strut\ignorespaces#1\strut}}
-\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{\strut#1\strut}}
-\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{\strut#1\strut}}
-\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
 
-\usepackage{url} %this package should fix any errors with URLs in refs.
-\usepackage{lineno}
-\usepackage[inline]{trackchanges} %for better track changes. finalnew option will compile document with changes incorporated.
-\usepackage{soul}
-\linenumbers
+
+
+
+
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+
+
+ 
+
+
+\KOMAoption{captions}{tableheading}
 \makeatletter
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \AtBeginDocument{%
@@ -169,17 +148,12 @@
 \@ifpackageloaded{caption}{}{\usepackage{caption}}
 \@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
 \makeatother
-
-\ifLuaTeX
-  \usepackage{selnolig}  % disable illegal ligatures
-\fi
 \usepackage{bookmark}
-
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same} % disable monospaced font for URLs
+\urlstyle{same}
 \hypersetup{
   pdftitle={TBM impact on methylation of neuroplasticity-associated genes (BDNF, Tau, PSD95)},
-  pdfauthor={Jonas Janik Ralf Koberschinski; Martin Max Schumacher; Kirsten Jahn; Helge Frieling; Christopher Sinke; Kristin Jünemann; Clara E. James; Florian Worschech; Damien Marie; Eckart Altenmüller; Tillmann Horst Christoph Krüger},
+  pdfauthor={Jonas Janik Ralf Koberschinski; Kirsten Jahn; Helge Frieling; Christopher Sinke; Kristin Jünemann; Clara Eline James; Florian Worschech; Damien Marie; Eckart Altenmüller; Tillmann Horst Christoph Krüger},
   pdfkeywords={Piano, Aging, Neuroplasticity, Methylation, BDNF, Tau, PSD95},
   colorlinks=true,
   linkcolor={blue},
@@ -189,363 +163,454 @@
   pdfcreator={LaTeX via pandoc}}
 
 
-\journalname{Epigenetics Music}
-
-\draftfalse
-
-\begin{document}
 \title{TBM impact on methylation of neuroplasticity-associated genes
 (BDNF, Tau, PSD95)}
-
-\authors{Jonas Janik Ralf Koberschinski\affil{1,2,3}, Martin Max
-Schumacher\affil{4}, Kirsten Jahn\affil{5}, Helge
-Frieling\affil{5}, Christopher Sinke\affil{3}, Kristin
-Jünemann\affil{3}, Clara E. James\affil{6}, Florian
-Worschech\affil{7,8}, Damien Marie\affil{6,9}, Eckart
-Altenmüller\affil{7,8}, Tillmann Horst Christoph Krüger\affil{3,8}}
-\affiliation{1}{Brandenburg Medical School, Neuruppin,
-Germany, }\affiliation{2}{Laboratory of Molecular Neurosciences (LMN),
-Dept. of clinical psychiatry, Hannover Medical School, Hannover,
-Germany, }\affiliation{3}{Devision of Clinical Psychology and Sexual
-Medicine, Dept. of Psychiatry, Social Psychiatry and Psychotherapy,
-Hannover Medical School, Hannover,
-Germany, }\affiliation{4}{Switzerland, }\affiliation{5}{Laboratory of
-Molecular Neurosciences (LMN), Dept. of clinical psychiatry, Hannover
-Medical School, Hannover Germany, }\affiliation{6}{Geneva Musical Minds
-Lab, Geneva School of Health Sciences, University of Applied Sciences
-and Arts Western Switzerland (HES-SO), Geneva,
-Switzerland, }\affiliation{7}{Institute of Music Physiology and
-Musicians′ Medicine, Hannover University of Music, Drama and Media,
-Hannover, Germany, }\affiliation{8}{Center for Systems Neuroscience,
-Hannover, Germany, }\affiliation{9}{Faculty of Psychology and
-Educational Sciences,University of Geneva, Geneva, Switzerland, }
-\correspondingauthor{Jonas Janik Ralf
-Koberschinski}{jonas.koberschinski@mhb-fontane.de}
-
-
+\author{Jonas Janik Ralf Koberschinski \and Kirsten Jahn \and Helge
+Frieling \and Christopher Sinke \and Kristin Jünemann \and Clara Eline
+James \and Florian Worschech \and Damien Marie \and Eckart
+Altenmüller \and Tillmann Horst Christoph Krüger}
+\date{2026-01-24}
+\begin{document}
+\maketitle
 \begin{abstract}
 \ldots{}
 \end{abstract}
 
-\section*{Plain Language Summary}
-\ldots{}
 
+\section{Background}\label{sec-background}
 
-
-
-\section{Introduction}\label{introduction}
-
-\subsection{BDNF (Brain-Derived Neurotrophic
-Factor)}\label{bdnf-brain-derived-neurotrophic-factor}
-
-\subsubsection{Association with
-Neuroplasticity}\label{association-with-neuroplasticity}
-
-BDNF is a crucial neurotrophin that supports the survival,
-differentiation, and growth of neurons. It plays a central role in
-neuroplasticity by facilitating synaptic plasticity, which is the
-ability of synapses to strengthen or weaken over time in response to
-increases or decreases in their activity. It enhances long-term
-potentiation (LTP), a process associated with learning and memory. BDNF
-promotes synaptic plasticity by influencing dendritic growth and spine
-density.
-
-\subsubsection{Epigenetic Regulation}\label{epigenetic-regulation}
-
-\paragraph{DNA Methylation}\label{dna-methylation}
-
-The promoter region of the BDNF gene can be methylated, which generally
-suppresses its expression. Methylation of BDNF can be influenced by
-various factors, including environmental stimuli and stress.
-
-\paragraph{Histone Modifications}\label{histone-modifications}
-
-Post-translational modifications of histones can also regulate BDNF
-expression. For example, acetylation of histones is associated with
-increased BDNF expression.
-
-\subsubsection{Transcription Factors}\label{transcription-factors}
-
-Factors such as CREB (cAMP response element-binding protein) regulate
-BDNF expression through binding to its promoter region.
-
-\subsection{PSD95 (Postsynaptic Density Protein
-95)}\label{psd95-postsynaptic-density-protein-95}
-
-\subsubsection{Association with
-Neuroplasticity}\label{association-with-neuroplasticity-1}
-
-PSD95 is a scaffolding protein found in the postsynaptic density of
-neurons. It is involved in organizing and stabilizing synaptic proteins,
-and it plays a key role in the regulation of synaptic transmission and
-plasticity. It interacts with glutamate receptors (e.g., NMDA and AMPA
-receptors), thereby modulating synaptic strength and contributing to
-synaptic plasticity mechanisms such as LTP and LTD (long-term
-depression).
-
-\subsubsection{Epigenetic Regulation}\label{epigenetic-regulation-1}
-
-DNA Methylation and Histone Modifications: The expression of PSD95 can
-be influenced by DNA methylation and histone acetylation. Epigenetic
-changes can affect its expression levels and, consequently, synaptic
-plasticity and cognitive functions.
-
-\subsubsection{Activity-Dependent
-Regulation}\label{activity-dependent-regulation}
-
-Synaptic activity and neuronal signaling pathways can alter the
-expression of PSD95 through epigenetic mechanisms, including the
-regulation of transcription factors.
-
-\subsection{Tau}\label{tau}
-
-\subsubsection{Association with
-Neuroplasticity}\label{association-with-neuroplasticity-2}
-
-Tau is a microtubule-associated protein that stabilizes microtubules and
-supports axonal transport. It plays a critical role in maintaining
-neuronal structure and function. Dysregulation of Tau, such as
-hyperphosphorylation, is associated with neurodegenerative diseases like
-Alzheimer's disease. Tau pathology can disrupt neuroplasticity by
-impairing synaptic function and neuronal integrity.
-
-\subsubsection{Epigenetic Regulation}\label{epigenetic-regulation-2}
-
-\paragraph{DNA Methylation and Histone
-Modifications}\label{dna-methylation-and-histone-modifications}
-
-Epigenetic regulation of Tau involves changes in DNA methylation
-patterns and histone modifications. Abnormal epigenetic changes can
-affect Tau expression and its pathological modifications.
-
-\paragraph{Phosphorylation}\label{phosphorylation}
-
-Tau's phosphorylation status is influenced by signaling pathways and can
-affect its interactions with microtubules and its role in
-neuroplasticity. Epigenetic Effects of Cognitive Activity (e.g., Making
-Music)
-
-\subsubsection{Methylation and Cognitive
-Activity}\label{methylation-and-cognitive-activity}
-
-\paragraph{Cognitive Activity and
-Methylation:}\label{cognitive-activity-and-methylation}
-
-Research indicates that cognitive activities, including complex
-activities like making music, can influence DNA methylation patterns.
-Such activities are associated with changes in gene expression related
-to brain function and plasticity.
-
-\paragraph{Making Music}\label{making-music}
-
-Engaging in musical activities has been shown to affect the expression
-of genes involved in neuroplasticity, including BDNF. Studies suggest
-that musical training can lead to epigenetic changes that enhance
-synaptic plasticity and cognitive functions.
-
-\subsection{Relevant Publications}\label{relevant-publications}
-
-\begin{itemize}
-\tightlist
-\item
-  ``Epigenetic Regulation of BDNF in the Brain: Implications for
-  Cognitive Function and Neuroplasticity'' - This review discusses the
-  impact of epigenetic modifications on BDNF expression and its role in
-  neuroplasticity and cognitive function.
-\item
-  ``Music Training and Brain Plasticity: Evidence from Functional and
-  Structural Neuroimaging'' - This article reviews how musical training
-  influences brain structure and function, including changes in
-  epigenetic regulation.
-\item
-  ``The Impact of Cognitive and Physical Activities on DNA Methylation
-  and Cognitive Function'' - This study explores how various cognitive
-  activities, including music, influence DNA methylation and cognitive
-  outcomes.
-\item
-  ``The Influence of Environmental Enrichment on Epigenetic
-  Modifications: Implications for Learning and Memory'' - This paper
-  discusses how environmental enrichment, which includes activities like
-  music, affects epigenetic modifications related to learning and
-  memory.
-\end{itemize}
-
-\subsection{Summary}\label{summary}
-
-BDNF, PSD95, and Tau are crucial for neuroplasticity, influencing
-synaptic function, and neuronal structure. Their expressions are
-regulated by various epigenetic mechanisms, including DNA methylation
-and histone modifications. Cognitive activities, such as making music,
-have been shown to affect epigenetic regulation and potentially enhance
-neuroplasticity. There is growing evidence supporting the idea that
-engaging in complex cognitive activities can lead to beneficial
-epigenetic changes that positively impact brain function.
+To make music
 
 \section{Methods}\label{sec-data-methods}
 
-\subsection{Subjects}\label{subjects}
-
-Study participants were recruited at Hannover Medical School, Dept. for
-Clinical Psychiatry, Social Psychiatry and Psychotherapy, Division of
-Clinical Psychology and Sexual Medicine and at the Geneva Musical Minds
-Lab, Geneva School of Health Sciences, University of Applied Sciences
-and Arts Western Switzerland (HES-SO), Geneva, Switzerland via newspaper
-advertisement and placards at public places. Demographics are given in
-the results in Table 1. Prerequisites for participation in the study
-were an overall good health, being right-handed, retired, and
-non-reliant on hearing-aids.
-
 \subsection{Study design}\label{study-design}
 
-The first time point was before the weekly practical piano lessons were
-started (or theoretical music lessons without any practical exercises in
-the control group, respectively), the second time point was after half a
-year, and the third time point was one year after the first assessment
-(for the long-term observation of potential beneficial effects of
-piano-lessons) for every individual participant. The time points each
-cover a period of several months, as all the participants could not be
-examined on the same day, since MRI scans were also performed as part of
-the original study (T0: March to June 2019, T1: August 2019 to February
-2020, T2: June 2020 to November 2020). A small subgroup of participants
-were recruited as early as in January 2019 (T0), and had their
-consecutive examinations in August 2019 (T1) and in the end of
-February/beginning of March 2020 (T2). In other words, their T2 was
-directly before the lockdown started. Therefore, this small subgroup was
-excluded from the main analyses.
+piano group and active control group
 
-\subsection{DNA isolation}\label{dna-isolation}
+Blood samples were taken at three different time points. The first (T0)
+one week before the weekly cycle of practical or theoretical music
+lessons were started. The second (T1) after 6 months and the third (T2)
+again after 6 months so one year after T0.
 
-Genomic DNA (gDNA) for telomere measurements was isolated in the
-Institute of Molecular and Translational Therapeutic Strategies of
-Hannover Medical School according to standard procedures from 50 µL
-blood using the DNeasy Blood \& Tissue Kit (Qiagen \#69506) and stored
-at −20 °C. DNA samples were diluted in 96-well plates to a fixed
-concentration of 10 ng/µl. The blood samples were received anonymized
-and prior to gDNA isolation the order of the samples was further
-randomized to minimize potential batch effects.
+Because multiple tests were performed on each inidivuals time point (not
+only blood samples but also fMRI as part of the original study) T0 fell
+between March and June 2019, T1 between August 2019 and February 2020
+and T2 between June 2020 and November 2020.
 
-\subsection{Gene Amplification and
-Sequencing}\label{gene-amplification-and-sequencing}
+Auch in meiner Untersuchung? \emph{A small subgroup of participants were
+recruited as early as in January 2019 (T0), and had their consecutive
+examinations in August 2019 (T1) and in the end of February/beginning of
+March 2020 (T2). In other words, their T2 was directly before the
+lockdown started. Therefore, this small subgroup was excluded from the
+main analyses}
 
-To investigate the methylation status of the target genes---BDNF, PSD95,
-and Tau---specific regions of interest were amplified using polymerase
-chain reaction (PCR) followed by Sanger sequencing. Genomic DNA (gDNA)
-extracted from blood samples was bisulfite-converted using standard
-procedures (Kit ergänzen), which converts unmethylated cytosines to
-uracils while leaving methylated cytosines unchanged, enabling
-differentiation between methylated and unmethylated CpG sites (Frommer
-et al., 1992). PCR primers (Sequenz ergänzen) were designed to target
-CpG-rich regions within the promoter or regulatory regions of each gene,
-as these regions are often key in regulating gene expression through DNA
-methylation. Amplifications were performed using high-fidelity DNA
-polymerases to minimize errors, and the resulting PCR products were
-verified for size and integrity via agarose gel electrophoresis (Clark
-et al., 1994). Once verified, the products were purified using a
-standard PCR purification kit. Sanger Sequencing was then performed on
-the purified PCR products to identify the methylation patterns at
-individual CpG sites. This method was chosen for its high accuracy in
-detecting methylation at single-nucleotide resolution (Sanger et al.,
-1977). Sequencing reactions were carried out using fluorescently labeled
-dideoxynucleotides, and the resulting sequences were analyzed to
-identify CpG methylation patterns.
+\subsection{Study participants}\label{study-participants}
 
-\subsection{CpG Sites and Methylation
-Analysis}\label{cpg-sites-and-methylation-analysis}
+The participants of the study cohort were recruted at the Geneva Musical
+Minds Lab, Geneva School of Health Sciences, University of Applied
+Sciences and Arts Western Switzerland (HES-SO), Geneva, Switzerland and
+the Hannover Medical School, Dept. for Clinical Psychiatry, Social
+Psychiatry and Psychotherapy, Division of Clinical Psychology and Sexual
+Medicine in corporation with the Institut für Musikphysiologie und
+Musiker-Medizin Hochschule für Musik, Theater und Medien affiliated to
+the Hochschule für Musik, Theater und Medien Hannover. Possibility for
+participation was made public through newspaper advertisement and
+posters in public places. Table~\ref{tbl-demographics} summarizes
+relevant demographic information about the study cohort. Some
+requirements had been to be met for volunteers to participate in the
+study. They had to be in overall good health, right-handed, retired and
+not relying on hearing aids.
 
-CpG sites---regions of DNA where a cytosine nucleotide is followed by a
-guanine nucleotide---are often found in gene promoters and are key
-regulators of gene expression. Methylation at these sites can silence
-gene expression, making them critical points of study in understanding
-gene regulation (Bird, 2002). For each of the three genes (BDNF, PSD95,
-and Tau), multiple CpG sites were identified within the promoter or
-other regulatory regions to assess their methylation status. By
-examining these CpG islands, we aimed to determine whether the degree of
-methylation differed between the intervention (piano lessons) and
-control groups.
+\subsection{Measurement of DNA
+methylation}\label{measurement-of-dna-methylation}
 
-\subsection{Data Processing via ESME}\label{data-processing-via-esme}
+\subsubsection{Target Genes}\label{target-genes}
 
-The methylation status of individual CpG sites was quantified using the
-Epigenetic Sequencing Methylation Analysis software (ESME), which is
-specifically designed for analyzing bisulfite sequencing data (Lewin et
-al., 2004). ESME processes bisulfite-converted Sanger sequencing data
-and compares the cytosine-uracil conversion patterns to the reference
-sequence to detect methylation at CpG sites. Specifically, ESME
-calculates the percentage of methylation at each CpG site by determining
-the ratio of methylated cytosines to total cytosines (methylated +
-unmethylated) for each site. ESME allows for a high-resolution
-quantification of methylation levels at each CpG site, providing decimal
-values (e.g., 0.75 represents 75\% methylation at a specific CpG site).
-The software also corrects for any potential sequencing errors and can
-handle multiple sequencing runs to improve data accuracy. Each (not
-each. Depending on the quality of the measurments some were ignored. The
-dropped CpGs are mentioned in the Excel-titles and listed in .txt-files)
-gene region's methylation data, broken down by CpG sites, was compiled
-for statistical analysis (Lewin et al., 2004).
+We focused on the primer regions of three genes commonly
+neuroplasticity-associated and hypthecised being potentially
+epigenetically modifiable by playing the piano: BDNF4, PSD95, MAPT
+(Tau).
 
-\subsection{Data Transfer and Further
-Processing}\label{data-transfer-and-further-processing}
+\subsubsection{DNA isolation}\label{dna-isolation}
 
-After methylation percentages were obtained from ESME, the data were
-exported to Microsoft Excel for preliminary organization and data
-structuring. In Excel, CpG site-specific methylation data were aligned
-with participant identifiers, experimental groups (piano vs.~control),
-and time points (T0, T1, T2). Data were thoroughly checked for
-consistency, and any missing or potentially erroneous data points were
-flagged for review. In this step, we created a structured dataset for
-each gene, consisting of individual participants' methylation
-percentages at each CpG site. The Excel file was formatted to ensure
-seamless transfer into statistical software for further analysis. (The
-Data was restructured in SPSS.)
+Genomic DNA (gDNA) was isolated at the Institute of Molecular and
+Translational Therapeutic Strategies of Hannover Medical School from 50
+µL blood using the ``NucleoMag Blood 200 µl'' kit (MACHEREY-NAGEL GmbH
+\& Co.~KG, Düren, Deutschland) in concordance with the instructions of
+the manufacturer. The isolated gDNA was stored at -20 °C. The blood
+samples have been received anonymized and prior to gDNA isolation. Then
+the samples were additionaly randomized \emph{(by doing what?)} to
+minimize potential batch effects. DNA samples were diluted in 96-well
+plates to a fixed concentration of 10 ng@tbl-demographics/µl.
+
+\subsubsection{Bisulfite Conversion}\label{bisulfite-conversion}
+
+The gDNA of all samples was then bisullfite converted via the ``EZ-96
+DNA Methylation-Lightning™ MagPrep'' kit (Zymo Research Corporation,
+Irvine, CA, USA) also following the manufacturers instructions.
+
+\subsubsection{Primer design}\label{primer-design}
+
+With Ensembl and Geneious Pro 5.6.7 the primer regions of our target
+genes were located and the sequences of the primer regions analyzed.
+Aided by Biocalculator (metabion), NetPrimer (Premier Biosoft), Methyl
+Primer Express v1.0 (Applied Biosystems) and Bisulfite Primer Seeker
+(Zymo) we designed primers for PCR with bisulfite-converted DNA (see
+Table~\ref{tbl-primers-pcr}) and sequencing primers
+(Table~\ref{tbl-primers-seq}) - later used to prepare Sanger Sequencing
+- and orderd these primers from metabion GmbH (Martinsried,
+Deutschland).
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.1549}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3521}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.4930}}@{}}
+\caption{Primers used in PCR}\label{tbl-primers-pcr}\tabularnewline
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Target
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Primer name
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Sequence (5′→3′)
+\end{minipage} \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Target
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Primer name
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Sequence (5′→3′)
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{BDNF} & BDNF\_fwd1\_18 & 5′-GGGGGAGGATTAATTGAGTTAGTTTTG-3′ \\
+\textbf{BDNF} & BDNF\_rev\_20 & 5′-ATATATACTCCTTCTATTCTACAACAA-3′ \\
+\textbf{BDNF} & BDNF\_fwd2\_19 & 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′ \\
+\textbf{BDNF} & BDNF\_rev\_20 & 5′-ATATATACTCCTTCTATTCTACAACAA-3′ \\
+\textbf{PSD95} & 1341\_PSD95\_Fw\_a & 5′-TGGGAATTTGATTTGTTTAGA-3′ \\
+\textbf{PSD95} & 1342\_PDS95\_Fw\_i & 5′-AGAGTTAGTTGGGAAAAGAGA-3′ \\
+\textbf{PSD95} & 1343\_PSD95\_Rev\_i & 5′-TCCTCTTCTATCCCATCCTAT-3′ \\
+\textbf{PSD95} & 1344\_PSD95\_Rev\_a & 5′-TAACTACAATAACTTAAACCCCT-3′ \\
+\textbf{Tau} & 271\_MEX\_Primer\_Tau\_Fw\_a &
+5′-TAATAAAAAAGGTGGGAAAAAA-3′ \\
+\textbf{Tau} & 272\_MEX\_Primer\_Tau\_Fw\_i &
+5′-AAAGGAAGTAGTTTGGGG-3′ \\
+\textbf{Tau} & 273\_MEX\_Primer\_Tau\_Rev &
+5′-AACCTCCCCAAAAAAAAAAA-3′ \\
+\end{longtable}
+
+\begin{longtable}[]{@{}lll@{}}
+\caption{Primers used in sequencing
+PCR}\label{tbl-primers-seq}\tabularnewline
+\toprule\noalign{}
+Target & Primer name & Sequence (5′→3′) \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Target & Primer name & Sequence (5′→3′) \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{BDNF} & BDNF\_seqrev\_21 & 5′-ACAAAAAAATTTCATACTAA-3′ \\
+\end{longtable}
+
+\emph{Note: Other sequencing primers are missing.}
+
+\subsubsection{Gene Amplification}\label{gene-amplification}
+
+The primers were dissolved in nuclease-free water. The proportions have
+been predetermined by the manufacturer. The stock solution 100 pmol. It
+was then used to derive a working solution of 20 pmol (1:5). Both
+solutions were prexserved atg -20 °C. Amplification was then performed
+together with HotStarTaq® PCR Master Mix Kit (Qiagen, Hilden,
+Deutschland). The samples were then puriefed with the PCR purification
+kit ``CleanNGS'' (CleanNA, Waddinxveen, Niederlande).
+
+\subsubsection{Sanger Sequencing}\label{sanger-sequencing}
+
+The purfied PCR prodcus were sequenced with the BigDye Terminator v3.1
+Cycle Sequencing Kit (Applied Biosystems, Foster City, CA, USA) and th e
+sequencing primers mentioned above (Table~\ref{tbl-primers-seq}). The
+sequencing product were purifed with the ``CleanDTR'' kit (CleanNA,
+Waddinxveen, Niederlande).
+
+Then using the Applied Biosystems' 3500 Genetic Analyzer (ABI 3500xL)
+Capillary electrophoresis was performed.
+
+\subsubsection{Data Processing via ESME}\label{data-processing-via-esme}
+
+The data derived from the ABI 3500xL was then processed with Epigenetic
+Sequencing Methylation (ESME) analysis software.
 
 \subsection{Data Structuring and Statistical
 Analysis}\label{data-structuring-and-statistical-analysis}
 
-The structured Excel data were subsequently imported into SPSS for
-statistical analysis. In SPSS, the methylation data for each gene and
-CpG site were organized into a comprehensive dataset, where
-participants' CpG site methylation values were aligned with their
-respective experimental group (piano or control) and time points (T0,
-T1, and T2). To analyze the effects of piano lessons on the methylation
-status of the BDNF, PSD95, and Tau genes, we employed generalized linear
-models (GLMs). GLMs are flexible and suitable for modeling non-normally
-distributed data, allowing for the inclusion of continuous, binary, and
-categorical variables. This approach enabled us to examine changes in
-methylation levels across the different time points (T0, T1, T2) while
-controlling for potential covariates such as age and baseline
-methylation levels. In the model, time was treated as a repeated
-measure, and the group (piano vs.~control) was included as a fixed
-factor. Methylation percentages at each CpG site (expressed as
-continuous variables) were the dependent variables. We also included
-interaction terms to assess whether the change in methylation over time
-differed between the piano and control groups. The model used a logit
-link function to handle the proportion-based methylation data, ensuring
-the analysis accurately reflected the bounded nature of the dependent
-variable (0 to 1). Model significance was assessed at p \textless{}
-0.05, and Bonferroni corrections were applied to account for multiple
-comparisons across the different CpG sites and genes. Model fit was
-evaluated using the Akaike Information Criterion (AIC) and Bayesian
-Information Criterion (BIC) to compare the fit of different models and
-ensure robustness in detecting group differences over time (McCullagh \&
-Nelder, 1989).
+For data structuring and transformation Excel, SPSS and R (4.5.2),
+\emph{using the following packages: tidyverse, dplyr, readxl \ldots{}} .
+After structuring the data, R (4.5.2) was used to analyze the data.
+Principal Component Analysis (PCA) was done with the prcomp package
+(\ldots). Descriptive statistics we perforemd using the \ldots{} Plots
+were designed using the ggplot2 and \ldots{} package.
 
-\section{Results}\label{results}
+We performed modelling with 3 different types of models. Linear models.
+The difference of 2 time points was modelled (T2 - T0, T1 - T0 and T2 -
+T1) and after that used as the depenedet variable.
+
+Generalized Linear model (GLM) with the \ldots{} package
+
+Lastly Zero-Inflated Beta Distribution Regression Models with random
+effects (ZIBR) were performed using the glmmTMB package for modelling
+and DHARMa for residual diagnostics.
+
+\section{Results}\label{sec-results}
 
 \subsection{General}\label{general}
 
-\begin{longtable}[]{@{}lll@{}}
+375 samples have been sequenced.
+
+\begin{longtable}[]{@{}lrr@{}}
+\caption{Demographics of the study
+cohort}\label{tbl-demographics}\tabularnewline
 \toprule\noalign{}
+Characteristic & Piano Group & Control Group \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Characteristic & Piano Group & Control Group \\
+\midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-~ & Piano Group & Control Group \\
-Mean Age +/- SD (years) & 68.9 +/- 2.9 & 69.5 +/- 4 \\
-Min./Max. & 64/76 & 62/78 \\
-N & 29??? & 26??? \\
-Female/Male (\%) & 44.8/55.2 & 38.5/61.5 \\
+Mean age ± SD (years) & 68.9 ± 2.9 & 69.5 ± 4.0 \\
+Min / Max & 64 / 76 & 62 / 78 \\
+N & 29 & 26 \\
+Female / Male (\%) & 44.8 / 55.2 & 38.5 / 61.5 \\
 \end{longtable}
 
-Table 1: Demographics of the study cohort
+At T0 blood samples of 155 were analzyed, 130? at T1 and 105 for T2.
+
+\subsection{Principal component analysis
+(PCA)}\label{principal-component-analysis-pca}
+
+We performed PCA for every gene using the correlation matrix. (BDNF: PC1
+28.81\%, PC2 16.84\%; Tau: PC1 29.02\%, PC2 9.22\%; PSD95: PC1 17.10\%,
+PC2 11.61\%)
+
+Scree plots
+
+No real clustering for timepoint or group has been as seen in
+Figure~\ref{fig-pca-genes}, - even if the group clusters for psd95
+changed somewhat over time. What was noticable is that specifix CpGs
+mainly drove the variance more than others did. For BDNF: m148, m066,
+m111 and m058. For Tau: m331, m337, m310, m315, Ranking the loadings of
+the first Principial component made that particularly clear for Tau,
+after the fith or six a clear genu is seen, and even more so for PSD95,
+where after the forth loading a clear knee is seen (see
+Figure~\ref{fig-pc1-loadings}; see also
+Table~\ref{tbl-supp-pca-bdnf}--Table~\ref{tbl-supp-pca-psd95} for PC1
+loading ranks). So, large differences in the variance of the CpGs have
+been seen. Looking on at the methylation values of every CpG on every
+gene that becomes particulatry clear.
+(Figure~\ref{fig-boxplots-cpg-all}) For tau the promoterregion nbefore
+the primer in most indivuals is not methylated. only some after the
+Primer. For PSD95 it is the other way around. In the beginning of the
+promoter region the CpGs are partly methylated, but for most CpGs the
+median is 0\%. For BDNF it is mixed.
+
+Because of that we, made models for every gene trwice. We first modeld
+with all CpGs and than only with the most variance CpGs.
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-PCA-PCA_Covariance_161025-fig-pca-genes-output-1.png}}
+
+}
+
+\caption{\label{fig-pca-genes}PCA biplots for BDNF, Tau, and PSD95.
+Points colored by group; faceted by timepoint; loadings shown; 95\%
+normal ellipses.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/PCA/PCA_Covariance_161025-preview.html\#cell-fig-pca-genes}{Principal
+Component Analysis (PCA) using Covariance Matrix}}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-PCA-PCA_Covariance_161025-fig-pc1-loadings-output-1.png}}
+
+}
+
+\caption{\label{fig-pc1-loadings}Absolute PC1 loadings ranked for BDNF,
+Tau, and PSD95 CpGs. Red dashed line indicates the cutoff.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/PCA/PCA_Covariance_161025-preview.html\#cell-fig-pc1-loadings}{Principal
+Component Analysis (PCA) using Covariance Matrix}}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-eda-fig-boxplots-cpg-all-output-1.png}}
+
+}
+
+\caption{\label{fig-boxplots-cpg-all}Boxplots of CpG methylation levels
+for BDNF, Tau, and PSD95.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/eda-preview.html\#cell-fig-boxplots-cpg-all}{Exploratory
+Data Analysis}}
+
+\subsection{Methylation Analysis}\label{methylation-analysis}
+
+\subsubsection{All CpGs}\label{all-cpgs}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-plots-time-methylation-fig-interactions-no-group-output-1.png}}
+
+}
+
+\caption{\label{fig-interactions-no-group}Methylation levels (mean ± SE)
+across time points collapsed across groups for BDNF, Tau, and PSD95.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/plots-time-methylation-preview.html\#cell-fig-interactions-no-group}{Plots:
+Time + Metyhlation}}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-plots-time-methylation-fig-interactions-by-gene-output-1.png}}
+
+}
+
+\caption{\label{fig-interactions-by-gene}Methylation levels (mean ± SE)
+across time points by group for BDNF, Tau, and PSD95.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/plots-time-methylation-preview.html\#cell-fig-interactions-by-gene}{Plots:
+Time + Metyhlation}}
+
+\subsubsection{reduced CpGs}\label{reduced-cpgs}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-plots-time-methylation-fig-interactions-no-group-filtered-genes-output-1.png}}
+
+}
+
+\caption{\label{fig-interactions-no-group-filtered-genes}Methylation
+levels (mean ± SE) across time points collapsed across groups for
+selected high-variance CpGs.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/plots-time-methylation-preview.html\#cell-fig-interactions-no-group-filtered-genes}{Plots:
+Time + Metyhlation}}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-plots-time-methylation-fig-interactions-by-filtered-gene-output-1.png}}
+
+}
+
+\caption{\label{fig-interactions-by-filtered-gene}Methylation levels
+(mean ± SE) across time points by group for selected high-variance CpGs
+(BDNF: m148, m066, m111, m058; Tau: m331, m337, m310, m315, m323; PSD95:
+p95, p60, p23).}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/plots-time-methylation-preview.html\#cell-fig-interactions-by-filtered-gene}{Plots:
+Time + Metyhlation}}
+
+\subsubsection{BDNF}\label{bdnf}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-plots-time-methylation-fig-bdnf-timegroup-interaction-output-1.png}}
+
+}
+
+\caption{\label{fig-bdnf-timegroup-interaction}BDNF methylation levels
+(mean ± SE) by group across time points.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/plots-time-methylation-preview.html\#cell-fig-bdnf-timegroup-interaction}{Plots:
+Time + Metyhlation}}
+
+\subsubsection{Tau}\label{tau}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-plots-time-methylation-fig-tau-timegroup-interaction-output-2.png}}
+
+}
+
+\caption{\label{fig-tau-timegroup-interaction}Tau methylation levels
+(mean ± SE) by group across time points.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/plots-time-methylation-preview.html\#cell-fig-tau-timegroup-interaction}{Plots:
+Time + Metyhlation}}
+
+\subsubsection{PSD95}\label{psd95}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-plots-time-methylation-fig-psd95-timegroup-interaction-output-1.png}}
+
+}
+
+\caption{\label{fig-psd95-timegroup-interaction}PSD95 methylation levels
+(mean ± SE) by group across time points.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/plots-time-methylation-preview.html\#cell-fig-psd95-timegroup-interaction}{Plots:
+Time + Metyhlation}}
 
 \subsection{Methylation Levels}\label{methylation-levels}
 
@@ -563,7 +628,10 @@ Table 1: Demographics of the study cohort
   \textbf{Lagemaß u. Streuungsmaß?}
 \end{itemize}
 
-\subsubsection{Gruppendifferenz}\label{gruppendifferenz}
+\subsubsection{Group differences}\label{group-differences}
+
+Our main goal we aimed to determine whether the degree of methylation
+differed between the intervention (piano lessons) and control groups.
 
 \begin{itemize}
 \tightlist
@@ -579,7 +647,7 @@ Table 1: Demographics of the study cohort
   Tau war unimodal.
 \end{itemize}
 
-\subsubsection{Zeitdifferenz}\label{zeitdifferenz}
+\subsubsection{Time differences}\label{time-differences}
 
 \begin{itemize}
 \tightlist
@@ -596,9 +664,13 @@ Table 1: Demographics of the study cohort
   aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
 \end{itemize}
 
-\subsection{Tests und Modelle}\label{tests-und-modelle}
+\subsubsection{Tests und Modelle}\label{tests-und-modelle}
 
-\section{Discussion}\label{discussion}
+\section{Discussion}\label{sec-discussion}
+
+The null hypothesis of our study was that playing the piano has no
+effect on the methylation of neuroplasticity-associated genes like BDNF,
+PSD95 and Tau. Despite of Tau the null hypothesis could be rejected.
 
 \subsection{Limitations}\label{limitations}
 
@@ -640,32 +712,139 @@ James).
 
 \subsection{Author Contributions}\label{author-contributions}
 
-Conceptualization: T.H.C.K.\\
-Methodology: K.Jü., C.S., S.C., K.Ja., J.K.\\
-Software: S.C., C.S., K.Jü., K.Ja., J.K.\\
-Formal Analysis: S.C., K.Ja., C.S. Investigation: S.C., C.B., K.Jü.\\
-Resources: T.H.C.K., C.B., S.B., H.F.\\
-Writing -- original draft preparation: J.K.\\
-Writing -- review and editing: S.C., C.S., K. Jü., H.F., S.B., C. B.,
-T.H.C.K.\\
-Visualization, K.Ja., J.K.\\
-Supervision, T.H.C.K., C.B., H.F., S.B.\\
-All authors have read and agreed to the published version of the
-manuscript.
+Conceptualization: T.H.C.K. Methodology: K.Jü., C.S., S.C., K.Ja., J.K.
+Software: S.C., C.S., K.Jü., K.Ja., J.K. Formal Analysis: S.C., K.Ja.,
+C.S. Investigation: S.C., C.B., K.Jü. Resources: T.H.C.K., C.B., S.B.,
+H.F. Writing -- original draft preparation: J.K. Writing -- review and
+editing: S.C., C.S., K. Jü., H.F., S.B., C. B., T.H.C.K. Visualization,
+K.Ja., J.K. Supervision, T.H.C.K., C.B., H.F., S.B. All authors have
+read and agreed to the published version of the manuscript.
+
+\subsection{Use of AI tools}\label{use-of-ai-tools}
+
+ChatGPT (OpenAI) was used to aid in draft preparation (particularly
+language and style), development of R code and summarizing/clarifying
+statistical output for reporting. All analyses, interpretations, and
+manuscript text were reviewed and verified by the authors. The first
+author takes full responsibilty for the accuracy and integrity of the
+work.
 
 \subsection{Acknowledgement}\label{acknowledgement}
 
-The first author would like to thank Martin Max Schumacher for his
-expert assistance and kind support.
+The first author would like to thank Martin Max Schumacher, PhD, and Kai
+Wenger, PhD, for there expert assistance and kind support.
 
-\section*{References}\label{references}
-\addcontentsline{toc}{section}{References}
+\section{References}\label{references}
 
-\phantomsection\label{refs}
-\begin{CSLReferences}{0}{1}
-\vspace{1em}
+\section{Supplementary material}\label{sec-supp}
 
-\end{CSLReferences}
+\subsection{Supplementary Methods}\label{sec-supp-methods}
+
+\subsection{Supplementary Tables}\label{sec-supp-tables}
+
+\subsubsection{PCA}\label{pca}
+
+\paragraph{BDNF}\label{bdnf-1}
+
+\begin{longtable}[]{@{}llr@{}}
+\caption{PC1 loading ranks for BDNF
+CpGs.}\label{tbl-supp-pca-bdnf}\tabularnewline
+\toprule\noalign{}
+Rank & CpG & \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Rank & CpG & \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & m148 & 0.612 \\
+2 & m066 & 0.453 \\
+3 & m111 & 0.431 \\
+4 & m058 & 0.422 \\
+5 & m039 & 0.215 \\
+6 & m035 & 0.076 \\
+7 & m087 & 0.053 \\
+8 & m024 & 0.029 \\
+9 & p020 & 0.022 \\
+10 & p018 & 0.013 \\
+\end{longtable}
+
+\paragraph{Tau}\label{tau-1}
+
+\begin{longtable}[]{@{}llr@{}}
+\caption{PC1 loading ranks for Tau CpGs (top ten
+contributors).}\label{tbl-supp-pca-tau}\tabularnewline
+\toprule\noalign{}
+Rank & CpG & \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Rank & CpG & \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & m331 & 0.4438 \\
+2 & m337 & 0.4236 \\
+3 & m310 & 0.3856 \\
+4 & m315 & 0.3843 \\
+5 & m323 & 0.3771 \\
+6 & m306 & 0.2459 \\
+7 & m219 & 0.1652 \\
+8 & m300 & 0.1489 \\
+9 & m293 & 0.1295 \\
+10 & m207 & 0.1246 \\
+\end{longtable}
+
+\paragraph{PSD95}\label{psd95-1}
+
+\begin{longtable}[]{@{}llr@{}}
+\caption{PC1 loading ranks for PSD95 CpGs (top ten
+contributors).}\label{tbl-supp-pca-psd95}\tabularnewline
+\toprule\noalign{}
+Rank & CpG & \\
+\midrule\noalign{}
+\endfirsthead
+\toprule\noalign{}
+Rank & CpG & \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+1 & p95 & \textbf{0.664} \\
+2 & p60 & \textbf{0.484} \\
+3 & p23 & \textbf{0.445} \\
+4 & m35 & 0.153 \\
+5 & m28 & 0.103 \\
+6 & m418 & 0.097 \\
+7 & m24 & 0.094 \\
+8 & p91 & 0.094 \\
+9 & m400 & 0.086 \\
+10 & m11 & 0.078 \\
+\end{longtable}
+
+\subsection{Supplementary Figures}\label{sec-supp-figures}
+
+\subsubsection{Scree Plots}\label{scree-plots}
+
+\begin{figure}[H]
+
+\centering{
+
+\pandocbounded{\includegraphics[keepaspectratio]{index_files/figure-latex/notebooks-PCA-PCA_Covariance_161025-fig-scree-all-output-1.png}}
+
+}
+
+\caption{\label{fig-scree-all}Scree plots showing percent variance
+explained by principal components for BDNF, Tau, and PSD95.}
+
+\end{figure}%
+
+\textsubscript{Source:
+\href{https://JKobi-med.github.io/TBM-R-Analysis/notebooks/PCA/PCA_Covariance_161025-preview.html\#cell-fig-scree-all}{Principal
+Component Analysis (PCA) using Covariance Matrix}}
 
 
 
