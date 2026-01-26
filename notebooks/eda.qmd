@@ -99,6 +99,538 @@ for (file_name in file_names_wide) {
 
 # EDA (Exploratory Data Analysis)
 
+## Basic demopgrahics (Code to table summarized by chatgpt beyogen auf bdnf)
+
+```{r}
+#| label: tbl-demographics
+#| results: asis
+
+mean_sd <- function(x, digits_mean = 2, digits_sd = 1) {
+  m <- mean(x, na.rm = TRUE)
+  s <- sd(x, na.rm = TRUE)
+  sprintf(paste0("%.", digits_mean, "f \u00B1 %.", digits_sd, "f"), m, s)
+}
+
+min_max <- function(x, digits = 0) {
+  mn <- min(x, na.rm = TRUE)
+  mx <- max(x, na.rm = TRUE)
+  sprintf(paste0("%.", digits, "f / %.", digits, "f"), mn, mx)
+}
+
+female_male_pct <- function(sex_vec, digits = 1) {
+  tab <- prop.table(table(sex_vec)) * 100
+  f <- unname(tab["F"]); m <- unname(tab["M"])
+  if (is.na(f)) f <- 0
+  if (is.na(m)) m <- 0
+  sprintf(paste0("%.", digits, "f / %.", digits, "f"), f, m)
+}
+
+group_stats <- function(df) {
+  list(
+    mean_age_sd = mean_sd(df$Age_start, 2, 1),
+    min_max     = min_max(df$Age_start, 0),
+    n           = nrow(df),
+    fm_pct      = female_male_pct(df$Sex, 1)
+  )
+}
+
+bdnf_piano   <- subset(bdnf_median_wide, Gruppe == "Piano")
+bdnf_control <- subset(bdnf_median_wide, Gruppe == "Controll")
+
+p <- group_stats(bdnf_piano)
+c <- group_stats(bdnf_control)
+
+cat(paste0(
+  "| Characteristic        | Piano Group | Control Group |\n",
+  "|-----------------------|------------:|--------------:|\n",
+  "| Mean age \u00B1 SD (years) | ", p$mean_age_sd, " | ", c$mean_age_sd, " |\n",
+  "| Min / Max             | ", p$min_max, " | ", c$min_max, " |\n",
+  "| N                     | ", p$n, " | ", c$n, " |\n",
+  "| Female / Male (%)     | ", p$fm_pct, " | ", c$fm_pct, " |\n"
+))
+
+```
+
+
+### Extended (bezogen auf bdnf!)
+
+```{r}
+#| label: table1-demographics
+#| results: asis
+
+# ---- (5) robust labels: standardize Gruppe and Sex ----
+df <- bdnf_median_wide
+df$Gruppe <- trimws(df$Gruppe)
+df$Sex    <- trimws(df$Sex)
+
+df$Sex <- toupper(df$Sex)
+df$Sex[df$Sex %in% c("FEMALE")] <- "F"
+df$Sex[df$Sex %in% c("MALE")]   <- "M"
+
+g_piano   <- "Piano"
+g_control <- "Controll"
+
+df_piano   <- subset(df, Gruppe == g_piano)
+df_control <- subset(df, Gruppe == g_control)
+df_overall <- df
+
+# ---- helpers ----
+fmt_mean_sd <- function(x, dm = 2, ds = 1) {
+  m <- mean(x, na.rm = TRUE); s <- sd(x, na.rm = TRUE)
+  sprintf(paste0("%.", dm, "f \u00B1 %.", ds, "f"), m, s)
+}
+fmt_median_iqr <- function(x, d = 2) {
+  med <- median(x, na.rm = TRUE)
+  q <- quantile(x, probs = c(0.25, 0.75), na.rm = TRUE, names = FALSE)
+  sprintf(paste0("%.", d, "f (%.", d, "f, %.", d, "f)"), med, q[1], q[2])
+}
+fmt_min_max <- function(x, d = 0) {
+  mn <- min(x, na.rm = TRUE); mx <- max(x, na.rm = TRUE)
+  sprintf(paste0("%.", d, "f / %.", d, "f"), mn, mx)
+}
+n_nonmiss <- function(x) sum(!is.na(x))
+
+fmt_fm_pct <- function(sex_vec, d = 1) {
+  tab <- prop.table(table(sex_vec)) * 100
+  f <- unname(tab["F"]); m <- unname(tab["M"])
+  if (is.na(f)) f <- 0
+  if (is.na(m)) m <- 0
+  sprintf(paste0("%.", d, "f / %.", d, "f"), f, m)
+}
+fmt_missing <- function(x) {
+  n_miss <- sum(is.na(x))
+  n_tot  <- length(x)
+  sprintf("%d (%0.1f%%)", n_miss, 100 * n_miss / n_tot)
+}
+
+summ_one <- function(d) {
+  list(
+    n_participants = nrow(d),
+    age_nonmiss    = n_nonmiss(d$Age_start),
+    age_mean_sd    = fmt_mean_sd(d$Age_start, 2, 1),
+    age_median_iqr = fmt_median_iqr(d$Age_start, 2),
+    age_min_max    = fmt_min_max(d$Age_start, 0),
+    sex_fm_pct     = fmt_fm_pct(d$Sex, 1),
+    sex_missing    = fmt_missing(d$Sex),
+
+    t0_n           = n_nonmiss(d$T0),
+    t1_n           = n_nonmiss(d$T1),
+    t2_n           = n_nonmiss(d$T2),
+    t0_missing     = fmt_missing(d$T0),
+    t1_missing     = fmt_missing(d$T1),
+    t2_missing     = fmt_missing(d$T2),
+    total_samples  = n_nonmiss(d$T0) + n_nonmiss(d$T1) + n_nonmiss(d$T2)
+  )
+}
+
+P <- summ_one(df_piano)
+C <- summ_one(df_control)
+O <- summ_one(df_overall)
+
+cat(paste0(
+  "| Characteristic | Piano | Control | Overall |\n",
+  "|---|---:|---:|---:|\n",
+  "| Participants (N) | ", P$n_participants, " | ", C$n_participants, " | ", O$n_participants, " |\n",
+  "| Age non-missing (n) | ", P$age_nonmiss, " | ", C$age_nonmiss, " | ", O$age_nonmiss, " |\n",
+  "| Mean age \u00B1 SD (years) | ", P$age_mean_sd, " | ", C$age_mean_sd, " | ", O$age_mean_sd, " |\n",
+  "| Median (IQR) age (years) | ", P$age_median_iqr, " | ", C$age_median_iqr, " | ", O$age_median_iqr, " |\n",
+  "| Min / Max age (years) | ", P$age_min_max, " | ", C$age_min_max, " | ", O$age_min_max, " |\n",
+  "| Female / Male (%) | ", P$sex_fm_pct, " | ", C$sex_fm_pct, " | ", O$sex_fm_pct, " |\n",
+  "| Sex missing, n (%) | ", P$sex_missing, " | ", C$sex_missing, " | ", O$sex_missing, " |\n",
+  "| BDNF samples at T0 (n) | ", P$t0_n, " | ", C$t0_n, " | ", O$t0_n, " |\n",
+  "| BDNF samples at T1 (n) | ", P$t1_n, " | ", C$t1_n, " | ", O$t1_n, " |\n",
+  "| BDNF samples at T2 (n) | ", P$t2_n, " | ", C$t2_n, " | ", O$t2_n, " |\n",
+  "| Total BDNF samples (T0+T1+T2) | ", P$total_samples, " | ", C$total_samples, " | ", O$total_samples, " |\n",
+  "| Missing T0, n (%) | ", P$t0_missing, " | ", C$t0_missing, " | ", O$t0_missing, " |\n",
+  "| Missing T1, n (%) | ", P$t1_missing, " | ", C$t1_missing, " | ", O$t1_missing, " |\n",
+  "| Missing T2, n (%) | ", P$t2_missing, " | ", C$t2_missing, " | ", O$t2_missing, " |\n"
+))
+
+```
+
+### Table with all genes
+
+```{r}
+#| label: table-samples-bdnf-tau-psd95
+#| results: asis
+
+# helper: robust trimming
+prep_df <- function(df) {
+  df$Gruppe <- trimws(df$Gruppe)
+  df
+}
+
+n_nonmiss <- function(x) sum(!is.na(x))
+
+# summarize one biomarker wide-df into a named row
+summ_marker <- function(df, marker, g_piano = "Piano", g_control = "Controll") {
+  df <- prep_df(df)
+
+  dP <- subset(df, Gruppe == g_piano)
+  dC <- subset(df, Gruppe == g_control)
+  dO <- df
+
+  c(
+    Marker = marker,
+
+    Piano_T0 = n_nonmiss(dP$T0),
+    Piano_T1 = n_nonmiss(dP$T1),
+    Piano_T2 = n_nonmiss(dP$T2),
+    Piano_Total = n_nonmiss(dP$T0) + n_nonmiss(dP$T1) + n_nonmiss(dP$T2),
+
+    Control_T0 = n_nonmiss(dC$T0),
+    Control_T1 = n_nonmiss(dC$T1),
+    Control_T2 = n_nonmiss(dC$T2),
+    Control_Total = n_nonmiss(dC$T0) + n_nonmiss(dC$T1) + n_nonmiss(dC$T2),
+
+    Overall_T0 = n_nonmiss(dO$T0),
+    Overall_T1 = n_nonmiss(dO$T1),
+    Overall_T2 = n_nonmiss(dO$T2),
+    Overall_Total = n_nonmiss(dO$T0) + n_nonmiss(dO$T1) + n_nonmiss(dO$T2)
+  )
+}
+
+rows <- rbind(
+  summ_marker(bdnf_median_wide,  "BDNF"),
+  summ_marker(tau_median_wide,   "TAU"),
+  summ_marker(psd95_median_wide, "PSD95")
+)
+
+# render as markdown table
+cat(paste0(
+  "| Marker | Piano T0 | Piano T1 | Piano T2 | Piano Total | Control T0 | Control T1 | Control T2 | Control Total | Overall T0 | Overall T1 | Overall T2 | Overall Total |\n",
+  "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n",
+  paste(apply(rows, 1, function(r) {
+    paste0("| ", r["Marker"], " | ",
+           r["Piano_T0"], " | ", r["Piano_T1"], " | ", r["Piano_T2"], " | ", r["Piano_Total"], " | ",
+           r["Control_T0"], " | ", r["Control_T1"], " | ", r["Control_T2"], " | ", r["Control_Total"], " | ",
+           r["Overall_T0"], " | ", r["Overall_T1"], " | ", r["Overall_T2"], " | ", r["Overall_Total"], " |")
+  }), collapse = "\n"),
+  "\n"
+))
+
+```
+### another demopgrahic (bezogen auf BDNF! villeicht ändern)
+
+```{r}
+summ_one <- function(d) {
+  list(
+    n_participants = nrow(d),
+    age_nonmiss    = n_nonmiss(d$Age_start),
+    age_mean_sd    = fmt_mean_sd(d$Age_start, 2, 1),
+    age_median_iqr = fmt_median_iqr(d$Age_start, 2),
+    age_min_max    = fmt_min_max(d$Age_start, 0),
+    sex_fm_pct     = fmt_fm_pct(d$Sex, 1),
+    sex_missing    = fmt_missing(d$Sex)
+  )
+}
+
+P <- summ_one(df_piano)
+C <- summ_one(df_control)
+O <- summ_one(df_overall)
+
+cat(paste0(
+  "| Characteristic | Piano | Control | Overall |\n",
+  "|---|---:|---:|---:|\n",
+  "| Participants (N) | ", P$n_participants, " | ", C$n_participants, " | ", O$n_participants, " |\n",
+  "| Age non-missing (n) | ", P$age_nonmiss, " | ", C$age_nonmiss, " | ", O$age_nonmiss, " |\n",
+  "| Mean age \u00B1 SD (years) | ", P$age_mean_sd, " | ", C$age_mean_sd, " | ", O$age_mean_sd, " |\n",
+  "| Median (IQR) age (years) | ", P$age_median_iqr, " | ", C$age_median_iqr, " | ", O$age_median_iqr, " |\n",
+  "| Min / Max age (years) | ", P$age_min_max, " | ", C$age_min_max, " | ", O$age_min_max, " |\n",
+  "| Female / Male (%) | ", P$sex_fm_pct, " | ", C$sex_fm_pct, " | ", O$sex_fm_pct, " |\n",
+  "| Sex missing, n (%) | ", P$sex_missing, " | ", C$sex_missing, " | ", O$sex_missing, " |\n"
+))
+
+```
+
+### all genes with missing
+
+```{r}
+#| label: table-genes-missing
+#| results: asis
+
+prep_df <- function(df) {
+  df$Gruppe <- trimws(df$Gruppe)
+  df
+}
+
+n_nonmiss <- function(x) sum(!is.na(x))
+
+fmt_missing <- function(x) {
+  n_miss <- sum(is.na(x))
+  n_tot  <- length(x)
+  sprintf("%d (%0.1f%%)", n_miss, 100 * n_miss / n_tot)
+}
+
+summ_marker <- function(df, marker, g_piano = "Piano", g_control = "Controll") {
+  df <- prep_df(df)
+
+  dP <- subset(df, Gruppe == g_piano)
+  dC <- subset(df, Gruppe == g_control)
+  dO <- df
+
+  # counts
+  P_t0 <- n_nonmiss(dP$T0); P_t1 <- n_nonmiss(dP$T1); P_t2 <- n_nonmiss(dP$T2)
+  C_t0 <- n_nonmiss(dC$T0); C_t1 <- n_nonmiss(dC$T1); C_t2 <- n_nonmiss(dC$T2)
+  O_t0 <- n_nonmiss(dO$T0); O_t1 <- n_nonmiss(dO$T1); O_t2 <- n_nonmiss(dO$T2)
+
+  # missing (%)
+  P_m0 <- fmt_missing(dP$T0); P_m1 <- fmt_missing(dP$T1); P_m2 <- fmt_missing(dP$T2)
+  C_m0 <- fmt_missing(dC$T0); C_m1 <- fmt_missing(dC$T1); C_m2 <- fmt_missing(dC$T2)
+  O_m0 <- fmt_missing(dO$T0); O_m1 <- fmt_missing(dO$T1); O_m2 <- fmt_missing(dO$T2)
+
+  list(
+    marker = marker,
+    Piano   = list(t0 = P_t0, t1 = P_t1, t2 = P_t2,
+                   tot = P_t0 + P_t1 + P_t2,
+                   m0 = P_m0, m1 = P_m1, m2 = P_m2),
+    Control = list(t0 = C_t0, t1 = C_t1, t2 = C_t2,
+                   tot = C_t0 + C_t1 + C_t2,
+                   m0 = C_m0, m1 = C_m1, m2 = C_m2),
+    Overall = list(t0 = O_t0, t1 = O_t1, t2 = O_t2,
+                   tot = O_t0 + O_t1 + O_t2,
+                   m0 = O_m0, m1 = O_m1, m2 = O_m2)
+  )
+}
+
+rows <- list(
+  summ_marker(bdnf_median_wide,  "BDNF"),
+  summ_marker(tau_median_wide,   "TAU"),
+  summ_marker(psd95_median_wide, "PSD95")
+)
+
+cat(paste0(
+  "| Marker | Piano T0 n | Piano T1 n | Piano T2 n | Piano Total | Piano missing T0 | Piano missing T1 | Piano missing T2 | Control T0 n | Control T1 n | Control T2 n | Control Total | Control missing T0 | Control missing T1 | Control missing T2 | Overall T0 n | Overall T1 n | Overall T2 n | Overall Total | Overall missing T0 | Overall missing T1 | Overall missing T2 |\n",
+  "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n",
+  paste(vapply(rows, function(r) {
+    paste0(
+      "| ", r$marker,
+      " | ", r$Piano$t0, " | ", r$Piano$t1, " | ", r$Piano$t2, " | ", r$Piano$tot,
+      " | ", r$Piano$m0, " | ", r$Piano$m1, " | ", r$Piano$m2,
+      " | ", r$Control$t0, " | ", r$Control$t1, " | ", r$Control$t2, " | ", r$Control$tot,
+      " | ", r$Control$m0, " | ", r$Control$m1, " | ", r$Control$m2,
+      " | ", r$Overall$t0, " | ", r$Overall$t1, " | ", r$Overall$t2, " | ", r$Overall$tot,
+      " | ", r$Overall$m0, " | ", r$Overall$m1, " | ", r$Overall$m2,
+      " |"
+    )
+  }, character(1)), collapse = "\n"),
+  "\n"
+))
+
+```
+
+```{r}
+#| label: tables-per-marker
+#| results: asis
+
+# ---------- helpers ----------
+fmt_mean_sd <- function(x, dm = 2, ds = 1) {
+  m <- mean(x, na.rm = TRUE); s <- sd(x, na.rm = TRUE)
+  sprintf(paste0("%.", dm, "f \u00B1 %.", ds, "f"), m, s)
+}
+fmt_median_iqr <- function(x, d = 2) {
+  med <- median(x, na.rm = TRUE)
+  q <- quantile(x, probs = c(0.25, 0.75), na.rm = TRUE, names = FALSE)
+  sprintf(paste0("%.", d, "f (%.", d, "f, %.", d, "f)"), med, q[1], q[2])
+}
+fmt_min_max <- function(x, d = 0) {
+  mn <- min(x, na.rm = TRUE); mx <- max(x, na.rm = TRUE)
+  sprintf(paste0("%.", d, "f / %.", d, "f"), mn, mx)
+}
+n_nonmiss <- function(x) sum(!is.na(x))
+fmt_missing <- function(x) {
+  n_miss <- sum(is.na(x)); n_tot <- length(x)
+  sprintf("%d (%0.1f%%)", n_miss, 100 * n_miss / n_tot)
+}
+fmt_fm_pct <- function(sex_vec, d = 1) {
+  sex_vec <- trimws(toupper(sex_vec))
+  sex_vec[sex_vec %in% c("FEMALE")] <- "F"
+  sex_vec[sex_vec %in% c("MALE")]   <- "M"
+  tab <- prop.table(table(sex_vec)) * 100
+  f <- unname(tab["F"]); m <- unname(tab["M"])
+  if (is.na(f)) f <- 0
+  if (is.na(m)) m <- 0
+  sprintf(paste0("%.", d, "f / %.", d, "f"), f, m)
+}
+
+summ_one <- function(d) {
+  list(
+    n_participants = nrow(d),
+    age_nonmiss    = n_nonmiss(d$Age_start),
+    age_mean_sd    = fmt_mean_sd(d$Age_start, 2, 1),
+    age_median_iqr = fmt_median_iqr(d$Age_start, 2),
+    age_min_max    = fmt_min_max(d$Age_start, 0),
+    sex_fm_pct     = fmt_fm_pct(d$Sex, 1),
+    sex_missing    = fmt_missing(d$Sex),
+
+    t0_n           = n_nonmiss(d$T0),
+    t1_n           = n_nonmiss(d$T1),
+    t2_n           = n_nonmiss(d$T2),
+    t0_missing     = fmt_missing(d$T0),
+    t1_missing     = fmt_missing(d$T1),
+    t2_missing     = fmt_missing(d$T2),
+    total_samples  = n_nonmiss(d$T0) + n_nonmiss(d$T1) + n_nonmiss(d$T2)
+  )
+}
+
+# ---------- main function: prints ONE table for one marker ----------
+print_marker_table <- function(df_wide, marker_name,
+                               g_piano = "Piano", g_control = "Controll") {
+  df <- df_wide
+  df$Gruppe <- trimws(df$Gruppe)
+  df$Sex    <- trimws(df$Sex)
+
+  df_piano   <- subset(df, Gruppe == g_piano)
+  df_control <- subset(df, Gruppe == g_control)
+  df_overall <- df
+
+  P <- summ_one(df_piano)
+  C <- summ_one(df_control)
+  O <- summ_one(df_overall)
+
+  cat("\n\n### ", marker_name, "\n\n", sep = "")
+  cat(paste0(
+    "| Characteristic | Piano | Control | Overall |\n",
+    "|---|---:|---:|---:|\n",
+    "| Participants (N) | ", P$n_participants, " | ", C$n_participants, " | ", O$n_participants, " |\n",
+    "| Age non-missing (n) | ", P$age_nonmiss, " | ", C$age_nonmiss, " | ", O$age_nonmiss, " |\n",
+    "| Mean age \u00B1 SD (years) | ", P$age_mean_sd, " | ", C$age_mean_sd, " | ", O$age_mean_sd, " |\n",
+    "| Median (IQR) age (years) | ", P$age_median_iqr, " | ", C$age_median_iqr, " | ", O$age_median_iqr, " |\n",
+    "| Min / Max age (years) | ", P$age_min_max, " | ", C$age_min_max, " | ", O$age_min_max, " |\n",
+    "| Female / Male (%) | ", P$sex_fm_pct, " | ", C$sex_fm_pct, " | ", O$sex_fm_pct, " |\n",
+    "| Sex missing, n (%) | ", P$sex_missing, " | ", C$sex_missing, " | ", O$sex_missing, " |\n",
+    "| ", marker_name, " samples at T0 (n) | ", P$t0_n, " | ", C$t0_n, " | ", O$t0_n, " |\n",
+    "| ", marker_name, " samples at T1 (n) | ", P$t1_n, " | ", C$t1_n, " | ", O$t1_n, " |\n",
+    "| ", marker_name, " samples at T2 (n) | ", P$t2_n, " | ", C$t2_n, " | ", O$t2_n, " |\n",
+    "| Total ", marker_name, " samples (T0+T1+T2) | ", P$total_samples, " | ", C$total_samples, " | ", O$total_samples, " |\n",
+    "| Missing T0, n (%) | ", P$t0_missing, " | ", C$t0_missing, " | ", O$t0_missing, " |\n",
+    "| Missing T1, n (%) | ", P$t1_missing, " | ", C$t1_missing, " | ", O$t1_missing, " |\n",
+    "| Missing T2, n (%) | ", P$t2_missing, " | ", C$t2_missing, " | ", O$t2_missing, " |\n"
+  ))
+}
+
+# ---------- print the three separate tables ----------
+print_marker_table(bdnf_median_wide,  "BDNF")
+print_marker_table(tau_median_wide,   "TAU")
+print_marker_table(psd95_median_wide, "PSD95")
+
+```
+```{r}
+#| label: table-union-demographics-genes
+#| results: asis
+
+library(dplyr)
+
+g_piano   <- "Piano"
+g_control <- "Controll"
+
+# ---- helpers ----
+mean_sd <- function(x) sprintf("%.2f \u00B1 %.1f", mean(x, na.rm=TRUE), sd(x, na.rm=TRUE))
+median_iqr <- function(x) {
+  q <- quantile(x, c(.25,.5,.75), na.rm=TRUE, names = FALSE)
+  sprintf("%.2f (%.2f, %.2f)", q[2], q[1], q[3])
+}
+min_max <- function(x) sprintf("%.0f / %.0f", min(x, na.rm=TRUE), max(x, na.rm=TRUE))
+
+fmt_missing <- function(x) sprintf("%d (%.1f%%)", sum(is.na(x)), 100 * mean(is.na(x)))
+
+fm_pct <- function(sex_vec) {
+  s <- toupper(trimws(sex_vec))
+  s[s %in% c("FEMALE")] <- "F"
+  s[s %in% c("MALE")]   <- "M"
+  tab <- prop.table(table(s)) * 100
+  f <- unname(tab["F"]); m <- unname(tab["M"])
+  if (is.na(f)) f <- 0
+  if (is.na(m)) m <- 0
+  sprintf("%.1f / %.1f", f, m)
+}
+
+n_nonmiss <- function(x) sum(!is.na(x))
+
+# ---- UNION master for demographics (unique IDs across all genes) ----
+demo_union <- bind_rows(
+  bdnf_median_wide  %>% select(ID, Gruppe, Sex, Age_start),
+  tau_median_wide   %>% select(ID, Gruppe, Sex, Age_start),
+  psd95_median_wide %>% select(ID, Gruppe, Sex, Age_start)
+) %>%
+  mutate(
+    Gruppe = trimws(Gruppe),
+    Sex    = trimws(Sex)
+  ) %>%
+  group_by(ID) %>%
+  summarise(
+    Gruppe    = first(na.omit(Gruppe)),
+    Sex       = first(na.omit(Sex)),
+    Age_start = first(na.omit(Age_start)),
+    .groups = "drop"
+  )
+
+summ_demo <- function(d) list(
+  N = nrow(d),
+  age_n = sum(!is.na(d$Age_start)),
+  mean_sd = mean_sd(d$Age_start),
+  med_iqr = median_iqr(d$Age_start),
+  minmax = min_max(d$Age_start),
+  fm = fm_pct(d$Sex),
+  sex_miss = fmt_missing(d$Sex)
+)
+
+P <- summ_demo(filter(demo_union, Gruppe == g_piano))
+C <- summ_demo(filter(demo_union, Gruppe == g_control))
+O <- summ_demo(demo_union)
+
+# ---- gene rows: n and missing per timepoint for each marker ----
+prep_gene <- function(df) mutate(df, Gruppe = trimws(Gruppe))
+
+gene_stats <- function(df, marker) {
+  df <- prep_gene(df)
+  P <- filter(df, Gruppe == g_piano)
+  C <- filter(df, Gruppe == g_control)
+  O <- df
+
+  list(
+    marker = marker,
+    P = list(t0=n_nonmiss(P$T0), t1=n_nonmiss(P$T1), t2=n_nonmiss(P$T2),
+             m0=fmt_missing(P$T0), m1=fmt_missing(P$T1), m2=fmt_missing(P$T2)),
+    C = list(t0=n_nonmiss(C$T0), t1=n_nonmiss(C$T1), t2=n_nonmiss(C$T2),
+             m0=fmt_missing(C$T0), m1=fmt_missing(C$T1), m2=fmt_missing(C$T2)),
+    O = list(t0=n_nonmiss(O$T0), t1=n_nonmiss(O$T1), t2=n_nonmiss(O$T2),
+             m0=fmt_missing(O$T0), m1=fmt_missing(O$T1), m2=fmt_missing(O$T2))
+  )
+}
+
+genes <- list(
+  gene_stats(bdnf_median_wide,  "BDNF"),
+  gene_stats(tau_median_wide,   "TAU"),
+  gene_stats(psd95_median_wide, "PSD95")
+)
+
+# ---- print unified table ----
+cat(paste0(
+  "| Characteristic | Piano | Control | Overall |\n",
+  "|---|---:|---:|---:|\n",
+  "| Participants (N) | ", P$N, " | ", C$N, " | ", O$N, " |\n",
+  "| Age non-missing (n) | ", P$age_n, " | ", C$age_n, " | ", O$age_n, " |\n",
+  "| Mean age \u00B1 SD (years) | ", P$mean_sd, " | ", C$mean_sd, " | ", O$mean_sd, " |\n",
+  "| Median (IQR) age (years) | ", P$med_iqr, " | ", C$med_iqr, " | ", O$med_iqr, " |\n",
+  "| Min / Max age (years) | ", P$minmax, " | ", C$minmax, " | ", O$minmax, " |\n",
+  "| Female / Male (%) | ", P$fm, " | ", C$fm, " | ", O$fm, " |\n",
+  "| Sex missing, n (%) | ", P$sex_miss, " | ", C$sex_miss, " | ", O$sex_miss, " |\n"
+))
+
+for (r in genes) {
+  cat(paste0(
+    "| ", r$marker, " samples at T0 (n) | ", r$P$t0, " | ", r$C$t0, " | ", r$O$t0, " |\n",
+    "| ", r$marker, " samples at T1 (n) | ", r$P$t1, " | ", r$C$t1, " | ", r$O$t1, " |\n",
+    "| ", r$marker, " samples at T2 (n) | ", r$P$t2, " | ", r$C$t2, " | ", r$O$t2, " |\n",
+    "| ", r$marker, " missing T0, n (%) | ", r$P$m0, " | ", r$C$m0, " | ", r$O$m0, " |\n",
+    "| ", r$marker, " missing T1, n (%) | ", r$P$m1, " | ", r$C$m1, " | ", r$O$m1, " |\n",
+    "| ", r$marker, " missing T2, n (%) | ", r$P$m2, " | ", r$C$m2, " | ", r$O$m2, " |\n"
+  ))
+}
+
+```
+
 ## Group Differences in Mean Values
 
 ```{r}
@@ -245,8 +777,8 @@ boxplot(eda_psd95[, c(72:116)],
 ```{r}
 #| label: fig-boxplots-cpg-all
 #| fig-cap: "Boxplots of CpG methylation levels for BDNF, Tau, and PSD95."
-#| fig-width: 12
-#| fig-height: 10
+#| fig-width: 10
+#| fig-height: 8
 
 op <- par(no.readonly = TRUE)
 par(mfrow = c(3, 1), mar = c(6, 4, 3, 1), oma = c(0, 0, 1, 0))

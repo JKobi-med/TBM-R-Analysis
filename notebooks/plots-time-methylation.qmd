@@ -7,7 +7,7 @@ output: html
 
 ## Data import
 
-```{r, echo=FALSE}
+```{r}
 #| echo: false      # Hide the code
 #| include: false   # Exclude the output
 #| warning: false   # Suppress warnings
@@ -409,6 +409,8 @@ p_psd950 <- ggplot(sum_psd950, aes(Zeitpunkt, mean, group = 1)) +
 
 ## Filtered after PCA
 
+### Before elbow
+
 ```{r}
 
 keep_psd95 <- c("p95", "p60", "p23")
@@ -481,6 +483,8 @@ p_psd95 <- ggplot(sum_psd95, aes(Zeitpunkt, mean, group = Gruppe, colour = Grupp
 ```
 
 
+
+
 ```{r}
 #| label: fig-interactions-no-group-filtered-genes
 #| fig-cap: "Methylation levels (mean ± SE) across time points collapsed across groups for selected high-variance CpGs."
@@ -539,3 +543,102 @@ p_psd950 <- ggplot(sum_psd950, aes(Zeitpunkt, mean, group = 1)) +
 (p_bdnf0 / p_tau0 / p_psd950)
 ```
 
+
+### After elbow
+
+```{r}
+
+keep_tau2   <- c("m331", "m337", "m310", "m315", "m323", "m306")
+keep_bdnf2 <- c("m148", "m066", "m111", "m058", "m039")
+
+TAU2_f   <- TAU2   %>% filter(CpG_position %in% keep_tau2)
+BDNF2_f  <- BDNF2  %>% filter(CpG_position %in% keep_bdnf2)
+```
+
+```{r}
+#| label: fig-interactions-more-filtered-genes
+#| fig-cap: "Methylation levels (mean ± SE) across time points by group for selected high-variance CpGs (BDNF: m148, m066, m111, m058; Tau: m331, m337, m310, m315, m323; PSD95: p95, p60, p23)."
+#| fig-width: 8
+#| fig-height: 9 
+
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+
+# ---- BDNF ----
+sum_bdnf <- BDNF2_f %>%
+  group_by(Zeitpunkt, Group) %>%
+  summarise(
+    mean = mean(methylierung, na.rm = TRUE),
+    se   = sd(methylierung, na.rm = TRUE) / sqrt(sum(!is.na(methylierung))),
+    .groups = "drop"
+  )
+
+p_bdnf <- ggplot(sum_bdnf, aes(Zeitpunkt, mean, group = Group, colour = Group)) +
+  geom_line() + geom_point() +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
+  theme_classic() +
+  labs(title = "BDNF (filtered CpGs)", x = "Time Point", y = "Mean methylation (±SE)")
+
+# ---- Tau ----
+sum_tau <- TAU2_f %>%
+  group_by(Zeit, Gruppe) %>%
+  summarise(
+    mean = mean(methylation, na.rm = TRUE),
+    se   = sd(methylation, na.rm = TRUE) / sqrt(sum(!is.na(methylation))),
+    .groups = "drop"
+  )
+
+p_tau <- ggplot(sum_tau, aes(Zeit, mean, group = Gruppe, colour = Gruppe)) +
+  geom_line() + geom_point() +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
+  theme_classic() +
+  labs(title = "Tau (filtered CpGs)", x = "Time Point", y = "Mean methylation (±SE)")
+
+
+(p_bdnf / p_tau)
+```
+
+
+```{r}
+#| label: fig-interactions-no-group-more-filtered-genes
+#| fig-cap: "Methylation levels (mean ± SE) across time points collapsed across groups for selected high-variance CpGs."
+#| fig-width: 8
+#| fig-height: 10
+
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+
+# BDNF (no group)
+sum_bdnf0 <- BDNF2_f %>%
+  group_by(Zeitpunkt) %>%
+  summarise(
+    mean = mean(methylierung, na.rm = TRUE),
+    se   = sd(methylierung, na.rm = TRUE) / sqrt(sum(!is.na(methylierung))),
+    .groups = "drop"
+  )
+
+p_bdnf0 <- ggplot(sum_bdnf0, aes(Zeitpunkt, mean, group = 1)) +
+  geom_line() + geom_point() +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
+  theme_classic() +
+  labs(title = "BDNF (filtered CpGs)", x = "Time Point", y = "Mean methylation (±SE)")
+
+# Tau (no group)
+sum_tau0 <- TAU2_f %>%
+  group_by(Zeit) %>%
+  summarise(
+    mean = mean(methylation, na.rm = TRUE),
+    se   = sd(methylation, na.rm = TRUE) / sqrt(sum(!is.na(methylation))),
+    .groups = "drop"
+  )
+
+p_tau0 <- ggplot(sum_tau0, aes(Zeit, mean, group = 1)) +
+  geom_line() + geom_point() +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
+  theme_classic() +
+  labs(title = "Tau (filtered CpGs)", x = "Time Point", y = "Mean methylation (±SE)")
+
+(p_bdnf0 / p_tau0)
+```

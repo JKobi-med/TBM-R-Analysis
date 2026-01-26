@@ -20,3 +20,7 @@ format:
       model: 3p              # common Elsevier model; good single-column look
       layout: onecolumn      # onecolumn reads more like JAMA/NEJM than 2-col
       cite-style: number     # numeric citations (common in medical journals)
+
+bibliography: references.bib
+citeproc: true
+csl: ama.csl
