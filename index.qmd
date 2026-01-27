@@ -148,7 +148,11 @@ We focused on the primer regions of three genes commonly neuroplasticity-associa
 
 ### DNA isolation
 
-Genomic DNA (gDNA) was isolated at the Institute of Molecular and Translational Therapeutic Strategies of Hannover Medical School from 50 µL blood using the "NucleoMag Blood 200 µl" kit (MACHEREY-NAGEL GmbH & Co. KG, Düren, Deutschland) in concordance with the instructions of the manufacturer. The isolated gDNA was stored at -20 °C. The blood samples have been received anonymized and prior to gDNA isolation. Then the samples were additionaly randomized *(by doing what?)* to minimize potential batch effects. DNA samples were diluted in 96-well plates to a fixed concentration of 10 ng\@tbl-demographics/µl.
+Genomic DNA (gDNA) was isolated at the Institute of Molecular and Translational Therapeutic Strategies of Hannover Medical School from 50 µL blood using the "NucleoMag Blood 200 µl" kit (MACHEREY-NAGEL GmbH & Co. KG, Düren, Deutschland) in concordance with the instructions of the manufacturer.
+The isolated gDNA was stored at -20 °C.
+The blood samples have been received anonymized and prior to gDNA isolation.
+Then the samples were additionaly randomized *(by doing what?)* to minimize potential batch effects.
+DNA samples were diluted in 96-well plates to a fixed concentration of 10 ng/µl.
 
 ### Bisulfite Conversion
 
@@ -198,6 +202,8 @@ The data derived from the ABI 3500xL was then processed with Epigenetic Sequenci
 
 ## Literay Research
 
+pubmed
+
 ## Data Structuring and Statistical Analysis
 
 For data structuring and transformation Excel, SPSS and R (4.5.2), *using the following packages: tidyverse, dplyr, readxl ...* . After structuring the data, R (4.5.2) was used to analyze the data. Principal Component Analysis (PCA) was done with the prcomp package (...). Descriptive statistics we perforemd using the ... Plots were designed using the ggplot2 and ... package.
@@ -210,9 +216,8 @@ Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZI
 
 # Results {#sec-results}
 
-## General
+## General {#sec-results-general}
 
-<!-- 364 samples of 144 probands have been sequenced. Not every pro -->
 
 | Characteristic | Piano | Control | Overall |
 |---|---:|---:|---:|
@@ -221,6 +226,29 @@ Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZI
 | Median (IQR) age (years) | 69.00 (67.00, 71.00) | 69.00 (67.00, 73.00) | 69.00 (67.00, 71.25) |
 | Min / Max age (years) | 64 / 77 | 62 / 78 | 62 / 78 |
 | Female / Male (%) | 55.2 / 44.8 | 59.7 / 40.3 | 57.6 / 42.4 |
+
+: Demographics of the study cohort {#tbl-demographics}
+**(add BMI, CogTel, smoking, Standort later)**
+
+Overall 144 participants were included in the study.
+Both groups were nearly equally distributed (46,5 % in the piano group).
+The mean age was 69.58 years (SD: 3.5 years) with a minimum of 62 and a maximum of 78 years.
+This was due to the desgin of the TBM study.
+
+
+
+## Metadata sequencing
+
+1,078 blood samples have been sequenced from the participants for three different genes at three different time points (T0, T1, T2).
+A decline in the number of samples from T0 to T2 can be seen (@tbl-metadata-sequencing), because not every participant provided blood samples at every time point, because of loss to follow up.
+This is the reason for the difference between the time points.
+
+Furthermore, not every blood sample could be analyzed successfully (cf. @tbl-metadata-sequencing-summary) due to some qualitative differences in the sequencing process.
+But in the end, a total of 359 BDNF, 362 Tau and 357 PSD95 samples could be successfully sequenced.
+This is the reason for the slight difference between genes. 
+
+| Characteristic | Piano | Control | Overall |
+|---|---:|---:|---:|
 | BDNF samples at T0 (n) | 65 | 75 | 140 |
 | BDNF samples at T1 (n) | 61 | 61 | 122 |
 | BDNF samples at T2 (n) | 50 | 47 | 97 |
@@ -240,7 +268,7 @@ Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZI
 | PSD95 missing T1, n (%) | 5 (7.4%) | 18 (23.4%) | 23 (15.9%) |
 | PSD95 missing T2, n (%) | 19 (27.9%) | 30 (39.0%) | 49 (33.8%) |
 
-: Demographics of the study cohort {#tbl-demographics}
+: Metadata of successfully sequenced samples per gene and time point {#tbl-metadata-sequencing}
 
 | Marker | Piano T0 | Piano T1 | Piano T2 | Piano Total | Control T0 | Control T1 | Control T2 | Control Total | Overall T0 | Overall T1 | Overall T2 | Overall Total |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -248,39 +276,49 @@ Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZI
 | TAU | 67 | 63 | 50 | 180 | 75 | 60 | 47 | 182 | 142 | 123 | 97 | 362 |
 | PSD95 | 66 | 63 | 49 | 178 | 73 | 59 | 47 | 179 | 139 | 122 | 96 | 357 |
 
-: Controll table
+: Number of successfully sequenced samples per gene, time point and group {#tbl-metadata-sequencing-summary}
 
-At T0 blood samples of 155 were analyzed, 130? at T1 and 105 for T2.
+## Methylation Level Analysis {#sec-results-methylation-level}
+
+### Overall {#sec-results-methylation-overall}
+
+Overall the methlation of the 3 genes is low (Mean \< 0,08, Median \< 0,04).
+PSD95 has the lowest methylation values.
 
 
-On the one hand missing because of loss to follow up on the other hand few samples could not be analyzed because of technical issues during sequencing (poor sequence quality etc.).
+{{< embed notebooks/eda.qmd#fig-boxplots-genes >}}
 
+### Per CpG and Gene {#sec-results-methylation-cpg-gene}
+Bei Tau sind die CpGs promoterfern mehr meyhtliert - bei PSD95 umgekehrt (*Boxplots mit CpG-Methylierung der Gene!*)
 
-
-## Principal component analysis (PCA) {#sec-results-pca}
-
-We performed principal component analyses (PCA) separately for each gene, using the correlation matrix. Across genes, the first two principal components explained only a moderate proportion of total variance (BDNF: PC1 28.81%, PC2 16.84%; Tau: PC1 29.02%, PC2 9.22%; PSD95: PC1 17.10%, PC2 11.61%). Accordingly, the scree plots (@fig-scree-all) show only a gradual decrease of explained variance across subsequent components. **(Stimmt nicht für PSD95 und Tau)**
-
-Furthermore, biplots of the first two principal components did not indicate a differing clustering pattern between the two group at any timepoint (@fig-pca-genes). Although the apparent group-wise configuration for PSD95 varied somewhat across time points, this pattern did not amount to a consistent clustering difference.
-
-Noticably, inspecting the loadings revelaed that the variance explained by PC1 was driven primarily by a small fraction of CpGs in every gene (@fig-pc1-loadings). For BDNF, m148, m066, m111 and m058 have been the strongest contributors; for Tau, m331, m337, m310, m315 and m323; and for PSD95: "p95", "p60", "p23". By ranking the absolute PC1 loadings every gene showed an "elbow" pattern (BDNF: between the 4th and 5th CpG; Tau: between the 4th and 5th CpG; PSD95: after the 3rd CpG; @fig-pc1-loadings; see also @tbl-supp-pca-bdnf–@tbl-supp-pca-psd95 for loading ranks).
-
-This concentration of variance is also evident in the methylation distributions across CpGs (@fig-boxplots-cpg-all). For Tau, methylation was largely limieted to upstream CpGs, whereas downstream CpGs were rarely methylated across individuals. In contrast, for PSD95, CpGs near the end of the promoter region showed notable methylation patterns, while most other sites where mostly none-methylated with little or no inter-individual variability. For BDNF, a comparably localized pattern was less apparent. These observations motivated stratifying subsequent analyses by considering (i) all CpGs and (ii) only CpGs exhibiting higher inter-individual variability.
-
-{{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pca-genes >}}
-
-{{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pc1-loadings >}}
+Looking at the methlation patterns of every CpG per gene (@fig-boxplots-cpg-all),
+Tau showed a methylation pattern, that was largely limited to upstream region of the promoter, whereas further downstream CpGs were rarely methylated across individuals. 
+In contrast, for PSD95, CpGs near the end of the promoter region showed notable methylation patterns, while most other sites where mostly none-methylated with little or no inter-individual variability.
+For BDNF, a comparably localized pattern was less pronounced but further downsstream the CpGs were also less methylated.
 
 {{< embed notebooks/eda.qmd#fig-boxplots-cpg-all >}}
 
-## Methylation Analysis
+## Principal component analysis (PCA) {#sec-results-pca}
 
-### Methylation Level
+We performed principal component analyses (PCA) separately for each gene, using the correlation matrix.
+Across genes, the first two principal components explained only a moderate proportion of total variance (BDNF: PC1 28.81%, PC2 16.84%; Tau: PC1 29.02%, PC2 9.22%; PSD95: PC1 17.10%, PC2 11.61%).
+Accordingly, the scree plots (@fig-scree-all) show only a gradual decrease of explained variance across subsequent components. **(Stimmt nicht für PSD95 und Tau)**
 
--   Die Gene sind allgemein eher gering methyliert (Mean \< 0,08, Median \< 0,04). **Hohe Expressionsrate!**
--   Dabei ist PSD95 am geringsten und BDNF am höchsten metyhyliert.
--   Bei Tau sind die CpGs promoterfern mehr meyhtliert - bei PSD95 umgekehrt (*Boxplots mit CpG-Methylierung der Gene!*)
--   **Lagemaß u. Streuungsmaß?**
+Furthermore, biplots of the first two principal components did not indicate a differing clustering pattern between the two group at any timepoint (@fig-pca-genes).
+Although the apparent group-wise configuration for PSD95 varied somewhat across time points, this pattern did not amount to a consistent clustering difference.
+
+{{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pca-genes >}}
+
+Noticably, inspecting the loadings revelaed that the variance explained by PC1 was driven primarily by a small fraction of CpGs in every gene (@fig-pc1-loadings).
+For BDNF, m148, m066, m111 and m058 have been the strongest contributors; for Tau, m331, m337, m310, m315 and m323; and for PSD95: "p95", "p60", "p23".
+By ranking the absolute PC1 loadings every gene showed an "elbow" pattern (BDNF: between the 4th and 5th CpG; Tau: between the 4th and 5th CpG; PSD95: after the 3rd CpG; @fig-pc1-loadings; see also @tbl-supp-pca-bdnf–@tbl-supp-pca-psd95 for loading ranks).
+
+This concentration of variance is also evident in the methylation distributions across CpGs (@fig-boxplots-cpg-all) already mentioned above (#sec-results-methylation-cpg-gene).
+These observations motivated stratifying subsequent analyses by considering (i) all CpGs and (ii) only CpGs exhibiting higher inter-individual variability.
+
+{{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pc1-loadings >}}
+
+
 
 ### Group differences
 
@@ -316,6 +354,7 @@ according to @sec-results-pca we also filtered for the high variance CpGs.
 
 # Discussion {#sec-discussion}
 
+**Hohe Expressionsrate!** aller gene vor allem PSD95 und Tau.
 The null hypothesis of our study was that playing the piano has no effect on the methylation of neuroplasticity-associated genes like BDNF, PSD95 and Tau. Despite of Tau the null hypothesis could be rejected.
 
 ## Limitations
