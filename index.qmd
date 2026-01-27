@@ -216,7 +216,9 @@ Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZI
 
 # Results {#sec-results}
 
-## General {#sec-results-general}
+## EDA
+
+### Generall demographics {#sec-results-general}
 
 
 | Characteristic | Piano | Control | Overall |
@@ -237,7 +239,7 @@ This was due to the desgin of the TBM study.
 
 
 
-## Metadata sequencing
+### Metadata sequencing
 
 1,078 blood samples have been sequenced from the participants for three different genes at three different time points (T0, T1, T2).
 A decline in the number of samples from T0 to T2 can be seen (@tbl-metadata-sequencing), because not every participant provided blood samples at every time point, because of loss to follow up.
@@ -278,9 +280,9 @@ This is the reason for the slight difference between genes.
 
 : Number of successfully sequenced samples per gene, time point and group {#tbl-metadata-sequencing-summary}
 
-## Methylation Level Analysis {#sec-results-methylation-level}
+### Methylation Level Analysis {#sec-results-methylation-level}
 
-### Overall {#sec-results-methylation-overall}
+#### Overall  and over time {#sec-results-methylation-overall}
 
 Overall the methlation of the 3 genes is low (Mean \< 0,08, Median \< 0,04).
 PSD95 has the lowest methylation values.
@@ -288,7 +290,7 @@ PSD95 has the lowest methylation values.
 
 {{< embed notebooks/eda.qmd#fig-boxplots-genes >}}
 
-### Per CpG and Gene {#sec-results-methylation-cpg-gene}
+#### Per CpG and Gene {#sec-results-methylation-cpg-gene}
 Bei Tau sind die CpGs promoterfern mehr meyhtliert - bei PSD95 umgekehrt (*Boxplots mit CpG-Methylierung der Gene!*)
 
 Looking at the methlation patterns of every CpG per gene (@fig-boxplots-cpg-all),
@@ -318,7 +320,7 @@ These observations motivated stratifying subsequent analyses by considering (i) 
 
 {{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pc1-loadings >}}
 
-
+## Methylation differences {#sec-results-methylation-differences}
 
 ### Group differences
 
@@ -350,7 +352,7 @@ according to @sec-results-pca we also filtered for the high variance CpGs.
 
 {{< embed notebooks/plots-time-methylation.qmd#fig-interactions-by-filtered-gene >}}
 
-## Models
+## Models (LM, GLM, ZIBR) {#sec-results-models}
 
 # Discussion {#sec-discussion}
 
