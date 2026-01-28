@@ -631,6 +631,468 @@ for (r in genes) {
 
 ```
 
+## Summary Statistics
+
+###
+
+```{r}
+tab <- data.frame(
+  Marker = c("BDNF", "Tau", "PSD95"),
+  Mean = c(
+    mean(bdnf_mean$Mean, na.rm = TRUE),
+    mean(tau_mean$Mean, na.rm = TRUE),
+    mean(psd95_mean$Mean, na.rm = TRUE)
+  ),
+  SD = c(
+    sd(bdnf_mean$Mean, na.rm = TRUE),
+    sd(tau_mean$Mean, na.rm = TRUE),
+    sd(psd95_mean$Mean, na.rm = TRUE)
+  )
+)
+
+tab$`Mean ± SD` <- sprintf("%.3f ± %.3f", tab$Mean, tab$SD)
+tab <- tab[, c("Marker", "Mean ± SD")]
+
+# Print as markdown
+cat("| Marker | Mean ± SD |\n")
+cat("|--------|-----------|\n")
+apply(tab, 1, function(r) cat(sprintf("| %s | %s |\n", r[1], r[2])))
+```
+
+```{r}
+#| label: fig-interactions-by-gene-mean
+#| fig-cap: "Methylation levels (mean ± SE) across time points by group for BDNF, Tau, and PSD95."
+#| fig-width: 8
+#| fig-height: 12
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+
+make_interaction_plot <- function(df_wide, title, ylab = "Mean methylation (mean across CpGs)") {
+
+  df_long <- df_wide %>%
+    pivot_longer(cols = c(T0, T1, T2),
+                 names_to = "Zeitpunkt",
+                 values_to = "Mean") %>%
+    mutate(
+      Zeitpunkt = factor(Zeitpunkt, levels = c("T0", "T1", "T2")),
+      Gruppe = factor(Gruppe)
+    )
+
+  summary_stats <- df_long %>%
+    group_by(Zeitpunkt, Gruppe) %>%
+    summarise(
+      n = sum(!is.na(Mean)),
+      mean = mean(Mean, na.rm = TRUE),
+      se = sd(Mean, na.rm = TRUE) / sqrt(n),
+      .groups = "drop"
+    )
+
+  ggplot(summary_stats, aes(x = Zeitpunkt, y = mean, group = Gruppe, colour = Gruppe)) +
+    geom_line() +
+    geom_point() +
+    geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
+    theme_classic() +
+    labs(title = title, x = "Time Point", y = ylab, caption = "Points show mean across participants; error bars are ±SE.")
+}
+
+# BDNF
+p_bdnf <-
+make_interaction_plot(
+  bdnf_mean_wide,
+  title = "Interaction Plot of BDNF Methylation Levels by Group and Time"
+)
+
+# TAU
+p_tau <-
+make_interaction_plot(
+  tau_mean_wide,
+  title = "Interaction Plot of Tau Methylation Levels by Group and Time"
+)
+
+# PSD95
+p_psd95 <-
+make_interaction_plot(
+  psd95_mean_wide,
+  title = "Interaction Plot of PSD95 Methylation Levels by Group and Time"
+)
+
+
+(p_bdnf / p_tau / p_psd95) + plot_layout(guides = "collect") &
+  theme(legend.position = "right")
+
+```
+
+ChatGPT-help (cf. plots-time-methylation.qmd)
+
+Totally fair to ask again — this is the key conceptual trap in methylation papers, and you’re right at the edge of it. I’ll explain it slowly and cleanly, with your exact data in mind.
+
+The core issue in one sentence
+
+A CpG is not a participant.
+If you treat CpGs like independent observations, you inflate N and distort SD/SE.
+
+Everything else follows from that.
+
+What your data actually look like
+1️⃣ CpG-level data (long format: BDNF2, TAU2, …)
+
+Each row is:
+
+one CpG site × one person × one time point
+
+Example (simplified):
+
+ID	Time	CpG	methylation
+1	T0	m148	0.18
+1	T0	m111	0.23
+1	T0	m087	0.00
+…	…	…	…
+
+So for one person at one time, you might have 20–30 CpGs.
+
+When you do:
+
+mean(BDNF2$methylierung)
+sd(BDNF2$methylierung)
+
+
+you are computing:
+
+“What is the mean/SD of all CpG measurements pooled together?”
+
+This mixes three different sources of variation:
+
+Differences between CpG sites (huge!)
+
+Differences between people
+
+Changes over time + noise
+
+That’s why:
+
+SD is large (~0.09–0.10)
+
+SE becomes artificially tiny if you divide by sqrt(nrow(BDNF2))
+
+Plots look “too confident”
+
+This is not wrong mathematically, but it answers the wrong scientific question.
+
+What your paper actually claims to measure
+
+Your tables, text, and mixed models all say things like:
+
+“BDNF methylation level per gene”
+
+That implies:
+
+one methylation value per person per time point
+
+So you must collapse CpGs first.
+
+2️⃣ Sample-level data (wide format: bdnf_mean_wide, tau_mean_wide)
+
+Here each row is:
+
+one person, with CpGs already averaged
+
+Example:
+
+ID	Group	T0	T1	T2
+1	Control	0.075	0.037	NA
+2	Piano	0.102	0.060	0.084
+
+Each value (e.g. 0.075) is:
+
+mean methylation across all CpGs for that person at that time
+
+Now when you compute:
+
+mean(bdnf_mean_wide$T0, na.rm=TRUE)
+sd(bdnf_mean_wide$T0, na.rm=TRUE)
+
+
+you are asking:
+
+“How much do people differ in their average BDNF methylation at T0?”
+
+This is exactly what readers expect.
+
+That’s why:
+
+SD ≈ 0.03–0.04
+
+SE ≈ SD / √N_participants
+
+Plots look sensible
+
+Results match your LMM interpretation
+
+Why your interaction plots broke
+
+You originally did this (conceptually):
+
+group_by(Time, Group) %>%
+summarise(
+  mean = mean(methylation),
+  se = sd(methylation) / sqrt(n())
+)
+
+
+But here:
+
+methylation = CpG-level values
+
+n() = number of CpGs × people × time
+
+So SE was:
+
+SD across CpGs ÷ √(CpGs × people)
+
+That is not the SE of the group mean across people.
+
+That’s why BDNF “kind of looked OK” (by coincidence) and TAU didn’t.
+
+The correct mental model (memorize this)
+Question	Unit of analysis	Data to use
+“What is average gene methylation per person?”	Person	CpGs averaged first
+“Do groups differ in gene methylation?”	Person	Sample-level mean
+“Does methylation change over time?”	Person	Sample-level mean
+“Do CpGs behave differently?”	CpG	CpG-level model
+
+Never mix these levels.
+
+Why your mixed model was actually OK
+
+Your LMM used CpG-level rows, but:
+
+you used random intercepts for person
+
+you interpreted fixed effects at the gene level
+
+That’s defensible if and only if:
+
+you don’t treat CpGs as independent in descriptives
+
+you explain that CpGs are repeated measures within person
+
+Your tables/plots must still reflect person-level summaries.
+
+One sentence you can put in Methods (this resolves everything)
+
+“For descriptive statistics and visualization, methylation values were averaged across all available CpG sites per gene for each participant and time point.”
+
+That sentence legally aligns:
+
+your tables
+
+your plots
+
+your interpretation
+
+your reviewer sanity
+
+Final rule of thumb (print this mentally)
+
+CpGs are repeated measures, not observations.
+People are observations.
+
+If you want, next we can:
+
+re-express the LMM more cleanly (random slope for time, CpG as random effect)
+
+decide whether to keep CpG-level modeling or simplify to sample-level LMM
+
+Just tell me which way you want to go.
+
+do this in markdown so i can add it to script
+
+### Boxplots of mean values
+
+```{r}
+boxplot(
+  list(
+    BDNF  = bdnf_mean$Mean,
+    Tau   = tau_mean$Mean,
+    PSD95 = psd95_mean$Mean
+  ),
+  xlab = "Marker",
+  ylab = "Mean",
+  main = "Boxplots of Mean Values"
+)
+
+library(ggplot2)
+
+df <- rbind(
+  data.frame(Marker = "BDNF",  Mean = bdnf_mean$Mean),
+  data.frame(Marker = "Tau",   Mean = tau_mean$Mean),
+  data.frame(Marker = "PSD95", Mean = psd95_mean$Mean)
+)
+
+ggplot(df, aes(x = Marker, y = Mean)) +
+  geom_boxplot() +
+  labs(x = "Marker", y = "Mean", title = "Boxplots of Mean Values") +
+  theme_classic()
+
+```
+```{r}
+library(dplyr)
+
+df <- bind_rows(
+  bdnf_mean  %>% mutate(Gene = "BDNF"),
+  tau_mean   %>% mutate(Gene = "Tau"),
+  psd95_mean %>% mutate(Gene = "PSD95")
+) %>%
+  mutate(
+    Gruppe = as.character(Gruppe),
+    value  = Mean          # rename raw values to avoid name collision
+  )
+
+tab <- df %>%
+  group_by(Gene, Gruppe) %>%
+  summarise(
+    N = sum(is.finite(value)),
+    Mean = mean(value, na.rm = TRUE),
+    SD   = sd(value, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(`Mean ± SD` = sprintf("%.3f ± %.3f", Mean, SD)) %>%
+  select(Gene, Gruppe, N, `Mean ± SD`) %>%
+  arrange(Gene, Gruppe)
+
+# Markdown print (no NULL)
+cat("| Gene | Group | N | Mean ± SD |\n")
+cat("|------|-------|---:|-----------|\n")
+for (i in seq_len(nrow(tab))) {
+  cat(sprintf("| %s | %s | %d | %s |\n",
+              tab$Gene[i], tab$Gruppe[i], tab$N[i], tab$`Mean ± SD`[i]))
+}
+```
+```{r}
+# combine into one long data.frame
+df <- rbind(
+  data.frame(Gene="BDNF",  Group=bdnf_mean$Gruppe,  value=bdnf_mean$Mean),
+  data.frame(Gene="Tau",   Group=tau_mean$Gruppe,   value=tau_mean$Mean),
+  data.frame(Gene="PSD95", Group=psd95_mean$Gruppe, value=psd95_mean$Mean)
+)
+
+# keep only finite values
+df <- df[is.finite(df$value), ]
+df$Gene  <- factor(df$Gene,  levels = c("BDNF","Tau","PSD95"))
+df$Group <- factor(df$Group)   # e.g., Piano / Controll
+
+# one figure: x = Gene with 2 boxes per gene (split by group), one y-axis
+boxplot(
+  value ~ Gene + Group,
+  data = df,
+  xlab = "Gene",
+  ylab = "Mean",
+  main = "Gene values by group",
+  las = 2
+)
+
+boxplot(value ~ Gene + Group, data=df,
+        col=rep(1:length(levels(df$Group)), times=length(levels(df$Gene))),
+        xlab="Gene", ylab="Mean", main="Gene values by group", las=2)
+
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+df <- bind_rows(
+  bdnf_mean  %>% mutate(Gene = "BDNF"),
+  tau_mean   %>% mutate(Gene = "Tau"),
+  psd95_mean %>% mutate(Gene = "PSD95")
+) %>%
+  mutate(
+    Gruppe = as.character(Gruppe),
+    value  = Mean
+  ) %>%
+  filter(is.finite(value))
+
+ggplot(df, aes(x = Gene, y = value, fill = Gruppe)) +
+  geom_boxplot(position = position_dodge(width = 0.8), outlier.shape = NA) +
+  geom_jitter(aes(color = Gruppe),
+              position = position_jitterdodge(jitter.width = 0.15, dodge.width = 0.8),
+              alpha = 0.4, size = 1.2) +
+  labs(x = "Gene", y = "Mean", title = "Gene values by group") +
+  theme_classic()
+
+```
+
+### Time mean values
+```{r}
+mean(bdnf_mean_wide$T0, na.rm = TRUE)
+sd(bdnf_mean_wide$T0, na.rm = TRUE)
+
+mean(bdnf_mean_wide$T1, na.rm = TRUE)
+sd(bdnf_mean_wide$T1, na.rm = TRUE)
+
+mean(bdnf_mean_wide$T2, na.rm = TRUE)
+sd(bdnf_mean_wide$T2, na.rm = TRUE)
+
+mean(tau_mean_wide$T0, na.rm = TRUE)
+sd(tau_mean_wide$T0, na.rm = TRUE)
+
+mean(tau_mean_wide$T1, na.rm = TRUE)
+sd(tau_mean_wide$T1, na.rm = TRUE)
+
+mean(tau_mean_wide$T2, na.rm = TRUE)
+sd(tau_mean_wide$T2, na.rm = TRUE)
+
+mean(psd95_mean_wide$T0, na.rm = TRUE)
+sd(psd95_mean_wide$T0, na.rm = TRUE)
+
+mean(psd95_mean_wide$T1, na.rm = TRUE)
+sd(psd95_mean_wide$T1, na.rm = TRUE)
+
+mean(psd95_mean_wide$T2, na.rm = TRUE)
+sd(psd95_mean_wide$T2, na.rm = TRUE)
+
+summary_table <- data.frame(
+  Marker = rep(c("BDNF", "Tau", "PSD95"), each = 3),
+  Time = rep(c("T0", "T1", "T2"), times = 3),
+  Mean = c(
+    mean(bdnf_mean_wide$T0, na.rm = TRUE),
+    mean(bdnf_mean_wide$T1, na.rm = TRUE),
+    mean(bdnf_mean_wide$T2, na.rm = TRUE),
+
+    mean(tau_mean_wide$T0, na.rm = TRUE),
+    mean(tau_mean_wide$T1, na.rm = TRUE),
+    mean(tau_mean_wide$T2, na.rm = TRUE),
+
+    mean(psd95_mean_wide$T0, na.rm = TRUE),
+    mean(psd95_mean_wide$T1, na.rm = TRUE),
+    mean(psd95_mean_wide$T2, na.rm = TRUE)
+  ),
+  SD = c(
+    sd(bdnf_mean_wide$T0, na.rm = TRUE),
+    sd(bdnf_mean_wide$T1, na.rm = TRUE),
+    sd(bdnf_mean_wide$T2, na.rm = TRUE),
+
+    sd(tau_mean_wide$T0, na.rm = TRUE),
+    sd(tau_mean_wide$T1, na.rm = TRUE),
+    sd(tau_mean_wide$T2, na.rm = TRUE),
+
+    sd(psd95_mean_wide$T0, na.rm = TRUE),
+    sd(psd95_mean_wide$T1, na.rm = TRUE),
+    sd(psd95_mean_wide$T2, na.rm = TRUE)
+  )
+)
+
+summary_table
+
+summary_table$`Mean ± SD` <- sprintf("%.3f ± %.3f",
+                                     summary_table$Mean,
+                                     summary_table$SD)
+summary_table_final <- summary_table[, c("Marker", "Time", "Mean ± SD")]
+summary_table_final
+```
+
 ## Group Differences in Mean Values
 
 ```{r}
@@ -668,6 +1130,7 @@ tapply(psd95_median$Median, psd95_median$Gruppe, summary, na.rm = TRUE) # No dif
 ```{r}
 #| label: fig-boxplots-genes
 #| fig-cap: "Boxplots of gene expression means by time point and gene."
+#| fig-width: 9
 
 library(dplyr)
 library(ggplot2)

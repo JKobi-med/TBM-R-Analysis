@@ -75,7 +75,21 @@ bdnf_glm_nointeraction <- lme(
 summary(bdnf_glm_nointeraction)
 ```
 
+Why your mixed model was actually OK
 
+Your LMM used CpG-level rows, but:
+
+you used random intercepts for person
+
+you interpreted fixed effects at the gene level
+
+That’s defensible if and only if:
+
+you don’t treat CpGs as independent in descriptives
+
+you explain that CpGs are repeated measures within person
+
+Your tables/plots must still reflect person-level summaries.
 ### Model for group
 ```{r}
 # Split the data by group

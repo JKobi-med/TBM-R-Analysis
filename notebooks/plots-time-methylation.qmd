@@ -33,6 +33,7 @@ TAU <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpG
 PSD95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
 ```
 
+## Drop NA
 ```{r}
 #| echo: true
 #| include: false
@@ -71,8 +72,232 @@ PSD952 <- PSD95 %>% drop_na(methylation)
 # without NA
 # summary(PSD952)
 ```
+## Remove problematic IDs
+```{r}
+# Remove problematic IDs (apply consistently)
+bad_ids <- c(192, 193)
 
-## BDNF
+BDNF2  <- BDNF2  %>% filter(!(ID %in% bad_ids))
+TAU2   <- TAU2   %>% filter(!(ID %in% bad_ids))
+PSD952 <- PSD952 %>% filter(!(ID %in% bad_ids))
+
+```
+
+## Descriptive statistics table
+```{r}
+
+# Calculate mean and SD for each gene
+tab <- data.frame(
+  Marker = c("BDNF", "Tau", "PSD95"),
+  Mean = c(
+    mean(BDNF2$methylierung, na.rm = TRUE),
+    mean(TAU2$methylation, na.rm = TRUE),
+    mean(PSD952$methylation, na.rm = TRUE)
+  ),
+  SD = c(
+    sd(BDNF2$methylierung, na.rm = TRUE),
+    sd(TAU2$methylation, na.rm = TRUE),
+    sd(PSD952$methylation, na.rm = TRUE)
+  )
+)
+
+tab$`Mean ± SD` <- sprintf("%.3f ± %.3f", tab$Mean, tab$SD)
+tab <- tab[, c("Marker", "Mean ± SD")]
+
+# Print as markdown
+cat("| Marker | Mean ± SD |\n")
+cat("|--------|-----------|\n")
+apply(tab, 1, function(r) cat(sprintf("| %s | %s |\n", r[1], r[2])))
+```
+
+
+## Interaction Plots
+
+ChatGPT help:
+
+The core issue in one sentence
+
+A CpG is not a participant.
+If you treat CpGs like independent observations, you inflate N and distort SD/SE.
+
+Everything else follows from that.
+
+What your data actually look like
+1️⃣ CpG-level data (long format: BDNF2, TAU2, …)
+
+Each row is:
+
+one CpG site × one person × one time point
+
+Example (simplified):
+
+ID	Time	CpG	methylation
+1	T0	m148	0.18
+1	T0	m111	0.23
+1	T0	m087	0.00
+…	…	…	…
+
+So for one person at one time, you might have 20–30 CpGs.
+
+When you do:
+
+mean(BDNF2$methylierung)
+sd(BDNF2$methylierung)
+
+
+you are computing:
+
+“What is the mean/SD of all CpG measurements pooled together?”
+
+This mixes three different sources of variation:
+
+Differences between CpG sites (huge!)
+
+Differences between people
+
+Changes over time + noise
+
+That’s why:
+
+SD is large (~0.09–0.10)
+
+SE becomes artificially tiny if you divide by sqrt(nrow(BDNF2))
+
+Plots look “too confident”
+
+This is not wrong mathematically, but it answers the wrong scientific question.
+
+What your paper actually claims to measure
+
+Your tables, text, and mixed models all say things like:
+
+“BDNF methylation level per gene”
+
+That implies:
+
+one methylation value per person per time point
+
+So you must collapse CpGs first.
+
+2️⃣ Sample-level data (wide format: bdnf_mean_wide, tau_mean_wide)
+
+Here each row is:
+
+one person, with CpGs already averaged
+
+Example:
+
+ID	Group	T0	T1	T2
+1	Control	0.075	0.037	NA
+2	Piano	0.102	0.060	0.084
+
+Each value (e.g. 0.075) is:
+
+mean methylation across all CpGs for that person at that time
+
+Now when you compute:
+
+mean(bdnf_mean_wide$T0, na.rm=TRUE)
+sd(bdnf_mean_wide$T0, na.rm=TRUE)
+
+
+you are asking:
+
+“How much do people differ in their average BDNF methylation at T0?”
+
+This is exactly what readers expect.
+
+That’s why:
+
+SD ≈ 0.03–0.04
+
+SE ≈ SD / √N_participants
+
+Plots look sensible
+
+Results match your LMM interpretation
+
+Why your interaction plots broke
+
+You originally did this (conceptually):
+
+group_by(Time, Group) %>%
+summarise(
+  mean = mean(methylation),
+  se = sd(methylation) / sqrt(n())
+)
+
+
+But here:
+
+methylation = CpG-level values
+
+n() = number of CpGs × people × time
+
+So SE was:
+
+SD across CpGs ÷ √(CpGs × people)
+
+That is not the SE of the group mean across people.
+
+That’s why BDNF “kind of looked OK” (by coincidence) and TAU didn’t.
+
+The correct mental model (memorize this)
+Question	Unit of analysis	Data to use
+“What is average gene methylation per person?”	Person	CpGs averaged first
+“Do groups differ in gene methylation?”	Person	Sample-level mean
+“Does methylation change over time?”	Person	Sample-level mean
+“Do CpGs behave differently?”	CpG	CpG-level model
+
+Never mix these levels.
+
+Why your mixed model was actually OK
+
+Your LMM used CpG-level rows, but:
+
+you used random intercepts for person
+
+you interpreted fixed effects at the gene level
+
+That’s defensible if and only if:
+
+you don’t treat CpGs as independent in descriptives
+
+you explain that CpGs are repeated measures within person
+
+Your tables/plots must still reflect person-level summaries.
+
+One sentence you can put in Methods (this resolves everything)
+
+“For descriptive statistics and visualization, methylation values were averaged across all available CpG sites per gene for each participant and time point.”
+
+That sentence legally aligns:
+
+your tables
+
+your plots
+
+your interpretation
+
+your reviewer sanity
+
+Final rule of thumb (print this mentally)
+
+CpGs are repeated measures, not observations.
+People are observations.
+
+If you want, next we can:
+
+re-express the LMM more cleanly (random slope for time, CpG as random effect)
+
+decide whether to keep CpG-level modeling or simplify to sample-level LMM
+
+Just tell me which way you want to go.
+
+do this in markdown so i can add it to script
+
+
+### BDNF
 
 ```{r}
 # Interaction plot showing methylation levels by group and time
@@ -90,7 +315,7 @@ print(interaction_plot_bdnf)
 ```
 
 ```{r}
-#| label: fig-bdnf-timegroup-interaction
+#| label: fig-bdnf-timegroup-interaction-wrong
 #| fig-cap: "BDNF methylation levels (mean ± SE) by group across time points."
 library(dplyr)
 library(ggplot2)
@@ -125,6 +350,49 @@ interaction_plot_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_
 print(interaction_plot_bdnf)
 ```
 
+```{r}
+#| label: fig-bdnf-timegroup-interaction-cpg-mean-wrong
+#| fig-cap: "BDNF methylation levels (mean ± SE) by group across time points, averaged across CpGs."
+library(dplyr)
+library(ggplot2)
+
+# 1) per-participant per-timepoint mean across CpGs
+bdnf_samplemeans <- BDNF2 %>%
+  group_by(id_umstrukturieren, Zeitpunkt, Group) %>%
+  summarise(
+    sample_mean = mean(methylierung, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# 2) group/time summary across participants
+summary_stats_bdnf <- bdnf_samplemeans %>%
+  group_by(Zeitpunkt, Group) %>%
+  summarise(
+    n_participants = n(),
+    mean_methylierung_bdnf = mean(sample_mean, na.rm = TRUE),
+    se_methylierung_bdnf = sd(sample_mean, na.rm = TRUE) / sqrt(n_participants),
+    .groups = "drop"
+  )
+
+# plot
+ggplot(summary_stats_bdnf,
+       aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = Group, colour = Group)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(ymin = mean_methylierung_bdnf - se_methylierung_bdnf,
+        ymax = mean_methylierung_bdnf + se_methylierung_bdnf),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean methylation (across CpGs)",
+    caption = "Points show mean across participants; error bars are ±SE."
+  )
+
+```
 
 ```{r}
 #interaction_plot_smoking_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = rauchen, colour = rauchen)) +
@@ -168,7 +436,7 @@ boxplot(methylierung ~ time_group, data = BDNF2,
 
 ```
 
-## Tau
+### Tau
 
 ```{r}
 # Interaction plot showing methylation levels by group and time
@@ -186,7 +454,7 @@ print(interaction_plot_tau)
 ```
 
 ```{r}
-#| label: fig-tau-timegroup-interaction
+#| label: fig-tau-timegroup-interaction-wrong
 #| fig-cap: "Tau methylation levels (mean ± SE) by group across time points."
 
 library(dplyr)
@@ -221,7 +489,55 @@ interaction_plot_tau_error <- ggplot(summary_stats_tau, aes(x = as.factor(Zeitpu
 print(interaction_plot_tau_error)
 ```
 
-## PSD95
+```{r}
+#| label: fig-tau-timegroup-interaction-cpg-mean-wrong
+#| fig-cap: "Tau methylation levels (mean ± SE) by group across time points."
+
+library(dplyr)
+library(ggplot2)
+
+# 1) per-participant per-timepoint mean across CpGs
+tau_samplemeans <- TAU2 %>%
+  group_by(ID, Zeit, Gruppe) %>%
+  summarise(
+    sample_mean = mean(methylation, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# 2) group/time summary across participants
+summary_stats_tau <- tau_samplemeans %>%
+  group_by(Zeit, Gruppe) %>%
+  summarise(
+    n_participants = n(),
+    mean_methylation_tau = mean(sample_mean, na.rm = TRUE),
+    se_methylation_tau = sd(sample_mean, na.rm = TRUE) / sqrt(n_participants),
+    .groups = "drop"
+  )
+
+# 3) plot
+ggplot(summary_stats_tau,
+       aes(x = as.factor(Zeit), y = mean_methylation_tau, group = Gruppe, colour = Gruppe)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(
+      ymin = mean_methylation_tau - se_methylation_tau,
+      ymax = mean_methylation_tau + se_methylation_tau
+    ),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of Tau Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean methylation (across CpGs)",
+    caption = "Points show mean across participants; error bars are ±SE."
+  )
+
+```
+
+
+### PSD95
 
 ```{r}
 # Interaction plot showing methylation levels by group and time
@@ -239,7 +555,7 @@ print(interaction_plot_psd95)
 ```
 
 ```{r}
-#| label: fig-psd95-timegroup-interaction
+#| label: fig-psd95-timegroup-interaction-wrong
 #| fig-cap: "PSD95 methylation levels (mean ± SE) by group across time points."
 library(dplyr)
 library(ggplot2)
@@ -273,6 +589,47 @@ interaction_plot_psd95 <- ggplot(summary_stats_psd95, aes(x = Zeitpunkt, y = mea
 
 print(interaction_plot_psd95)
 ```
+```{r}
+psd95_samplemeans <- PSD952 %>%
+  group_by(ID, Zeitpunkt, Gruppe) %>%
+  summarise(
+    sample_mean = mean(methylation, na.rm = TRUE),
+    .groups = "drop"
+  )
+summary_stats_psd95 <- psd95_samplemeans %>%
+  group_by(Zeitpunkt, Gruppe) %>%
+  summarise(
+    n_participants = n(),
+    mean_methylation_psd95 = mean(sample_mean, na.rm = TRUE),
+    se_methylation_psd95 = sd(sample_mean, na.rm = TRUE) / sqrt(n_participants),
+    .groups = "drop"
+  )
+
+
+
+ggplot(summary_stats_psd95,
+       aes(x = Zeitpunkt,
+           y = mean_methylation_psd95,
+           group = Gruppe,
+           colour = Gruppe)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(
+      ymin = mean_methylation_psd95 - se_methylation_psd95,
+      ymax = mean_methylation_psd95 + se_methylation_psd95
+    ),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of PSD95 Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean methylation (averaged across CpGs)",
+    caption = "Points show mean across participants; error bars represent ±SE."
+  )
+
+```
 
 
 ## Plots of all genes for publication
@@ -280,7 +637,7 @@ print(interaction_plot_psd95)
 ### group differences
 
 ```{r}
-#| label: fig-interactions-by-gene
+#| label: fig-interactions-by-gene-cpg-mean-wrong
 #| fig-cap: "Methylation levels (mean ± SE) across time points by group for BDNF, Tau, and PSD95."
 #| fig-width: 8
 #| fig-height: 10

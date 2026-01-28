@@ -1,0 +1,1609 @@
+---
+title: "Problemspolving with ChatGPT"
+output: html_document
+date: "2026-01-28"
+---
+
+
+
+BDNF <- read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+
+BDNF2 <- BDNF %>% drop_na(methylierung)
+
+> str(BDNF2)
+tibble [3,603 × 38] (S3: tbl_df/tbl/data.frame)
+ $ id_umstrukturieren        : num [1:3603] 1 1 1 1 1 1 1 1 1 1 ...
+ $ TraceFileName             : chr [1:3603] "BDNF-C1_001_01_T0_Pl1_Controll_A04.ab1" "BDNF-C1_001_01_T0_Pl1_Controll_A04.ab1" "BDNF-C1_001_01_T0_Pl1_Controll_A04.ab1" "BDNF-C1_001_01_T0_Pl1_Controll_A04.ab1" ...
+ $ ID                        : num [1:3603] 1 1 1 1 1 1 1 1 1 1 ...
+ $ Standort                  : num [1:3603] 0 0 0 0 0 0 0 0 0 0 ...
+ $ Zeitpunkt_als_Zahl        : num [1:3603] 1 1 1 1 1 1 1 1 1 1 ...
+ $ Zeitpunkt                 : chr [1:3603] "T0" "T0" "T0" "T0" ...
+ $ Platte                    : chr [1:3603] "Pl1" "Pl1" "Pl1" "Pl1" ...
+ $ Group                     : chr [1:3603] "Control" "Control" "Control" "Control" ...
+ $ Gruppe                    : chr [1:3603] "Controll" "Controll" "Controll" "Controll" ...
+ $ Gruppe_als_zahl           : num [1:3603] 0 0 0 0 0 0 0 0 0 0 ...
+ $ Koordinate                : chr [1:3603] "A04" "A04" "A04" "A04" ...
+ $ Code                      : chr [1:3603] "GLEAL52" "GLEAL52" "GLEAL52" "GLEAL52" ...
+ $ Sex                       : chr [1:3603] "F" "F" "F" "F" ...
+ $ Geschlecht                : num [1:3603] 0 0 0 0 0 0 0 0 0 0 ...
+ $ Age_start                 : num [1:3603] 67 67 67 67 67 67 67 67 67 67 ...
+ $ B03a_sleep_quality        : num [1:3603] 2 2 2 2 2 2 2 2 2 2 ...
+ $ B03b_sleep_duration       : chr [1:3603] "6" "6" "6" "6" ...
+ $ B03c_sleep_to_recover     : chr [1:3603] "6" "6" "6" "6" ...
+ $ B09a_groesse              : num [1:3603] 160 160 160 160 160 160 160 160 160 160 ...
+ $ B09b_gewicht              : num [1:3603] 54 54 54 54 54 54 54 54 54 54 ...
+ $ B14a_rauchen              : num [1:3603] 0 0 0 0 0 0 0 0 0 0 ...
+ $ rauchen                   : num [1:3603] 0 0 0 0 0 0 0 0 0 0 ...
+ $ B14d_wie_viele_zigaretten : chr [1:3603] NA NA NA NA ...
+ $ B14b_rauchen_anfang       : num [1:3603] NA NA NA NA NA NA NA NA NA NA ...
+ $ B14c_raucherjahre         : num [1:3603] NA NA NA NA NA NA NA NA NA NA ...
+ $ B15a_alkoholkonsum        : num [1:3603] 0 0 0 0 0 0 0 0 0 0 ...
+ $ B15b_anfnag_alkoholkonsum : num [1:3603] NA NA NA NA NA NA NA NA NA NA ...
+ $ B15c_jahre_alkoholkonsum  : num [1:3603] NA NA NA NA NA NA NA NA NA NA ...
+ $ B15d_wie_viel_alkohol     : chr [1:3603] NA NA NA NA ...
+ $ B16_nehmen_sie_medikamente: num [1:3603] 1 1 1 1 1 1 1 1 1 1 ...
+ $ B17a_nehmen_sie_drogen    : num [1:3603] 0 0 0 0 0 0 0 0 0 0 ...
+ $ B17b_anfang_drogen        : num [1:3603] NA NA NA NA NA NA NA NA NA NA ...
+ $ B17c_jahre_drogenkonsum   : num [1:3603] NA NA NA NA NA NA NA NA NA NA ...
+ $ C05_familienstatus        : num [1:3603] 3 3 3 3 3 3 3 3 3 3 ...
+ $ C06_bildungsgrad          : num [1:3603] 4 4 4 4 4 4 4 4 4 4 ...
+ $ CogTel                    : num [1:3603] 38.9 38.9 38.9 38.9 38.9 38.9 38.9 38.9 38.9 38.9 ...
+ $ CpG_position              : chr [1:3603] "m148" "m111" "m087" "m066" ...
+ $ methylierung              : num [1:3603] 0.18 0.23 0 0.07 0.18 0.07 0 0.02 0 0 ...
+
+> sd(BDNF2$methylierung)
+[1] 0.09700194
+
+
+but 
+
+bdnf <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/bdnf.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+
+# Subsetting BDNF data to include only specific columns
+bdnf_subset <- subset(bdnf, select = c(ID, Standort, Zeitpunkt, Gruppe, Sex, Age_start, CogTel))
+
+# Subsetting BDNF CpG columns and calculating mean and median values for each row
+bdnf_methylation <- subset(bdnf, select = c(m148:p020))
+bdnf_methylation_mean <- apply(bdnf_methylation, 1, mean, na.rm=TRUE)
+bdnf_methylation_median <- apply(bdnf_methylation, 1, median, na.rm=TRUE)
+
+# Combining the subset data with the calculated mean and median values
+bdnf_mean <- cbind(bdnf_subset, bdnf_methylation_mean)
+colnames(bdnf_mean)[8] <- "Mean"
+bdnf_median <- cbind(bdnf_subset, bdnf_methylation_median)
+colnames(bdnf_median)[8] <- "Median"
+
+# Removing rows with specific IDs due to data issues
+bdnf_mean <- bdnf_mean[!(bdnf_mean$ID %in% c(192, 193)), ]
+bdnf_mean[bdnf_mean$ID >= 190 & bdnf_mean$ID <= 196, ] # Display rows to verify deletion
+
+bdnf_median <- bdnf_median[!(bdnf_median$ID %in% c(192, 193)), ]
+bdnf_median[bdnf_median$ID >= 190 & bdnf_median$ID <= 196, ] # Display rows to verify deletion
+
+> sd(bdnf_mean$Mean, na.rm = TRUE)
+[1] 0.03363285
+
+why the stadnard dev diff?
+Thought for 4 seconds
+
+Because you’re taking the SD of two different things.
+
+1) BDNF2$methylierung (SD ≈ 0.097)
+
+BDNF2 is long format: each row is a single CpG measurement (CpG_position) for a person/timepoint (and maybe plate/well, etc.). So:
+
+SD here is the variability of all individual CpG methylation values pooled together (across m148, m111, m087, …, p020, across all people, all timepoints).
+
+Different CpGs can have very different baseline methylation levels (some near 0, some near 0.2+), so pooling them inflates variability.
+
+That’s why sd(BDNF2$methylierung) is relatively large.
+
+2) bdnf_mean$Mean (SD ≈ 0.0336)
+
+In your text-file workflow, you compute per row:
+
+bdnf_methylation_mean <- apply(bdnf_methylation, 1, mean, na.rm=TRUE)
+
+
+So each row becomes a mean across CpGs for that sample. Taking a mean across many CpGs reduces variance (classic averaging effect), so:
+
+SD of means across people/timepoints is much smaller than SD of all raw CpG values pooled.
+
+So the SDs are not supposed to match.
+
+How to make them comparable
+A) If you want the SD of the row-wise mean across CpGs using BDNF2
+
+Compute the mean per (ID/timepoint/whatever defines one sample), then take the SD of that mean:
+
+library(dplyr)
+
+bdnf2_means <- BDNF2 %>%
+  group_by(ID, Standort, Zeitpunkt, Gruppe, Sex, Age_start, CogTel) %>%
+  summarise(Mean = mean(methylierung, na.rm = TRUE), .groups = "drop")
+
+sd(bdnf2_means$Mean, na.rm = TRUE)
+
+
+That number should be in the ballpark of your 0.0336 if:
+
+the CpG set is the same, and
+
+you’re averaging the same rows (same exclusions like ID 192/193, same CpGs removed, same timepoints).
+
+B) If you want the SD of all CpG values pooled from bdnf.txt
+
+Then you must pool the CpG columns into one vector and compute SD on that:
+
+bdnf_methylation <- subset(bdnf, select = c(m148:p020))
+sd(as.numeric(unlist(bdnf_methylation)), na.rm = TRUE)
+
+
+That should move closer to the ~0.097 scale (not identical if CpGs differ / filtering differs).
+
+Two extra reasons your numbers might still differ after aligning
+
+Different CpG sets
+Your Excel data shows CpG_position includes things like m111, but your file name suggests you excluded “m11 and p36” (typo aside). If the bdnf.txt pipeline includes/excludes different CpGs, SD will shift.
+
+Different row filtering
+You removed IDs 192 and 193 in the text pipeline. If those IDs exist in BDNF2, include the same filter there too:
+
+BDNF2a <- BDNF2 %>% filter(!(ID %in% c(192, 193)))
+
+Quick sanity check (this usually reveals the whole story)
+
+How many CpGs per sample are you averaging in BDNF2?
+
+BDNF2 %>%
+  group_by(ID, Zeitpunkt) %>%
+  summarise(n_cpg = sum(!is.na(methylierung)), .groups = "drop") %>%
+  summarise(min=min(n_cpg), median=median(n_cpg), max=max(n_cpg))
+
+
+If n_cpg is large (e.g., ~20–30), the SD of the mean being ~0.033 while the SD of raw values being ~0.097 makes perfect sense.
+
+If you paste names(bdnf_methylation)[1:10] and the unique CpGs from BDNF2$CpG_position, I can tell you exactly whether your CpG sets match.
+
+which is nearer to turth for puubllication?
+
+Neither is “more true” in general — they answer different publication questions.
+
+If your outcome in the paper is “BDNF methylation (overall) per sample / per person / per timepoint”
+
+Use the SD from the per-sample summary (your bdnf_mean$Mean, or the equivalent computed from BDNF2 by averaging CpGs within each sample).
+That’s what readers expect when you say “BDNF methylation level”.
+
+✅ Report Mean ± SD of the sample-level mean
+(plus be explicit: “mean across CpGs m148–p020” or whatever set you used)
+
+If your outcome is CpG-level methylation (each CpG is an observation)
+
+Then sd(BDNF2$methylierung) is describing variability across CpGs + people + timepoints all mixed together. That’s rarely the SD you want to headline, because it conflates:
+
+differences between CpG sites
+
+differences between participants
+
+within-person change over time
+
+✅ Use this only if your unit of analysis is CpG sites (and typically you’d model CpG as a factor or random effect, not just pool them).
+
+What I’d recommend for your case (based on your workflow/model)
+
+You’re fitting a mixed model with 3603 rows = CpG-level rows and random intercept by person. For publication, you should match the descriptive stats to the outcome you model:
+
+Option A (most common, simplest paper narrative)
+
+Describe sample-level mean across CpGs (your bdnf_mean$Mean) and analyze that (1 row per person×timepoint).
+
+clearer interpretation
+
+SD is interpretable
+
+Option B (CpG-level model, like you’re currently doing)
+
+Then for descriptives, don’t give one pooled SD of all CpGs. Better:
+
+give mean ± SD of the sample-level mean, and/or
+
+give mean per CpG (table or supplement), and state CpG-level model.
+
+One sentence you can use
+
+“For descriptive statistics, methylation was summarized as the mean across all measured CpG sites per sample, and values are reported as mean ± SD.”
+
+So: for a clean results table, use SD of bdnf_mean$Mean (or the equivalent per-sample mean). That’s the one “nearer to truth” for the construct you’re claiming to measure.
+
+If you tell me which you’re claiming in the paper—global BDNF methylation vs CpG-specific effects—I’ll tell you exactly what to report and how to phrase it.
+
+## Methylation differences {#sec-results-methylation-differences}
+
+### All CpG-sites
+
+#### Overall methylation levels
+
+| Marker | Mean ± SD |
+|--------|-----------|
+| BDNF | 0.070 ± 0.034 |
+| Tau | 0.075 ± 0.020 |
+| PSD95 | 0.031 ± 0.014 |
+: Mean methylation levels per gene {#tbl-mean-methylation-overall}
+
+| Gene | Group | N | Mean ± SD |
+|------|-------|---:|-----------|
+| BDNF | Controll | 183 | 0.073 ± 0.034 |
+| BDNF | Piano | 176 | 0.066 ± 0.033 |
+| PSD95 | Controll | 179 | 0.031 ± 0.014 |
+| PSD95 | Piano | 178 | 0.030 ± 0.013 |
+| Tau | Controll | 182 | 0.075 ± 0.020 |
+| Tau | Piano | 180 | 0.075 ± 0.020 |
+: Mean methylation levels per gene and group {#tbl-mean-methylation-group}
+!
+
+#### Time difference overall
+
+| Marker | Time | Mean ± SD |
+|--------|------|-----------|
+| BDNF   | T0   | 0.070 ± 0.033 |
+| BDNF   | T1   | 0.062 ± 0.029 |
+| BDNF   | T2   | 0.079 ± 0.037 |
+| Tau    | T0   | 0.073 ± 0.020 |
+| Tau    | T1   | 0.076 ± 0.020 |
+| Tau    | T2   | 0.076 ± 0.019 |
+| PSD95  | T0   | 0.030 ± 0.016 |
+| PSD95  | T1   | 0.032 ± 0.013 |
+| PSD95  | T2   | 0.031 ± 0.010 |
+: Mean methylation levels per gene and time point {#tbl-mean-methylation-time}
+
+##### BDNF
+BDNF showed a decrease in methylation from T0 (0,07 ± 0,03) to T1 (0.062 ± 0.029), followed by an increase at T2 (0.079 ± 0.037) surpassing the initial levels at T0.
+
+
+
+##### Tau
+Tau exhibited a slight increase in methylation from T0 to T1, which remained stable at T2.
+
+##### PSD95
+-   Bei PSD95 verbleibt der Median der Methylierung gleichbleibend bei 0, während das arithmetische Mittel der Methylierung von T0 zu T1 steigt aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
+
+
+A few small fixes will make this section consistent + publication-ready (and avoid the comma/dot mix). Here are the edits I’d make.
+
+1) Use dots everywhere (since your tables use dots)
+
+Your BDNF sentence currently has commas and rounded values:
+
+0,07 ± 0,03 → should match table precision: 0.070 ± 0.033
+
+2) Keep the same precision within a sentence
+
+Don’t mix 0.07 ± 0.03 with 0.062 ± 0.029. Pick one (I’d keep 3 decimals like your tables).
+
+3) Wording cleanup for each gene
+
+You can paste these directly:
+
+BDNF
+
+BDNF methylation decreased from T0 (0.070 ± 0.033) to T1 (0.062 ± 0.029) and then increased at T2 (0.079 ± 0.037), exceeding baseline (T0).
+
+Tau
+
+Tau methylation increased slightly from T0 (0.073 ± 0.020) to T1 (0.076 ± 0.020) and remained stable at T2 (0.076 ± 0.019).
+
+PSD95
+
+PSD95 methylation increased from T0 (0.030 ± 0.016) to T1 (0.032 ± 0.013) and returned close to baseline at T2 (0.031 ± 0.010).
+
+(If you still want the German “Median stays 0” point, add it as a second sentence, but only if you actually computed/reported medians in this section.)
+
+4) Optional: add one clarifying line about what “Mean methylation” means
+
+Right under “Overall methylation levels”:
+
+Values represent the mean methylation across all available CpG sites per gene (mean ± SD).
+
+5) That stray !
+
+You have a lone ! after the group table — in Quarto/R Markdown that will likely render oddly. Delete it unless it’s part of a figure call.
+
+If you want, paste the Quarto chunk where you generate the figure and I’ll format it so the plot appears nicely under the table with a caption and cross-reference.
+
+but later i wanted to 
+{r}
+#| label: fig-bdnf-timegroup-interaction
+#| fig-cap: "BDNF methylation levels (mean ± SE) by group across time points."
+library(dplyr)
+library(ggplot2)
+
+# Calculate summary statistics for BDNF
+summary_stats_bdnf <- BDNF2 %>%
+  group_by(Zeitpunkt, Group) %>%
+  summarise(
+    mean_methylierung_bdnf = mean(methylierung, na.rm = TRUE),
+    se_methylierung_bdnf = sd(methylierung, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# Interaction plot with error bars for BDNF
+interaction_plot_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = Group, colour = Group)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(
+      ymin = mean_methylierung_bdnf - se_methylierung_bdnf,
+      ymax = mean_methylierung_bdnf + se_methylierung_bdnf
+    ),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_bdnf)
+
+
+
+here the means fit (but for TAU2,another gene not), but the sd doesnt and so the copmuted se 
+Thought for 5s
+
+You’ve nailed the root cause: in BDNF2 (and likely TAU2, PSD952) each row is a CpG measurement, not “one participant at one timepoint”.
+
+So in this line:
+
+se_methylierung_bdnf = sd(methylierung, na.rm = TRUE) / sqrt(n())
+
+
+sd(methylierung) = SD across CpG rows pooled (mixes CpG-to-CpG differences + subject differences + noise)
+
+n() = number of CpG rows, not number of participants/samples
+
+That SE is therefore not the SE of the sample-level mean across participants, and it won’t match the SD/SE you expect from your “mean-per-gene” tables.
+
+The correct way (publication-friendly)
+
+First compute per-sample mean across CpGs for each person × time (this matches your bdnf_mean$Mean logic).
+
+Then compute group/time mean ± SE across participants using n_participants.
+
+✅ Correct BDNF plot code (Mean ± SE across participants)
+library(dplyr)
+library(ggplot2)
+
+# 1) per-participant per-timepoint mean across CpGs
+bdnf_samplemeans <- BDNF2 %>%
+  group_by(id_umstrukturieren, Zeitpunkt, Group) %>%
+  summarise(
+    sample_mean = mean(methylierung, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# 2) group/time summary across participants
+summary_stats_bdnf <- bdnf_samplemeans %>%
+  group_by(Zeitpunkt, Group) %>%
+  summarise(
+    n_participants = n(),
+    mean_methylierung_bdnf = mean(sample_mean, na.rm = TRUE),
+    se_methylierung_bdnf = sd(sample_mean, na.rm = TRUE) / sqrt(n_participants),
+    .groups = "drop"
+  )
+
+# plot
+ggplot(summary_stats_bdnf,
+       aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = Group, colour = Group)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(ymin = mean_methylierung_bdnf - se_methylierung_bdnf,
+        ymax = mean_methylierung_bdnf + se_methylierung_bdnf),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean methylation (across CpGs)",
+    caption = "Points show mean across participants; error bars are ±SE."
+  )
+
+
+This will make the SD/SE behave “as expected” and align with the descriptive stats you computed from per-row CpG means.
+
+Why BDNF “looked OK” but TAU didn’t
+
+It can “accidentally” look OK if:
+
+CpG-to-CpG variability is similar across time/groups for BDNF, masking the mistake
+
+but TAU has different CpG distributions / missingness / CpG count per sample, so pooling CpGs blows up SD and SE in a way that’s more obvious.
+
+If you want this for TAU2 / PSD952 too
+
+Just replace BDNF2 with TAU2 (or whatever your TAU long dataframe is called). The key is that it must have:
+
+id_umstrukturieren
+
+Zeitpunkt
+
+Group
+
+methylierung
+
+If TAU uses different column names (e.g., Gruppe not Group), tell me and I’ll adapt it.
+
+Quick check to prove the issue
+
+Compare n() vs participants:
+
+BDNF2 %>% count(Zeitpunkt, Group)          # CpG rows
+bdnf_samplemeans %>% count(Zeitpunkt, Group)  # participant-time samples
+
+
+The second is the correct denominator for SE.
+
+If you paste str(TAU2) (just the top part showing column names), I’ll give you the exact drop-in TAU version.
+
+#| label: fig-tau-timegroup-interaction
+#| fig-cap: "Tau methylation levels (mean ± SE) by group across time points."
+
+library(dplyr)
+library(ggplot2)
+
+# Calculate summary statistics
+summary_stats_tau <- TAU2 %>%
+  group_by(Zeitpunkt, Gruppe) %>%
+  summarise(
+    mean_methylation_tau = mean(methylation, na.rm = TRUE),
+    se_methylation_tau = sd(methylation, na.rm = TRUE) / sqrt(n()),
+  )
+
+# Interaction plot with error bars
+interaction_plot_tau_error <- ggplot(summary_stats_tau, aes(x = as.factor(Zeitpunkt), y = mean_methylation_tau, group = Gruppe, colour = Gruppe)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(
+      ymin = mean_methylation_tau - se_methylation_tau,
+      ymax = mean_methylation_tau + se_methylation_tau
+    ),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of Tau Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_tau_error)
+
+do the same for tau
+
+Here’s the same correct approach for TAU: compute participant×time means across CpGs first, then compute group×time mean ± SE across participants.
+
+(Also: add .groups="drop" in summarise() to avoid grouping surprises.)
+
+#| label: fig-tau-timegroup-interaction
+#| fig-cap: "Tau methylation levels (mean ± SE) by group across time points."
+
+library(dplyr)
+library(ggplot2)
+
+# 1) per-participant per-timepoint mean across CpGs
+tau_samplemeans <- TAU2 %>%
+  group_by(id_umstrukturieren, Zeitpunkt, Gruppe) %>%
+  summarise(
+    sample_mean = mean(methylation, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# 2) group/time summary across participants
+summary_stats_tau <- tau_samplemeans %>%
+  group_by(Zeitpunkt, Gruppe) %>%
+  summarise(
+    n_participants = n(),
+    mean_methylation_tau = mean(sample_mean, na.rm = TRUE),
+    se_methylation_tau = sd(sample_mean, na.rm = TRUE) / sqrt(n_participants),
+    .groups = "drop"
+  )
+
+# 3) plot
+ggplot(summary_stats_tau,
+       aes(x = as.factor(Zeitpunkt), y = mean_methylation_tau, group = Gruppe, colour = Gruppe)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(
+      ymin = mean_methylation_tau - se_methylation_tau,
+      ymax = mean_methylation_tau + se_methylation_tau
+    ),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of Tau Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean methylation (across CpGs)",
+    caption = "Points show mean across participants; error bars are ±SE."
+  )
+
+
+If TAU2 uses ID instead of id_umstrukturieren, swap that grouping column accordingly.
+
+still 
+> mean(TAU2$methylation)
+[1] 0.08211309
+> mean(tau_mean$methylation)
+[1] NA
+> mean(tau_mean$Mean)
+[1] NaN
+> mean(tau_mean$Mean, na.rm = TRUE)
+[1] 0.07512473
+
+That’s expected given what you’re calling:
+
+mean(TAU2$methylation) is CpG-level pooled mean (every CpG row counts). That’s why it’s 0.0821.
+
+tau_mean$Mean is your per-sample mean across CpGs (what you should publish). That’s why it’s 0.0751.
+
+mean(tau_mean$methylation) is NA because tau_mean doesn’t have a methylation column (or it’s all NA).
+
+mean(tau_mean$Mean) is NaN because there are NA values and you didn’t set na.rm=TRUE.
+
+So there isn’t a “bug” here — you’re mixing different levels of data.
+
+Which mean should you use?
+
+For publication tables like yours (“Mean methylation per gene”), you should use the per-sample mean across CpGs:
+
+✅ mean(tau_mean$Mean, na.rm = TRUE) = 0.0751
+
+Not the pooled CpG mean from TAU2$methylation.
+
+Make TAU2 match tau_mean (the right way)
+
+If you want the TAU interaction plot to match the published summary approach, compute the per-sample CpG mean from TAU2 first (same logic as your apply(..., mean) pipeline):
+
+library(dplyr)
+
+tau_samplemeans <- TAU2 %>%
+  group_by(ID, Standort, Zeitpunkt, Gruppe, Sex, Age_start, CogTel) %>%
+  summarise(Mean = mean(methylation, na.rm = TRUE), .groups = "drop")
+
+mean(tau_samplemeans$Mean, na.rm = TRUE)
+sd(tau_samplemeans$Mean, na.rm = TRUE)
+
+
+That mean should be close to mean(tau_mean$Mean, na.rm=TRUE) if:
+
+you’re averaging the same CpGs,
+
+you filtered the same IDs/rows,
+
+same timepoints included.
+
+Then use tau_samplemeans for plotting SE across participants (as I showed).
+
+Quick diagnostics (to pinpoint the mismatch fast)
+1) Confirm the column name in tau_mean
+names(tau_mean)
+
+
+If there’s no methylation, that explains your mean(tau_mean$methylation) = NA.
+
+2) Check missingness in tau_mean$Mean
+sum(is.na(tau_mean$Mean))
+
+3) Check whether TAU2 is truly CpG-long
+TAU2 %>% count(CpG_position) %>% head()
+
+4) Compare counts per sample (CpGs per ID×time)
+TAU2 %>%
+  group_by(ID, Zeitpunkt) %>%
+  summarise(n_cpg = sum(!is.na(methylation)), .groups="drop") %>%
+  summarise(min=min(n_cpg), median=median(n_cpg), max=max(n_cpg))
+
+
+If TAU has different CpG sets / missingness than BDNF, the pooled CpG mean (0.0821) can drift away from the mean-of-means (0.0751).
+
+Bottom line
+
+0.0821 = mean of all CpG values pooled → not what your gene-level tables describe.
+
+0.0751 = mean of sample-level CpG means → aligns with your publication tables and interpretation.
+
+If you paste str(TAU2) (just the top lines with ID/time/group variable names), I’ll adapt the exact group_by() so it matches your dataset (ID vs id_umstrukturieren, Group vs Gruppe, etc.).
+
+> str(bdnf_mean_wide)
+'data.frame':	144 obs. of  9 variables:
+ $ ID       : int  1 2 3 4 5 8 9 10 11 12 ...
+ $ Standort : int  0 0 0 0 0 0 0 0 0 0 ...
+ $ Gruppe   : chr  "Controll" "Piano" "Piano" "Controll" ...
+ $ Sex      : chr  "F" "F" "M" "F" ...
+ $ Age_start: int  67 76 69 75 73 67 74 71 71 70 ...
+ $ CogTel   : num  38.9 34.6 22.8 40.6 25.6 32.7 24.4 19.8 30.3 34 ...
+ $ T0       : num  0.075 0.102 NA 0.109 0.12 0.059 0.055 0.105 0.093 0.114 ...
+ $ T1       : num  0.037 0.06 0.029 0.021 0.041 0.082 0.072 NA 0.059 0.014 ...
+ $ T2       : num  NA 0.084 NA 0.097 0.049 NA 0.169 NA 0.14 NA ...
+> str(tau_mean_wide)
+'data.frame':	145 obs. of  9 variables:
+ $ ID       : int  1 2 3 4 5 8 9 10 11 12 ...
+ $ Standort : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ Gruppe   : chr  "Controll" "Piano" "Piano" "Controll" ...
+ $ Sex      : chr  "F" "F" "M" "F" ...
+ $ Age_start: int  67 76 69 75 73 67 74 71 71 70 ...
+ $ CogTel   : num  38.9 34.6 22.8 40.6 25.6 32.7 24.4 19.8 30.3 34 ...
+ $ T0       : num  0.0844 0.0965 0.0542 0.0598 0.0742 ...
+ $ T1       : num  0.0779 0.0725 0.081 0.044 0.0979 ...
+ $ T2       : num  NA 0.0717 NA 0.0492 0.0654 ...
+> str(psd95_mean_wide)
+'data.frame':	145 obs. of  9 variables:
+ $ ID       : int  1 2 3 4 5 8 9 10 11 12 ...
+ $ Standort : int  1 1 1 1 1 1 1 1 1 1 ...
+ $ Gruppe   : chr  "Controll" "Piano" "Piano" "Controll" ...
+ $ Sex      : chr  "F" "F" "M" "F" ...
+ $ Age_start: int  67 76 69 75 73 67 74 71 71 70 ...
+ $ CogTel   : num  38.9 34.6 22.8 40.6 25.6 32.7 24.4 19.8 30.3 34 ...
+ $ T0       : num  0.0398 0.0151 0.0237 0.0273 0.02 ...
+ $ T1       : num  0.0193 0.0116 0.0133 0.0169 0.0302 ...
+ $ T2       : num  NA 0.0445 NA 0.0441 0.0178 ...
+
+do the interaction plot for this dfs
+
+Yep — these “wide” dfs are perfect for a clean interaction plot. We’ll:
+
+pivot to long (T0/T1/T2 → Zeitpunkt, Mean)
+
+compute mean ± SE by Gruppe and Zeitpunkt
+
+plot (one figure)
+
+Here’s a reusable function + calls for BDNF / TAU / PSD95.
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+make_interaction_plot <- function(df_wide, title, ylab = "Mean methylation (mean across CpGs)") {
+
+  df_long <- df_wide %>%
+    pivot_longer(cols = c(T0, T1, T2),
+                 names_to = "Zeitpunkt",
+                 values_to = "Mean") %>%
+    mutate(
+      Zeitpunkt = factor(Zeitpunkt, levels = c("T0", "T1", "T2")),
+      Gruppe = factor(Gruppe)
+    )
+
+  summary_stats <- df_long %>%
+    group_by(Zeitpunkt, Gruppe) %>%
+    summarise(
+      n = sum(!is.na(Mean)),
+      mean = mean(Mean, na.rm = TRUE),
+      se = sd(Mean, na.rm = TRUE) / sqrt(n),
+      .groups = "drop"
+    )
+
+  ggplot(summary_stats, aes(x = Zeitpunkt, y = mean, group = Gruppe, colour = Gruppe)) +
+    geom_line() +
+    geom_point() +
+    geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
+    theme_classic() +
+    labs(title = title, x = "Time Point", y = ylab, caption = "Points show mean across participants; error bars are ±SE.")
+}
+
+# BDNF
+make_interaction_plot(
+  bdnf_mean_wide,
+  title = "Interaction Plot of BDNF Methylation Levels by Group and Time"
+)
+
+# TAU
+make_interaction_plot(
+  tau_mean_wide,
+  title = "Interaction Plot of Tau Methylation Levels by Group and Time"
+)
+
+# PSD95
+make_interaction_plot(
+  psd95_mean_wide,
+  title = "Interaction Plot of PSD95 Methylation Levels by Group and Time"
+)
+
+If you want Piano first in the legend/order
+
+Add this after mutate(Gruppe = factor(Gruppe)):
+
+Gruppe = factor(Gruppe, levels = c("Piano", "Controll"))
+
+Note about Standort
+
+BDNF has Standort = 0 but TAU/PSD95 have Standort = 1 in your wide dfs — that’s fine for plotting; just be aware you’re not mixing sites within a plot.
+
+If you want a single combined figure with 3 panels (BDNF/TAU/PSD95), tell me and I’ll give you the facet_wrap(~Gene) version.
+
+explain the over cpg and per cpg problem again for me
+
+Totally fair to ask again — this is the key conceptual trap in methylation papers, and you’re right at the edge of it. I’ll explain it slowly and cleanly, with your exact data in mind.
+
+The core issue in one sentence
+
+A CpG is not a participant.
+If you treat CpGs like independent observations, you inflate N and distort SD/SE.
+
+Everything else follows from that.
+
+What your data actually look like
+1️⃣ CpG-level data (long format: BDNF2, TAU2, …)
+
+Each row is:
+
+one CpG site × one person × one time point
+
+Example (simplified):
+
+ID	Time	CpG	methylation
+1	T0	m148	0.18
+1	T0	m111	0.23
+1	T0	m087	0.00
+…	…	…	…
+
+So for one person at one time, you might have 20–30 CpGs.
+
+When you do:
+
+mean(BDNF2$methylierung)
+sd(BDNF2$methylierung)
+
+
+you are computing:
+
+“What is the mean/SD of all CpG measurements pooled together?”
+
+This mixes three different sources of variation:
+
+Differences between CpG sites (huge!)
+
+Differences between people
+
+Changes over time + noise
+
+That’s why:
+
+SD is large (~0.09–0.10)
+
+SE becomes artificially tiny if you divide by sqrt(nrow(BDNF2))
+
+Plots look “too confident”
+
+This is not wrong mathematically, but it answers the wrong scientific question.
+
+What your paper actually claims to measure
+
+Your tables, text, and mixed models all say things like:
+
+“BDNF methylation level per gene”
+
+That implies:
+
+one methylation value per person per time point
+
+So you must collapse CpGs first.
+
+2️⃣ Sample-level data (wide format: bdnf_mean_wide, tau_mean_wide)
+
+Here each row is:
+
+one person, with CpGs already averaged
+
+Example:
+
+ID	Group	T0	T1	T2
+1	Control	0.075	0.037	NA
+2	Piano	0.102	0.060	0.084
+
+Each value (e.g. 0.075) is:
+
+mean methylation across all CpGs for that person at that time
+
+Now when you compute:
+
+mean(bdnf_mean_wide$T0, na.rm=TRUE)
+sd(bdnf_mean_wide$T0, na.rm=TRUE)
+
+
+you are asking:
+
+“How much do people differ in their average BDNF methylation at T0?”
+
+This is exactly what readers expect.
+
+That’s why:
+
+SD ≈ 0.03–0.04
+
+SE ≈ SD / √N_participants
+
+Plots look sensible
+
+Results match your LMM interpretation
+
+Why your interaction plots broke
+
+You originally did this (conceptually):
+
+group_by(Time, Group) %>%
+summarise(
+  mean = mean(methylation),
+  se = sd(methylation) / sqrt(n())
+)
+
+
+But here:
+
+methylation = CpG-level values
+
+n() = number of CpGs × people × time
+
+So SE was:
+
+SD across CpGs ÷ √(CpGs × people)
+
+That is not the SE of the group mean across people.
+
+That’s why BDNF “kind of looked OK” (by coincidence) and TAU didn’t.
+
+The correct mental model (memorize this)
+Question	Unit of analysis	Data to use
+“What is average gene methylation per person?”	Person	CpGs averaged first
+“Do groups differ in gene methylation?”	Person	Sample-level mean
+“Does methylation change over time?”	Person	Sample-level mean
+“Do CpGs behave differently?”	CpG	CpG-level model
+
+Never mix these levels.
+
+Why your mixed model was actually OK
+
+Your LMM used CpG-level rows, but:
+
+you used random intercepts for person
+
+you interpreted fixed effects at the gene level
+
+That’s defensible if and only if:
+
+you don’t treat CpGs as independent in descriptives
+
+you explain that CpGs are repeated measures within person
+
+Your tables/plots must still reflect person-level summaries.
+
+One sentence you can put in Methods (this resolves everything)
+
+“For descriptive statistics and visualization, methylation values were averaged across all available CpG sites per gene for each participant and time point.”
+
+That sentence legally aligns:
+
+your tables
+
+your plots
+
+your interpretation
+
+your reviewer sanity
+
+Final rule of thumb (print this mentally)
+
+CpGs are repeated measures, not observations.
+People are observations.
+
+If you want, next we can:
+
+re-express the LMM more cleanly (random slope for time, CpG as random effect)
+
+decide whether to keep CpG-level modeling or simplify to sample-level LMM
+
+Just tell me which way you want to go.
+
+write your explanation in markdown for me
+
+and how we saw the problem from different tau means and then testing sd and seeing it is differing from all gene
+## CpG-level vs. gene-level methylation: why the numbers differed
+
+### The core issue
+
+In the methylation data, **CpG sites are repeated measurements**, not independent observations.  
+Each participant contributes multiple CpG measurements per gene and per time point.
+
+> **CpGs are not participants. Participants are the unit of analysis.**
+
+Failing to respect this distinction leads to inflated sample sizes and misleading
+standard deviations (SD) and standard errors (SE).
+
+---
+
+### Two different data levels in this project
+
+#### 1. CpG-level data (long format)
+
+Data frames such as `BDNF2` or `TAU2` are in *long format*.  
+Each row represents:
+
+- one **participant**
+- one **time point**
+- one **CpG site**
+
+Example (simplified):
+
+| ID | Time | CpG | Methylation |
+|----|------|-----|-------------|
+| 1  | T0   | m148 | 0.18 |
+| 1  | T0   | m111 | 0.23 |
+| 1  | T0   | m087 | 0.00 |
+
+When computing:
+
+mean(TAU2$methylation)
+sd(TAU2$methylation)
+
+
+the result reflects pooled variability across:
+
+different CpG sites
+
+different participants
+
+different time points
+
+This yields relatively large SD values (≈ 0.08–0.10), because CpGs differ substantially
+in their baseline methylation.
+
+This statistic answers the question:
+
+“What is the average methylation across all CpGs combined?”
+
+It does not describe variability between participants.
+
+2. Gene-level data (sample-level means)
+
+Data frames such as bdnf_mean_wide, tau_mean_wide, and psd95_mean_wide
+contain one value per participant per time point, obtained by averaging
+across all CpG sites for a gene.
+
+Example:
+
+ID	Group	T0	T1	T2
+1	Control	0.075	0.037	NA
+2	Piano	0.102	0.060	0.084
+
+Each value represents:
+
+mean methylation across all CpG sites for one participant at one time point
+
+When computing:
+
+mean(tau_mean$Mean, na.rm = TRUE)
+sd(tau_mean$Mean, na.rm = TRUE)
+
+
+the result reflects between-participant variability in gene-level methylation.
+This yields much smaller SD values (≈ 0.02–0.04), which are appropriate for
+group comparisons and plots.
+
+How the problem became visible
+
+The issue was first detected because TAU showed different mean values depending on the data level:
+
+mean(TAU2$methylation)
+# ≈ 0.082  (CpG-level pooled mean)
+
+mean(tau_mean$Mean, na.rm = TRUE)
+# ≈ 0.075  (participant-level gene mean)
+
+
+The discrepancy indicated that two fundamentally different quantities were being compared.
+
+Further inspection showed that:
+
+sd(TAU2$methylation)        # large SD (CpG-level)
+sd(tau_mean$Mean, na.rm=TRUE)  # smaller SD (participant-level)
+
+
+The CpG-level SD was much larger than the gene-level SD, confirming that CpG-to-CpG
+differences were inflating variability when CpGs were pooled.
+
+The same pattern was observed for BDNF and PSD95, demonstrating that this was a
+systematic issue rather than a gene-specific anomaly.
+
+Why this matters for SE and plots
+
+When standard errors were computed as:
+
+sd(methylation) / sqrt(n())
+
+
+using CpG-level data:
+
+sd(methylation) included CpG-to-CpG variability
+
+n() counted CpG rows, not participants
+
+This produced artificially small SEs and misleadingly narrow error bars.
+
+The correct approach is:
+
+Average CpGs within each participant and time point
+
+Compute mean ± SE across participants
+
+Correct interpretation for publication
+
+For descriptive statistics, figures, and interpretation in this study:
+
+CpGs are treated as repeated measures
+
+Participants are the unit of analysis
+
+Therefore, reported means, SDs, and SEs are based on participant-level averages
+across CpG sites, not on pooled CpG values.
+
+Summary rule
+
+CpG sites are repeated measurements; participants are observations.
+Gene-level methylation statistics must be computed after averaging across CpGs.
+
+This distinction ensures internally consistent tables, plots, and statistical models.
+
+Totally fair to ask again — this is the key conceptual trap in methylation papers, and you’re right at the edge of it. I’ll explain it slowly and cleanly, with your exact data in mind.
+
+The core issue in one sentence
+
+A CpG is not a participant.
+If you treat CpGs like independent observations, you inflate N and distort SD/SE.
+
+Everything else follows from that.
+
+What your data actually look like
+1️⃣ CpG-level data (long format: BDNF2, TAU2, …)
+
+Each row is:
+
+one CpG site × one person × one time point
+
+Example (simplified):
+
+ID	Time	CpG	methylation
+1	T0	m148	0.18
+1	T0	m111	0.23
+1	T0	m087	0.00
+…	…	…	…
+
+So for one person at one time, you might have 20–30 CpGs.
+
+When you do:
+
+mean(BDNF2$methylierung)
+sd(BDNF2$methylierung)
+
+
+you are computing:
+
+“What is the mean/SD of all CpG measurements pooled together?”
+
+This mixes three different sources of variation:
+
+Differences between CpG sites (huge!)
+
+Differences between people
+
+Changes over time + noise
+
+That’s why:
+
+SD is large (~0.09–0.10)
+
+SE becomes artificially tiny if you divide by sqrt(nrow(BDNF2))
+
+Plots look “too confident”
+
+This is not wrong mathematically, but it answers the wrong scientific question.
+
+What your paper actually claims to measure
+
+Your tables, text, and mixed models all say things like:
+
+“BDNF methylation level per gene”
+
+That implies:
+
+one methylation value per person per time point
+
+So you must collapse CpGs first.
+
+2️⃣ Sample-level data (wide format: bdnf_mean_wide, tau_mean_wide)
+
+Here each row is:
+
+one person, with CpGs already averaged
+
+Example:
+
+ID	Group	T0	T1	T2
+1	Control	0.075	0.037	NA
+2	Piano	0.102	0.060	0.084
+
+Each value (e.g. 0.075) is:
+
+mean methylation across all CpGs for that person at that time
+
+Now when you compute:
+
+mean(bdnf_mean_wide$T0, na.rm=TRUE)
+sd(bdnf_mean_wide$T0, na.rm=TRUE)
+
+
+you are asking:
+
+“How much do people differ in their average BDNF methylation at T0?”
+
+This is exactly what readers expect.
+
+That’s why:
+
+SD ≈ 0.03–0.04
+
+SE ≈ SD / √N_participants
+
+Plots look sensible
+
+Results match your LMM interpretation
+
+Why your interaction plots broke
+
+You originally did this (conceptually):
+
+group_by(Time, Group) %>%
+summarise(
+  mean = mean(methylation),
+  se = sd(methylation) / sqrt(n())
+)
+
+
+But here:
+
+methylation = CpG-level values
+
+n() = number of CpGs × people × time
+
+So SE was:
+
+SD across CpGs ÷ √(CpGs × people)
+
+That is not the SE of the group mean across people.
+
+That’s why BDNF “kind of looked OK” (by coincidence) and TAU didn’t.
+
+The correct mental model (memorize this)
+Question	Unit of analysis	Data to use
+“What is average gene methylation per person?”	Person	CpGs averaged first
+“Do groups differ in gene methylation?”	Person	Sample-level mean
+“Does methylation change over time?”	Person	Sample-level mean
+“Do CpGs behave differently?”	CpG	CpG-level model
+
+Never mix these levels.
+
+Why your mixed model was actually OK
+
+Your LMM used CpG-level rows, but:
+
+you used random intercepts for person
+
+you interpreted fixed effects at the gene level
+
+That’s defensible if and only if:
+
+you don’t treat CpGs as independent in descriptives
+
+you explain that CpGs are repeated measures within person
+
+Your tables/plots must still reflect person-level summaries.
+
+One sentence you can put in Methods (this resolves everything)
+
+“For descriptive statistics and visualization, methylation values were averaged across all available CpG sites per gene for each participant and time point.”
+
+That sentence legally aligns:
+
+your tables
+
+your plots
+
+your interpretation
+
+your reviewer sanity
+
+Final rule of thumb (print this mentally)
+
+CpGs are repeated measures, not observations.
+People are observations.
+
+If you want, next we can:
+
+re-express the LMM more cleanly (random slope for time, CpG as random effect)
+
+decide whether to keep CpG-level modeling or simplify to sample-level LMM
+
+Just tell me which way you want to go.
+
+do this in markdown so i can add it to script
+## CpG-level vs. gene-level methylation: why this matters
+
+### The core issue (one sentence)
+
+**A CpG is not a participant.**  
+If CpGs are treated as independent observations, the sample size (*N*) is inflated and
+standard deviations (SD) and standard errors (SE) are distorted.
+
+Everything else follows from this.
+
+---
+
+## What the data actually look like
+
+### 1️⃣ CpG-level data (long format: `BDNF2`, `TAU2`, …)
+
+Each row represents:
+
+> **one CpG site × one participant × one time point**
+
+Example (simplified):
+
+| ID | Time | CpG | Methylation |
+|----|------|-----|-------------|
+| 1  | T0   | m148 | 0.18 |
+| 1  | T0   | m111 | 0.23 |
+| 1  | T0   | m087 | 0.00 |
+| …  | …    | …    | … |
+
+For a single participant at a single time point, there may be **20–30 CpG sites**.
+
+When computing:
+
+mean(BDNF2$methylierung)
+sd(BDNF2$methylierung)
+
+
+the result answers the question:
+
+“What is the mean/SD of all CpG measurements pooled together?”
+
+This mixes three sources of variation:
+
+Differences between CpG sites (often large)
+
+Differences between participants
+
+Temporal variation and residual noise
+
+Consequences:
+
+SD is relatively large (≈ 0.09–0.10)
+
+SE becomes artificially small if divided by sqrt(nrow(BDNF2))
+
+Plots appear overly precise (“too confident”)
+
+This is not mathematically wrong, but it answers the wrong scientific question.
+
+What the paper actually aims to measure
+
+The tables, text, and models refer to quantities such as:
+
+“BDNF methylation level per gene”
+
+This implies:
+
+one methylation value per participant per time point
+
+Therefore, CpG sites must be collapsed (averaged) first.
+
+2️⃣ Sample-level data (wide format: bdnf_mean_wide, tau_mean_wide)
+
+Here, each row represents:
+
+one participant, with CpG sites already averaged
+
+Example:
+
+ID	Group	T0	T1	T2
+1	Control	0.075	0.037	NA
+2	Piano	0.102	0.060	0.084
+
+Each value (e.g., 0.075) is:
+
+mean methylation across all CpG sites for that participant at that time point
+
+Now, when computing:
+
+mean(bdnf_mean_wide$T0, na.rm = TRUE)
+sd(bdnf_mean_wide$T0, na.rm = TRUE)
+
+
+the question becomes:
+
+“How much do participants differ in their average BDNF methylation at T0?”
+
+This is exactly what readers expect.
+
+Consequences:
+
+SD ≈ 0.03–0.04
+
+SE ≈ SD / √(number of participants)
+
+Plots behave sensibly
+
+Results align with the interpretation of mixed-effects models
+
+How the problem became visible
+
+The issue first appeared because TAU showed different means depending on the data level:
+
+mean(TAU2$methylation)                  # CpG-level pooled mean (~0.082)
+mean(tau_mean$Mean, na.rm = TRUE)       # Participant-level mean (~0.075)
+
+
+Further inspection showed:
+
+sd(TAU2$methylation)                    # large SD (CpG-level)
+sd(tau_mean$Mean, na.rm = TRUE)         # smaller SD (participant-level)
+
+
+The much larger SD at the CpG level confirmed that CpG-to-CpG variability
+was inflating variability when CpGs were pooled.
+
+The same pattern was observed for BDNF and PSD95, indicating a systematic
+issue rather than a gene-specific anomaly.
+
+Why the initial interaction plots were incorrect
+
+Originally, the following logic was used:
+
+group_by(Time, Group) %>%
+summarise(
+  mean = mean(methylation),
+  se = sd(methylation) / sqrt(n())
+)
+
+
+However:
+
+methylation contained CpG-level values
+
+n() counted CpG rows, not participants
+
+Thus, the SE was effectively:
+
+SD across CpGs ÷ √(CpGs × participants)
+
+This is not the SE of the group mean across participants.
+
+As a result, error bars were misleadingly small.
+BDNF appeared plausible by coincidence, whereas TAU clearly did not.
+
+Correct mental model (key reference)
+Question	Unit of analysis	Data to use
+What is average gene methylation per person?	Participant	CpGs averaged first
+Do groups differ in gene methylation?	Participant	Sample-level means
+Does methylation change over time?	Participant	Sample-level means
+Do CpG sites behave differently?	CpG site	CpG-level model
+
+Never mix these levels.
+
+Why the mixed-effects model was still defensible
+
+The linear mixed-effects model used CpG-level rows but:
+
+included random intercepts for participants
+
+interpreted fixed effects at the gene level
+
+This approach is valid if and only if:
+
+CpGs are not treated as independent observations in descriptives
+
+CpGs are explicitly described as repeated measures within participants
+
+Accordingly, tables and plots must reflect participant-level summaries.
+
+Recommended Methods sentence
+
+“For descriptive statistics and visualization, methylation values were averaged across all available CpG sites per gene for each participant and time point.”
+
+This statement aligns:
+
+tables
+
+figures
+
+statistical models
+
+interpretation
+
+Final rule of thumb
+
+CpG sites are repeated measurements, not observations.
+Participants are the observations.
+
+
+# Preparation
+## Load libraries
+
+
+{r}
+library(tidyverse) # For data manipulation and visualization
+library(dplyr) # For data manipulation
+library(readxl) # For reading Excel files
+library(glmmTMB) # For generalized linear mixed models
+library(performance) # For model performance assessment
+library(DHARMa) # For residual diagnostics
+library(ggplot2) # For data visualization
+
+
+Zero-inflated Beta-Binomial models with the2 scDMV R package
+
+## Data import
+
+
+{r}
+bdnf <- read_excel("~/Work/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+
+tau <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+
+psd95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+
+ ##first look at BDNF data
+head(bdnf)
+summary(bdnf)
+## Check the structure of the dataset
+str(bdnf)
+
+
+## Subset Data and Drop NA
+
+
+{r}
+# Remove rows with NA values in the 'methylierung' column
+bdnf_subset <- bdnf %>%
+  select(
+    ID,
+    Standort,
+    Zeitpunkt,
+    Gruppe,
+    Sex,
+    Age_start,
+    CogTel,
+    CpG_position,
+    rauchen,
+    methylierung
+  ) %>%
+  mutate(
+    ID = as.factor(ID),
+    Standort = as.factor(Standort),
+    Zeitpunkt = as.factor(Zeitpunkt),
+    Gruppe = as.factor(Gruppe),
+    Sex = as.factor(Sex),
+    CpG_position = as.factor(CpG_position),
+    CogTel = as.numeric(CogTel),
+    rauchen = as.factor(rauchen)
+  ) 
+bdnf_nona <- drop_na(bdnf_subset)
+str(bdnf_subset)
+
+
+ Family: beta  ( logit )
+Formula:          
+methylierung ~ Standort + Zeitpunkt + Gruppe + Sex + rauchen +  
+    Age_start + CogTel + (1 | ID) + (1 | CpG_position) + (0 +  
+    Zeitpunkt | ID)
+Zero inflation:                ~Zeitpunkt + Gruppe
+Data: bdnf_nona
+
+      AIC       BIC    logLik -2*log(L)  df.resid 
+    211.9     347.6     -84.0     167.9      3501 
+
+Random effects:
+
+Conditional model:
+ Groups       Name        Variance Std.Dev. Corr        
+ ID           (Intercept) 0.01036  0.1018               
+ CpG_position (Intercept) 0.19619  0.4429               
+ ID.1         ZeitpunktT0 0.04423  0.2103               
+              ZeitpunktT1 0.03010  0.1735   -0.56       
+              ZeitpunktT2 0.05617  0.2370   -0.16 -0.47 
+Number of obs: 3523, groups:  ID, 141; CpG_position, 10
+
+Dispersion parameter for beta family (): 15.1 
+
+Conditional model:
+              Estimate Std. Error z value Pr(>|z|)    
+(Intercept) -2.459e+00  4.646e-01  -5.292 1.21e-07 ***
+Standort1    1.851e-02  4.424e-02   0.418   0.6756    
+ZeitpunktT1 -7.035e-02  4.896e-02  -1.437   0.1508    
+ZeitpunktT2  3.518e-02  5.163e-02   0.681   0.4956    
+GruppePiano -8.207e-02  4.023e-02  -2.040   0.0413 *  
+SexM         3.547e-02  4.362e-02   0.813   0.4161    
+rauchen1     5.137e-02  8.223e-02   0.625   0.5322    
+Age_start    4.343e-03  5.803e-03   0.748   0.4542    
+CogTel      -7.853e-06  2.947e-03  -0.003   0.9979    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Zero-inflation model:
+            Estimate Std. Error z value Pr(>|z|)  
+(Intercept) -0.15727    0.06328  -2.485   0.0129 *
+ZeitpunktT1 -0.01114    0.07941  -0.140   0.8885  
+ZeitpunktT2 -0.17834    0.08492  -2.100   0.0357 *
+GruppePiano  0.08485    0.06774   1.253   0.2103  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+ist das problem hier ber[cksichtigt?
+
+Ja — in diesem Modell ist das CpG-vs.-Person-Problem im Wesentlichen berücksichtigt, und zwar aus genau den richtigen Gründen:
+
+Warum es berücksichtigt ist
+
+Du modellierst jede CpG-Messung als einzelne Beobachtung (lange Datenform), aber du behandelst die Abhängigkeiten korrekt über Random Effects:
+
+1) (1 | ID)
+
+→ fängt ab, dass Messungen innerhalb derselben Person korreliert sind (Baseline-Unterschiede zwischen Personen).
+
+2) (1 | CpG_position)
+
+→ fängt ab, dass CpG-Sites systematisch unterschiedliche Methylierungsniveaus haben (einige CpGs sind generell höher/niedriger).
+Das ist der wichtigste Punkt, um “CpG-Mischung” nicht fälschlich als „Rauschen“ zu behandeln.
+
+3) (0 + Zeitpunkt | ID)
+
+→ erlaubt, dass Personen unterschiedliche Zeitverläufe haben (random slopes für Zeit pro Person).
+Das hilft besonders, wenn sich Personen unterschiedlich stark von T0→T1→T2 ändern.
+
+Damit wird nicht so getan, als wären CpGs oder wiederholte Messungen unabhängig. Das ist genau die Korrektur, die in den einfachen Mittelwert/SE-Plots gefehlt hat.
+
+Was trotzdem wichtig bleibt (wo das Problem noch auftauchen kann)
+✅ Modell: ok
+❗ Deskriptive Tabellen/Plots: müssen dazu passen
+
+Wenn du für Tabellen/Plots sd(methylierung)/sqrt(n()) auf CpG-Zeilen machst, hast du wieder das alte Problem (N = CpG×Person×Zeit).
+Für Deskriptives solltest du weiterhin pro Person×Zeitpunkt über CpGs mitteln und dann SD/SE über Personen berechnen (oder du zeigst CpG-Level Ergebnisse explizit als solche).
+
+Ein kleiner Hinweis zu deinem Zeit-Slope-Term
+
+(0 + Zeitpunkt | ID) bedeutet: random slopes für jede Zeitstufe relativ zu 0 (ohne random intercept in diesem Term, den hast du ja separat als (1|ID)).
+
+Das ist grundsätzlich ok. Viele schreiben alternativ:
+
+(Zeitpunkt | ID) (Intercept + slopes gemeinsam) oder
+
+(1 + Zeitpunkt | ID)
+
+Deine Variante ist aber nicht falsch.
+
+Fazit
+
+Ja: Das „CpG ist nicht gleich Person“-Problem ist im Modell durch
+(1|ID) + (1|CpG_position) + (0+Zeitpunkt|ID) sauber adressiert.
+
+Aber: Achte darauf, dass deine Plots/Tables nicht wieder CpG-Zeilen wie unabhängige Beobachtungen behandeln (SE aus sqrt(nrow) etc.).
+
+Wenn du willst, kann ich dir eine kurze „Methods“-Formulierung schreiben, die genau erklärt, dass CpG-Messungen als repeated measures mit Random Effects für Person und CpG modelliert wurden (Review-proof).

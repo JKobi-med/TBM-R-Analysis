@@ -1,5 +1,5 @@
 ---
-title: TBM impact on methylation of neuroplasticity-associated genes (BDNF, Tau, PSD95)
+title: How training the brain with music affects neuroplasticity-associated genes (BDNF, Tau, PSD95) epigenetically
 author:
   - name:
       given: "Jonas Janik Ralf"
@@ -126,9 +126,12 @@ To make music
 
 ## Study design
 
+In this activly controlled, randomzied, open- label
+CGPT: In this two-site, longitudinal, randomized, single-blind intervention study, retired healthy older adults received weekly piano training (intervention) or active music sensitization (active control) for 12 months to assess cognitive, perceptual-motor, and brain plasticity outcomes.
 @jamesTrainBrainMusic2020a
 
-piano group and active control group
+piano group, that was activly learning the piano by ...
+Active control group that was only 
 
 Blood samples were taken at three different time points. The first (T0) one week before the weekly cycle of practical or theoretical music lessons were started. The second (T1) after 6 months and the third (T2) again after 6 months so one year after T0.
 
@@ -166,7 +169,7 @@ With Ensembl and Geneious Pro 5.6.7 the primer regions of our target genes were 
 |-----------|-------------------------|-----------------------------------|
 | **BDNF**  | BDNF_fwd1_18            | 5′-GGGGGAGGATTAATTGAGTTAGTTTTG-3′ |
 | **BDNF**  | BDNF_rev_20             | 5′-ATATATACTCCTTCTATTCTACAACAA-3′ |
-| **BDNF**  | BDNF_fwd2_19            | 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′    |
+ **BDNF**  | BDNF_fwd2_19            | 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′    |
 | **BDNF**  | BDNF_rev_20             | 5′-ATATATACTCCTTCTATTCTACAACAA-3′ |
 | **PSD95** | 1341_PSD95_Fw_a         | 5′-TGGGAATTTGATTTGTTTAGA-3′       |
 | **PSD95** | 1342_PDS95_Fw_i         | 5′-AGAGTTAGTTGGGAAAAGAGA-3′       |
@@ -249,6 +252,8 @@ Furthermore, not every blood sample could be analyzed successfully (cf. @tbl-met
 But in the end, a total of 359 BDNF, 362 Tau and 357 PSD95 samples could be successfully sequenced.
 This is the reason for the slight difference between genes. 
 
+Two further Participants had to be excluded from the analysis, because somehow their methylationvalues for timepoints conflated, so they could not be differentiated anymore.
+
 | Characteristic | Piano | Control | Overall |
 |---|---:|---:|---:|
 | BDNF samples at T0 (n) | 65 | 75 | 140 |
@@ -284,23 +289,22 @@ This is the reason for the slight difference between genes.
 
 #### Overall  and over time {#sec-results-methylation-overall}
 
-Overall the methlation of the 3 genes is low (Mean \< 0,08, Median \< 0,04).
-PSD95 has the lowest methylation values.
+Overall the methlation of the three genes was low (Mean \< 0,08, Median \< 0,04).
+PSD95 had the lowest methylation values.
 
 
 {{< embed notebooks/eda.qmd#fig-boxplots-genes >}}
 
 #### Per CpG and Gene {#sec-results-methylation-cpg-gene}
-Bei Tau sind die CpGs promoterfern mehr meyhtliert - bei PSD95 umgekehrt (*Boxplots mit CpG-Methylierung der Gene!*)
 
 Looking at the methlation patterns of every CpG per gene (@fig-boxplots-cpg-all),
-Tau showed a methylation pattern, that was largely limited to upstream region of the promoter, whereas further downstream CpGs were rarely methylated across individuals. 
+Tau showed a methylation pattern, that was largely limited to upstream region of the promoter, whereas further downstream CpGs were rarely methylated across individuals.
 In contrast, for PSD95, CpGs near the end of the promoter region showed notable methylation patterns, while most other sites where mostly none-methylated with little or no inter-individual variability.
 For BDNF, a comparably localized pattern was less pronounced but further downsstream the CpGs were also less methylated.
 
 {{< embed notebooks/eda.qmd#fig-boxplots-cpg-all >}}
 
-## Principal component analysis (PCA) {#sec-results-pca}
+# Principal component analysis (PCA) {#sec-results-pca}
 
 We performed principal component analyses (PCA) separately for each gene, using the correlation matrix.
 Across genes, the first two principal components explained only a moderate proportion of total variance (BDNF: PC1 28.81%, PC2 16.84%; Tau: PC1 29.02%, PC2 9.22%; PSD95: PC1 17.10%, PC2 11.61%).
@@ -322,7 +326,60 @@ These observations motivated stratifying subsequent analyses by considering (i) 
 
 ## Methylation differences {#sec-results-methylation-differences}
 
-### Group differences
+### All CpG-sites
+
+#### Overall methylation levels
+
+| Marker | Mean ± SD |
+|--------|-----------|
+| BDNF | 0.070 ± 0.034 |
+| Tau | 0.075 ± 0.020 |
+| PSD95 | 0.031 ± 0.014 |
+: Mean methylation levels per gene {#tbl-mean-methylation-overall}
+
+| Gene | Group | N | Mean ± SD |
+|------|-------|---:|-----------|
+| BDNF | Controll | 183 | 0.073 ± 0.034 |
+| BDNF | Piano | 176 | 0.066 ± 0.033 |
+| PSD95 | Controll | 179 | 0.031 ± 0.014 |
+| PSD95 | Piano | 178 | 0.030 ± 0.013 |
+| Tau | Controll | 182 | 0.075 ± 0.020 |
+| Tau | Piano | 180 | 0.075 ± 0.020 |
+: Mean methylation levels per gene and group {#tbl-mean-methylation-group}
+
+
+#### Time difference overall
+
+| Marker | Time | Mean ± SD |
+|--------|------|-----------|
+| BDNF   | T0   | 0.070 ± 0.033 |
+| BDNF   | T1   | 0.062 ± 0.029 |
+| BDNF   | T2   | 0.079 ± 0.037 |
+| Tau    | T0   | 0.073 ± 0.020 |
+| Tau    | T1   | 0.076 ± 0.020 |
+| Tau    | T2   | 0.076 ± 0.019 |
+| PSD95  | T0   | 0.030 ± 0.016 |
+| PSD95  | T1   | 0.032 ± 0.013 |
+| PSD95  | T2   | 0.031 ± 0.010 |
+: Mean methylation levels per gene and time point {#tbl-mean-methylation-time}
+
+##### BDNF
+BDNF showed a decrease in methylation from T0 (0,07 ± 0,03) to T1 (0.062 ± 0.029), followed by an increase at T2 (0.079 ± 0.037) surpassing the initial levels at T0.
+
+
+
+##### Tau
+Tau exhibited a slight increase in methylation from T0 to T1, which remained stable at T2.
+
+##### PSD95
+-   Bei PSD95 verbleibt der Median der Methylierung gleichbleibend bei 0, während das arithmetische Mittel der Methylierung von T0 zu T1 steigt aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
+
+
+PSD95 maintained a consistent median methylation level of 0, while the mean methylation increased from T0 to T1 but returned to baseline levels at T2.
+
+{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-no-group >}} 
+
+#### Time difference per group
 
 Our main goal we aimed to determine whether the degree of methylation differed between the intervention (piano lessons) and control groups.
 
@@ -330,17 +387,11 @@ Our main goal we aimed to determine whether the degree of methylation differed b
 -   Weiterhin zeigen sich für die arithmetischen Mittel von BDNF und PSD95 zwei Modi.
 -   Tau war unimodal.
 
-### Time differences
 
--   Bei BDNF zeigt sich, dass sich die Mittelwerte (Arithmetisch und Median) von T0 zu T1 leicht absenken und zu T2 wieder über das Niveau von T0 ansteigen.
--   Bei Tau steigt das arithmetische Mittel der Methylierung leicht von T0 zu T1 und hält das Niveau bei T2.
--   Bei PSD95 verbleibt der Median der Methylierung gleichbleibend bei 0, während das arithmetische Mittel der Methylierung von T0 zu T1 steigt aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
 
-### Plots with all CpGs
+{{< embed notebooks/eda.qmd#fig-interactions-by-gene-mean >}}
 
-{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-no-group >}} {{< embed notebooks/plots-time-methylation.qmd#fig-interactions-by-gene >}}
-
-### Plots with only reduced CpGs
+### Filtered CpG-sites
 
 according to @sec-results-pca we also filtered for the high variance CpGs.
 
@@ -367,7 +418,8 @@ The null hypothesis of our study was that playing the piano has no effect on the
 
 ## Ethics approval and consent to participate
 
-The study protocol was reviewed and approved by the Hannover Medical School ethics committee (approval number 3604-2017). All study participants gave their written informed consent to participate in the study.
+The study protocol was reviewed and approved by the Hannover Medical School ethics committee (approval number 3604-2017).
+All study participants gave their written informed consent to participate in the study.
 
 ## Consent for publication
 
@@ -383,15 +435,39 @@ The authors have no competing interests to declare.
 
 ## Funding
 
-This work was funded by the Swiss National Science Foundation (grant no. 100019E-170410 to Clara E. James) and the German Research Foundation (grant no. 323965454 to Eckart Altenmüller). Financial support in Switzerland was also provided by the Med. Kurt Fries Foundation, the Dalle Molle Foundation, and the Edith Maryon Foundation (to Clara E. James).
+This work was funded by the Swiss National Science Foundation (grant no. 100019E-170410 to Clara E. James) and the German Research Foundation (grant no. 323965454 to Eckart Altenmüller).
+Financial support in Switzerland was also provided by the Med. Kurt Fries Foundation, the Dalle Molle Foundation, and the Edith Maryon Foundation (to Clara E. James).
 
 ## Author Contributions
 
-Conceptualization: T.H.C.K. Methodology: K.Jü., C.S., S.C., K.Ja., J.K. Software: S.C., C.S., K.Jü., K.Ja., J.K. Formal Analysis: S.C., K.Ja., C.S. Investigation: S.C., C.B., K.Jü. Resources: T.H.C.K., C.B., S.B., H.F. Writing – original draft preparation: J.K. Writing – review and editing: S.C., C.S., K. Jü., H.F., S.B., C. B., T.H.C.K. Visualization, K.Ja., J.K. Supervision, T.H.C.K., C.B., H.F., S.B. All authors have read and agreed to the published version of the manuscript.
+Conceptualization: T.H.C.K.
+
+Methodology: K.Jü., C.S., S.C., K.Ja., J.K.
+
+Software: S.C., C.S., K.Jü., K.Ja., J.K.
+
+Formal Analysis: S.C., K.Ja., C.S.
+
+Investigation: S.C., C.B., K.Jü.
+
+Resources: T.H.C.K., C.B., S.B., H.F.
+
+Writing – original draft preparation: J.K.
+
+Writing – review and editing: S.C., C.S., K. Jü., H.F., S.B., C. B., T.H.C.K.
+
+Visualization, K.Ja., J.K.
+
+Supervision, T.H.C.K., C.B., H.F., S.B.
+
+All authors have read and agreed to the published version of the manuscript.
 
 ## Use of AI tools
 
-ChatGPT (OpenAI) was used to aid in draft preparation (particularly language and style), development of R code and summarizing/clarifying statistical output for reporting. All analyses, interpretations, and manuscript text were reviewed and verified by the authors. The first author takes full responsibilty for the accuracy and integrity of the work.
+ChatGPT (OpenAI) used to aid in draft preparation (particularly language and style), development of R code and summarizing/clarifying statistical output for reporting.
+All analyses, interpretations, and manuscript text were reviewed and verified by the authors.
+Also the Github Copilot was used to aid in R code development and writing the manuscript.
+The first author takes full responsibilty for the accuracy and integrity of the work.
 
 ## Acknowledgement
 

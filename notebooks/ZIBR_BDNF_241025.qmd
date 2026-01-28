@@ -166,6 +166,58 @@ summary(bdnf_glmm)
 #preds <- predict(mod, type="response")
 #range(preds)
 ```
+
+a — in diesem Modell ist das CpG-vs.-Person-Problem im Wesentlichen berücksichtigt, und zwar aus genau den richtigen Gründen:
+
+Warum es berücksichtigt ist
+
+Du modellierst jede CpG-Messung als einzelne Beobachtung (lange Datenform), aber du behandelst die Abhängigkeiten korrekt über Random Effects:
+
+1) (1 | ID)
+
+→ fängt ab, dass Messungen innerhalb derselben Person korreliert sind (Baseline-Unterschiede zwischen Personen).
+
+2) (1 | CpG_position)
+
+→ fängt ab, dass CpG-Sites systematisch unterschiedliche Methylierungsniveaus haben (einige CpGs sind generell höher/niedriger).
+Das ist der wichtigste Punkt, um “CpG-Mischung” nicht fälschlich als „Rauschen“ zu behandeln.
+
+3) (0 + Zeitpunkt | ID)
+
+→ erlaubt, dass Personen unterschiedliche Zeitverläufe haben (random slopes für Zeit pro Person).
+Das hilft besonders, wenn sich Personen unterschiedlich stark von T0→T1→T2 ändern.
+
+Damit wird nicht so getan, als wären CpGs oder wiederholte Messungen unabhängig. Das ist genau die Korrektur, die in den einfachen Mittelwert/SE-Plots gefehlt hat.
+
+Was trotzdem wichtig bleibt (wo das Problem noch auftauchen kann)
+✅ Modell: ok
+❗ Deskriptive Tabellen/Plots: müssen dazu passen
+
+Wenn du für Tabellen/Plots sd(methylierung)/sqrt(n()) auf CpG-Zeilen machst, hast du wieder das alte Problem (N = CpG×Person×Zeit).
+Für Deskriptives solltest du weiterhin pro Person×Zeitpunkt über CpGs mitteln und dann SD/SE über Personen berechnen (oder du zeigst CpG-Level Ergebnisse explizit als solche).
+
+Ein kleiner Hinweis zu deinem Zeit-Slope-Term
+
+(0 + Zeitpunkt | ID) bedeutet: random slopes für jede Zeitstufe relativ zu 0 (ohne random intercept in diesem Term, den hast du ja separat als (1|ID)).
+
+Das ist grundsätzlich ok. Viele schreiben alternativ:
+
+(Zeitpunkt | ID) (Intercept + slopes gemeinsam) oder
+
+(1 + Zeitpunkt | ID)
+
+Deine Variante ist aber nicht falsch.
+
+Fazit
+
+Ja: Das „CpG ist nicht gleich Person“-Problem ist im Modell durch
+(1|ID) + (1|CpG_position) + (0+Zeitpunkt|ID) sauber adressiert.
+
+Aber: Achte darauf, dass deine Plots/Tables nicht wieder CpG-Zeilen wie unabhängige Beobachtungen behandeln (SE aus sqrt(nrow) etc.).
+
+Wenn du willst, kann ich dir eine kurze „Methods“-Formulierung schreiben, die genau erklärt, dass CpG-Messungen als repeated measures mit Random Effects für Person und CpG modelliert wurden (Review-proof).
+
+
 ```{r}
 library(DHARMa)
 sim <- simulateResiduals(bdnf_glmm, n = 2000)
