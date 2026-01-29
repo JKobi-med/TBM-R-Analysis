@@ -377,7 +377,7 @@ Tau exhibited a slight increase in methylation from T0 to T1, which remained sta
 
 PSD95 maintained a consistent median methylation level of 0, while the mean methylation increased from T0 to T1 but returned to baseline levels at T2.
 
-{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-no-group >}} 
+{{< embed notebooks/eda.qmd#fig-interactions-no-group-with-significance >}} 
 
 #### Time difference per group
 
@@ -389,7 +389,7 @@ Our main goal we aimed to determine whether the degree of methylation differed b
 
 
 
-{{< embed notebooks/eda.qmd#fig-interactions-by-gene-mean >}}
+{{< embed notebooks/eda.qmd#fig-interactions-by-gene-mean-with-significance >}}
 
 ### Filtered CpG-sites
 
@@ -397,11 +397,11 @@ according to @sec-results-pca we also filtered for the high variance CpGs.
 
 #### Time
 
-{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-no-group-filtered-genes >}}
+{{< embed notebooks/postpca_data_manipulation_201025.qmd#fig-interactions-no-group-by-filtered-cpg-with-significance >}}
 
 #### Group
 
-{{< embed notebooks/plots-time-methylation.qmd#fig-interactions-by-filtered-gene >}}
+{{< embed notebooks/postpca_data_manipulation_201025.qmd#fig-interactions-by-group-filtered-cpg-with-significance >}}
 
 ## Models (LM, GLM, ZIBR) {#sec-results-models}
 

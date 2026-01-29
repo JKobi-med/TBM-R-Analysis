@@ -2,6 +2,7 @@
 title: "Exploratory Data Analysis"
 author: "Jonas J.R. Koberschinski"
 date: "14-11-2024"
+last_modified: "2026-01-29"
 output: html
 ---
 
@@ -631,9 +632,9 @@ for (r in genes) {
 
 ```
 
-## Summary Statistics
+## Summary Statistics be
 
-###
+### 
 
 ```{r}
 tab <- data.frame(
@@ -659,6 +660,150 @@ cat("|--------|-----------|\n")
 apply(tab, 1, function(r) cat(sprintf("| %s | %s |\n", r[1], r[2])))
 ```
 
+## Plots
+
+### Interaction Plots by Gene (mean across CpGs)
+
+```{r}
+#| label: fig-interactions-no-group
+#| fig-cap: "Methylation levels (mean ± SE) across time points collapsed across groups for BDNF, Tau, and PSD95."
+#| fig-width: 8
+#| fig-height: 10
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+
+make_nogroup_plot <- function(df_wide, title,
+                              ylab = "Mean methylation (mean across CpGs)") {
+
+  df_long <- df_wide %>%
+    pivot_longer(cols = c(T0, T1, T2),
+                 names_to = "Zeitpunkt",
+                 values_to = "Mean") %>%
+    mutate(Zeitpunkt = factor(Zeitpunkt, levels = c("T0","T1","T2")))
+
+  sum0 <- df_long %>%
+    group_by(Zeitpunkt) %>%
+    summarise(
+      n = sum(!is.na(Mean)),
+      mean = mean(Mean, na.rm = TRUE),
+      se   = sd(Mean, na.rm = TRUE) / sqrt(n),
+      .groups = "drop"
+    )
+
+  ggplot(sum0, aes(x = Zeitpunkt, y = mean, group = 1)) +
+    geom_line() +
+    geom_point() +
+    geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
+    theme_classic() +
+    labs(title = title, x = "Time Point", y = ylab,
+         caption = "Points show mean across participants; error bars are ±SE.")
+}
+
+p_bdnf0  <- make_nogroup_plot(bdnf_mean_wide,  title = "BDNF")
+p_tau0   <- make_nogroup_plot(tau_mean_wide,   title = "Tau")
+p_psd950 <- make_nogroup_plot(psd95_mean_wide, title = "PSD95")
+
+(p_bdnf0 / p_tau0 / p_psd950)
+```
+
+```{r}
+#| label: fig-interactions-no-group-with-significance
+#| fig-cap: "Methylation levels (mean ± SE) across time points collapsed across groups for BDNF, Tau, and PSD95. Brackets show pairwise timepoint contrasts (mixed model: Mean ~ Zeitpunkt + (1|ID))."
+#| fig-width: 8
+#| fig-height: 10
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+library(lme4)
+library(emmeans)
+library(ggsignif)
+
+p_to_star <- function(p){
+  ifelse(is.na(p), "NA",
+  ifelse(p < 0.001, "***",
+  ifelse(p < 0.01,  "**",
+  ifelse(p < 0.05,  "*", "ns"))))
+}
+
+make_nogroup_plot <- function(df_wide, title,
+                              ylab = "Mean methylation (mean across CpGs)") {
+
+  df_long <- df_wide %>%
+    pivot_longer(cols = c(T0, T1, T2),
+                 names_to = "Zeitpunkt",
+                 values_to = "Mean") %>%
+    mutate(
+      Zeitpunkt = factor(Zeitpunkt, levels = c("T0","T1","T2")),
+      ID = factor(ID)
+    ) %>%
+    filter(!is.na(Mean))
+
+  # summary stats (SE)
+  sum0 <- df_long %>%
+    group_by(Zeitpunkt) %>%
+    summarise(
+      n = n(),
+      mean = mean(Mean),
+      se   = sd(Mean) / sqrt(n),
+      .groups = "drop"
+    )
+
+  # mixed model for timepoint differences (within-subject)
+  fit <- lmer(Mean ~ Zeitpunkt + (1 | ID), data = df_long, REML = TRUE)
+
+  # pairwise contrasts between timepoints
+  pw <- as.data.frame(pairs(emmeans(fit, ~ Zeitpunkt))) %>%
+    transmute(
+      contrast,
+      p.value,
+      label = p_to_star(p.value)
+    ) %>%
+    separate(contrast, into = c("x1", "x2"), sep = " - ")
+
+  # bracket y-positions (stacked)
+  y_top  <- max(sum0$mean + sum0$se, na.rm = TRUE)
+  y_step <- 0.08 * diff(range(sum0$mean, na.rm = TRUE))
+  if (!is.finite(y_step) || y_step == 0) y_step <- 0.01
+
+  pw <- pw %>%
+    mutate(y_position = y_top + y_step * row_number())
+
+  ggplot(sum0, aes(x = Zeitpunkt, y = mean, group = 1)) +
+    geom_line() +
+    geom_point() +
+    geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
+    ggsignif::geom_signif(
+      data = pw,
+      aes(xmin = x1, xmax = x2, annotations = label, y_position = y_position),
+      manual = TRUE,
+      inherit.aes = FALSE,
+      textsize = 4,
+      tip_length = 0.01
+    ) +
+    theme_classic() +
+    labs(
+      title = title,
+      x = "Time Point",
+      y = ylab,
+      caption = "Error bars are ±SE. Brackets: pairwise timepoint contrasts from mixed model."
+    )
+}
+
+p_bdnf0  <- make_nogroup_plot(bdnf_mean_wide,  title = "BDNF")
+p_tau0   <- make_nogroup_plot(tau_mean_wide,   title = "Tau")
+p_psd950 <- make_nogroup_plot(psd95_mean_wide, title = "PSD95")
+
+(p_bdnf0 / p_tau0 / p_psd950)
+
+```
+
+
+### Interaction Plots by Gene (mean across CpGs)
 ```{r}
 #| label: fig-interactions-by-gene-mean
 #| fig-cap: "Methylation levels (mean ± SE) across time points by group for BDNF, Tau, and PSD95."
@@ -724,6 +869,117 @@ make_interaction_plot(
 
 ```
 
+### Interaction Plots by Gene (mean across CpGs) with significance stars
+
+```{r}
+#| label: fig-interactions-by-gene-mean-with-significance
+#| fig-cap: "Methylation levels (mean ± 95% CI) across time points by group for BDNF, Tau, and PSD95. Stars indicate Piano vs Control contrasts within each time point from a mixed model (Mean ~ Gruppe * Zeitpunkt + (1|ID))."
+#| fig-width: 8
+#| fig-height: 12
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(patchwork)
+library(lme4)
+library(emmeans)
+
+p_to_star <- function(p){
+  ifelse(is.na(p), "NA",
+  ifelse(p < 0.001, "***",
+  ifelse(p < 0.01,  "**",
+  ifelse(p < 0.05,  "*", "ns"))))
+}
+
+make_interaction_plot_sig <- function(df_wide, title,
+                                      ylab = "Mean methylation (mean across CpGs)",
+                                      control_label = "Controll",
+                                      piano_label = "Piano") {
+
+  # wide -> long
+  df_long <- df_wide %>%
+    pivot_longer(cols = c(T0, T1, T2),
+                 names_to = "Zeitpunkt",
+                 values_to = "Mean") %>%
+    mutate(
+      Zeitpunkt = factor(Zeitpunkt, levels = c("T0", "T1", "T2")),
+      Gruppe = factor(Gruppe, levels = c(control_label, piano_label)),
+      ID = factor(ID)
+    ) %>%
+    filter(!is.na(Mean))
+
+  # mixed model (participant-level)
+  fit <- lmer(Mean ~ Gruppe * Zeitpunkt + (1 | ID), data = df_long, REML = TRUE)
+
+  # Piano vs Control at each timepoint
+  emm <- emmeans(fit, ~ Gruppe | Zeitpunkt)
+  contr <- as.data.frame(contrast(emm, method = list("Piano - Control" = c(-1, 1))))
+
+  pvals <- contr %>%
+    transmute(
+      Zeitpunkt,
+      p.value,
+      label = p_to_star(p.value)
+    )
+
+  # summary stats for plot (95% CI)
+  summary_stats <- df_long %>%
+    group_by(Zeitpunkt, Gruppe) %>%
+    summarise(
+      n = n(),
+      mean = mean(Mean),
+      sd = sd(Mean),
+      se = sd / sqrt(n),
+      ci = qt(0.975, df = n - 1) * se,
+      .groups = "drop"
+    )
+
+  # y-positions for labels (above the top CI per timepoint)
+  y_pad <- 0.06 * diff(range(summary_stats$mean, na.rm = TRUE))
+  ann <- summary_stats %>%
+    group_by(Zeitpunkt) %>%
+    summarise(y = max(mean + ci, na.rm = TRUE) + y_pad, .groups = "drop") %>%
+    left_join(pvals, by = "Zeitpunkt")
+
+  ggplot(summary_stats, aes(x = Zeitpunkt, y = mean, group = Gruppe, colour = Gruppe)) +
+    geom_line() +
+    geom_point() +
+    geom_errorbar(aes(ymin = mean - ci, ymax = mean + ci), width = 0.2) +
+    geom_text(data = ann, aes(x = Zeitpunkt, y = y, label = label),
+              inherit.aes = FALSE, vjust = 0, size = 4) +
+    theme_classic() +
+    labs(
+      title = title,
+      x = "Time Point",
+      y = ylab,
+      caption = "Error bars are 95% CI. Stars: Piano vs Control within timepoint from mixed model."
+    )
+}
+
+# BDNF
+p_bdnf <- make_interaction_plot_sig(
+  bdnf_mean_wide,
+  title = "Interaction Plot of BDNF Methylation Levels by Group and Time"
+)
+
+# TAU
+p_tau <- make_interaction_plot_sig(
+  tau_mean_wide,
+  title = "Interaction Plot of Tau Methylation Levels by Group and Time"
+)
+
+# PSD95
+p_psd95 <- make_interaction_plot_sig(
+  psd95_mean_wide,
+  title = "Interaction Plot of PSD95 Methylation Levels by Group and Time"
+)
+
+(p_bdnf / p_tau / p_psd95) + plot_layout(guides = "collect") &
+  theme(legend.position = "right")
+
+```
+
+## Explanation of Methylation Summary Statistics
 ChatGPT-help (cf. plots-time-methylation.qmd)
 
 Totally fair to ask again — this is the key conceptual trap in methylation papers, and you’re right at the edge of it. I’ll explain it slowly and cleanly, with your exact data in mind.
@@ -908,6 +1164,8 @@ decide whether to keep CpG-level modeling or simplify to sample-level LMM
 Just tell me which way you want to go.
 
 do this in markdown so i can add it to script
+
+
 
 ### Boxplots of mean values
 

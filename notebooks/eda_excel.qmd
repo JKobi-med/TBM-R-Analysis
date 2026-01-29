@@ -1,0 +1,250 @@
+---
+title: "Exploratory Data Analysis (from excel sheets)"
+author: "Jonas J.R. Koberschinski"
+date: "29-01-2026"
+output: html
+---
+
+```{r}
+#| label: setup
+#| include: false
+# Global setup: libraries & options
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(tibble)
+library(forcats)
+library(rlang)
+
+library(psych)
+library(psychTools)
+library(DescTools)
+
+library(crosstable)
+library(flextable)
+
+# Global options
+options(dplyr.summarise.inform = FALSE)
+```
+
+
+## Data import
+
+## Data import
+
+```{r}
+#| echo: false      # Hide the code
+#| include: false   # Exclude the output
+#| warning: false   # Suppress warnings
+#| message: false   # Suppress messages#
+
+## Set working directory
+
+# setwd("~/Work/Promotionsdatananalyse mit Excel und Martin/Rohdaten/")
+# print(getwd())
+
+## Load necessary packages
+library(haven)
+library(tidyverse)
+library(dplyr)
+library(readxl)
+library(writexl)
+
+
+BDNF <- read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+
+TAU <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+
+PSD95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+```
+
+## Drop NA
+```{r}
+#| echo: true
+#| include: false
+
+# BDNF
+# Remove rows with NA values in the 'methylierung' column
+BDNF2 <- BDNF %>% drop_na(methylierung)
+
+# Summarize the number of NA values in the 'methylierung' column (commented out)
+# sum(is.na(BDNF$methylierung))
+
+# without NA
+# summary(BDNF2)
+
+
+
+# TAu
+
+# Remove rows with NA values in the 'methylierung' column
+TAU2 <- TAU %>% drop_na(methylation)
+
+# Summarize the number of NA values in the 'methylierung' column (commented out)
+# sum(is.na(TAU$methylierung))
+
+# without NA
+# summary(TAU2)
+
+
+# PSD95
+# Remove rows with NA values in the 'methylierung' column
+PSD952 <- PSD95 %>% drop_na(methylation)
+
+# Summarize the number of NA values in the 'methylierung' column (commented out)
+# sum(is.na(BDNF$methylierung))
+
+# without NA
+# summary(PSD952)
+```
+## Remove problematic IDs
+```{r}
+# Remove problematic IDs (apply consistently)
+bad_ids <- c(192, 193)
+
+BDNF2  <- BDNF2  %>% filter(!(ID %in% bad_ids))
+TAU2   <- TAU2   %>% filter(!(ID %in% bad_ids))
+PSD952 <- PSD952 %>% filter(!(ID %in% bad_ids))
+
+```
+
+
+
+```{r}
+library(dplyr)
+library(tidyr)
+
+BDNF_wide <- BDNF2 %>%
+  group_by(ID, Zeitpunkt) %>%
+  summarise(
+    methylierung = mean(methylierung, na.rm = TRUE),  # oder median(...)
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    id_cols = ID,
+    names_from = Zeitpunkt,
+    values_from = methylierung
+  )
+```
+
+
+Asked ChatGPT
+what is differnt between this restructurinkgn for BDNF_wide
+{r}
+library(dplyr)
+library(tidyr)
+
+BDNF_wide <- BDNF2 %>%
+  group_by(ID, Zeitpunkt) %>%
+  summarise(
+    methylierung = mean(methylierung, na.rm = TRUE),  # oder median(...)
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    id_cols = ID,
+    names_from = Zeitpunkt,
+    values_from = methylierung
+  )
+  
+  
+  
+and that for summary_stats_bdnf in plots-time-methylation.qmd
+{r}
+#| label: fig-bdnf-timegroup-interaction-wrong
+#| fig-cap: "BDNF methylation levels (mean ± SE) by group across time points."
+library(dplyr)
+library(ggplot2)
+
+# Calculate summary statistics for BDNF
+summary_stats_bdnf <- BDNF2 %>%
+  group_by(Zeitpunkt, Group) %>%
+  summarise(
+    mean_methylierung_bdnf = mean(methylierung, na.rm = TRUE),
+    se_methylierung_bdnf = sd(methylierung, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+# Interaction plot with error bars for BDNF
+interaction_plot_bdnf <- ggplot(summary_stats_bdnf, aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = Group, colour = Group)) +
+  geom_line() +
+  geom_point() +
+  geom_errorbar(
+    aes(
+      ymin = mean_methylierung_bdnf - se_methylierung_bdnf,
+      ymax = mean_methylierung_bdnf + se_methylierung_bdnf
+    ),
+    width = 0.2
+  ) +
+  theme_classic() +
+  labs(
+    title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
+    x = "Time Point",
+    y = "Mean Methylation Levels"
+  )
+
+print(interaction_plot_bdnf)
+
+
+They do two different kinds of “restructuring” (and answer two different questions).
+
+1) BDNF_wide: make one row per subject (ID) with separate columns for T0/T1/T2
+BDNF_wide <- BDNF2 %>%
+  group_by(ID, Zeitpunkt) %>%
+  summarise(methylierung = mean(methylierung, na.rm = TRUE), .groups="drop") %>%
+  pivot_wider(id_cols = ID, names_from = Zeitpunkt, values_from = methylierung)
+
+What it’s doing
+
+Grouping level: ID × Zeitpunkt
+
+Meaning: For each person and each time point, you collapse all repeated methylation values (coming from multiple CpGs / plates / replicates) into one number (here: the mean).
+
+Then: you reshape to wide, so you get columns like T0, T1, T2.
+
+Output structure
+
+Rows: IDs
+
+Columns: T0, T1, T2 (plus ID)
+
+Use case: models that expect repeated measures in columns, computing change scores (T2–T0), etc.
+
+Important consequence: This ignores Group entirely, and it averages within-person across whatever duplicates exist.
+
+2) summary_stats_bdnf: compute group-level means + SE for plotting
+summary_stats_bdnf <- BDNF2 %>%
+  group_by(Zeitpunkt, Group) %>%
+  summarise(
+    mean_methylierung_bdnf = mean(methylierung, na.rm = TRUE),
+    se_methylierung_bdnf = sd(methylierung, na.rm = TRUE) / sqrt(n()),
+    .groups = "drop"
+  )
+
+What it’s doing
+
+Grouping level: Zeitpunkt × Group
+
+Meaning: At each time point, for each group (Control/…), compute:
+
+the mean methylation across all rows in that group-time subset
+
+the standard error, using n() = number of rows in that subset
+
+No widening—it stays in long summary form for ggplot.
+
+Output structure
+
+Rows: (time point × group) combinations (e.g., T0-Control, T0-Intervention, T1-Control, …)
+
+Columns: mean_methylierung_bdnf, se_methylierung_bdnf
+
+Big statistical difference
+
+Because BDNF2 still contains multiple rows per person (multiple CpGs etc.), this summary treats those rows as independent observations:
+
+mean() is effectively a CpG-weighted (or replicate-weighted) mean.
+
+se = sd/sqrt(n()) uses n = number of rows, not number of subjects.
+
+So the SE can look too small and the plot can be misleading if you intended subject-level inference.

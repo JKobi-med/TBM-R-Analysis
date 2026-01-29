@@ -2,6 +2,7 @@
 title: "Plots: Time + Metyhlation"
 author: "Jonas J.R. Koberschinski"
 date: "09-12-2024"
+last_modified: "2026-01-29"
 output: html
 ---
 
@@ -358,32 +359,34 @@ library(ggplot2)
 
 # 1) per-participant per-timepoint mean across CpGs
 bdnf_samplemeans <- BDNF2 %>%
-  group_by(id_umstrukturieren, Zeitpunkt, Group) %>%
+  group_by(ID, Zeitpunkt, Group) %>%
   summarise(
     sample_mean = mean(methylierung, na.rm = TRUE),
     .groups = "drop"
   )
 
 # 2) group/time summary across participants
-summary_stats_bdnf <- bdnf_samplemeans %>%
+df_plot_bdnf <- bdnf_samplemeans %>%
   group_by(Zeitpunkt, Group) %>%
   summarise(
-    n_participants = n(),
-    mean_methylierung_bdnf = mean(sample_mean, na.rm = TRUE),
-    se_methylierung_bdnf = sd(sample_mean, na.rm = TRUE) / sqrt(n_participants),
+    n_participants = n_distinct(ID),
+    mean = mean(sample_mean, na.rm = TRUE),
+    sd = sd(sample_mean, na.rm = TRUE),
+    se = sd / sqrt(n_participants),
     .groups = "drop"
-  )
+  ) %>%
+  arrange(Group, Zeitpunkt)
+
+# look at the data used for plotting
+print(df_plot_bdnf)
+# or if you want a nicer view in RStudio:
+# View(df_plot_bdnf)
 
 # plot
-ggplot(summary_stats_bdnf,
-       aes(x = Zeitpunkt, y = mean_methylierung_bdnf, group = Group, colour = Group)) +
+ggplot(df_plot_bdnf, aes(x = Zeitpunkt, y = mean, group = Group, colour = Group)) +
   geom_line() +
   geom_point() +
-  geom_errorbar(
-    aes(ymin = mean_methylierung_bdnf - se_methylierung_bdnf,
-        ymax = mean_methylierung_bdnf + se_methylierung_bdnf),
-    width = 0.2
-  ) +
+  geom_errorbar(aes(ymin = mean - se, ymax = mean + se), width = 0.2) +
   theme_classic() +
   labs(
     title = "Interaction Plot of BDNF Methylation Levels by Group and Time",
