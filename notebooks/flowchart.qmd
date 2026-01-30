@@ -1,0 +1,56 @@
+---
+title: "Flowchart"
+author: "Jonas J.R. Koberschinski"
+date: "14-11-2024"
+last_modified: "2026-01-16"
+format:
+  gfm:
+    mermaid-format: png
+---
+
+```{r}
+#| label: fig-flowchart-mermaide
+#| fig-cap: "(Mermaide) Study flowchart showing participant exclusion and availability of successfully sequenced samples across time points and genes."
+#| out-width: "100%"
+#| echo: false
+library(DiagrammeR)
+
+mermaid("
+graph TB;
+  A[Participants randomized] --> X[Excluded from analysis<br/>n = 2<br/>Methylation values across time points conflated<br/>Time points could not be differentiated];
+  X --> B[Blood samples collected<br/>at T0, T1, T2<br/>Total samples: 1,078];
+  B --> C[Sequencing and quality control<br/>Loss to follow-up occurred];
+  C --> D1[BDNF analysis<br/>T0: 140<br/>T1: 122<br/>T2: 97<br/>Total: 359];
+  C --> D2[TAU analysis<br/>T0: 142<br/>T1: 123<br/>T2: 97<br/>Total: 362];
+  C --> D3[PSD95 analysis<br/>T0: 139<br/>T1: 122<br/>T2: 96<br/>Total: 357];
+")
+
+```
+```{dot fig-flowchart}
+//| label: fig-flowchart
+//| fig-cap: "Study flowchart showing participant exclusion and availability of successfully sequenced samples across time points and genes."
+//| fig-width: 7
+//| fig-height: 9
+//| out-width: "100%"
+
+digraph flow {
+  rankdir=TB;
+  node [shape=box];
+
+  A [label="Participants randomized"];
+  X [label="Excluded from analysis\nn = 2\nMethylation values across time points conflated\nTime points could not be differentiated"];
+  B [label="Blood samples collected\nat T0, T1, T2\nTotal samples: 1,078"];
+  C [label="Sequencing and quality control\nLoss to follow-up occurred"];
+
+  D1 [label="BDNF analysis\nT0: 140\nT1: 122\nT2: 97\nTotal: 359"];
+  D2 [label="TAU analysis\nT0: 142\nT1: 123\nT2: 97\nTotal: 362"];
+  D3 [label="PSD95 analysis\nT0: 139\nT1: 122\nT2: 96\nTotal: 357"];
+
+  A -> X -> B -> C;
+  C -> D1;
+  C -> D2;
+  C -> D3;
+}
+```
+
+

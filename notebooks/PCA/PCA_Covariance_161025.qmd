@@ -2,7 +2,8 @@
 title: "Principal Component Analysis (PCA) using Covariance Matrix"
 author: "Jonas J. R. Koberschinski"
 date: "16-10-2025"
-
+lastmod: "30-01-2025"
+engine: knitr
 format: html
 ---
 

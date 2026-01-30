@@ -30,7 +30,7 @@ options(dplyr.summarise.inform = FALSE)
 ```
 
 
-## Data import
+<!-- ## Data import -->
 ```{r}
 #| label: data-import
 #| echo: true

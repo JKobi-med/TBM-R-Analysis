@@ -1,14 +1,16 @@
 project:
   type: manuscript
+  output-dir: _manuscript
   render:
     - "index.qmd"
     - "notebooks/*.qmd"
     - "!*.Rmd"
+
 execute:
-  freeze: false
+  enabled: false
+  freeze: true
   warning: false
   message: false
-  
 
 format:
   html:
@@ -18,13 +20,11 @@ format:
   pdf: default
   elsevier-pdf:
     keep-tex: true
-    # Pick one of these:
     journal:
-      formatting: review      # "review" is roomy; try "preprint" if you want tighter
-      model: 3p              # common Elsevier model; good single-column look
-      layout: onecolumn      # onecolumn reads more like JAMA/NEJM than 2-col
-      cite-style: number     # numeric citations (common in medical journals)
+      formatting: review
+      model: 3p
+      layout: onecolumn
+      cite-style: number
 
 bibliography: references.bib
-citeproc: true
-csl: ama.csl
+# cite-method: natbib

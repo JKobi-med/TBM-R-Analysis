@@ -124,14 +124,17 @@ To make music
 
 # Methods {#sec-data-methods}
 
+## Study flowchart
+
+{{< embed notebooks/flowchart.qmd#fig-flowchart >}}
+
+
+
 ## Study design
 
-In this activly controlled, randomzied, open- label
-CGPT: In this two-site, longitudinal, randomized, single-blind intervention study, retired healthy older adults received weekly piano training (intervention) or active music sensitization (active control) for 12 months to assess cognitive, perceptual-motor, and brain plasticity outcomes.
-@jamesTrainBrainMusic2020a
+In this activly controlled, randomzied, open- label CGPT: In this two-site, longitudinal, randomized, single-blind intervention study, retired healthy older adults received weekly piano training (intervention) or active music sensitization (active control) for 12 months to assess cognitive, perceptual-motor, and brain plasticity outcomes. @jamesTrainBrainMusic2020a
 
-piano group, that was activly learning the piano by ...
-Active control group that was only 
+piano group, that was activly learning the piano by ... Active control group that was only
 
 Blood samples were taken at three different time points. The first (T0) one week before the weekly cycle of practical or theoretical music lessons were started. The second (T1) after 6 months and the third (T2) again after 6 months so one year after T0.
 
@@ -151,11 +154,7 @@ We focused on the primer regions of three genes commonly neuroplasticity-associa
 
 ### DNA isolation
 
-Genomic DNA (gDNA) was isolated at the Institute of Molecular and Translational Therapeutic Strategies of Hannover Medical School from 50 µL blood using the "NucleoMag Blood 200 µl" kit (MACHEREY-NAGEL GmbH & Co. KG, Düren, Deutschland) in concordance with the instructions of the manufacturer.
-The isolated gDNA was stored at -20 °C.
-The blood samples have been received anonymized and prior to gDNA isolation.
-Then the samples were additionaly randomized *(by doing what?)* to minimize potential batch effects.
-DNA samples were diluted in 96-well plates to a fixed concentration of 10 ng/µl.
+Genomic DNA (gDNA) was isolated at the Institute of Molecular and Translational Therapeutic Strategies of Hannover Medical School from 50 µL blood using the "NucleoMag Blood 200 µl" kit (MACHEREY-NAGEL GmbH & Co. KG, Düren, Deutschland) in concordance with the instructions of the manufacturer. The isolated gDNA was stored at -20 °C. The blood samples have been received anonymized and prior to gDNA isolation. Then the samples were additionaly randomized *(by doing what?)* to minimize potential batch effects. DNA samples were diluted in 96-well plates to a fixed concentration of 10 ng/µl.
 
 ### Bisulfite Conversion
 
@@ -169,7 +168,7 @@ With Ensembl and Geneious Pro 5.6.7 the primer regions of our target genes were 
 |-----------|-------------------------|-----------------------------------|
 | **BDNF**  | BDNF_fwd1_18            | 5′-GGGGGAGGATTAATTGAGTTAGTTTTG-3′ |
 | **BDNF**  | BDNF_rev_20             | 5′-ATATATACTCCTTCTATTCTACAACAA-3′ |
- **BDNF**  | BDNF_fwd2_19            | 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′    |
+| **BDNF**  | BDNF_fwd2_19            | 5′-TTTGTTGGGGTTGGAAGTGAAAAT-3′    |
 | **BDNF**  | BDNF_rev_20             | 5′-ATATATACTCCTTCTATTCTACAACAA-3′ |
 | **PSD95** | 1341_PSD95_Fw_a         | 5′-TGGGAATTTGATTTGTTTAGA-3′       |
 | **PSD95** | 1342_PDS95_Fw_i         | 5′-AGAGTTAGTTGGGAAAAGAGA-3′       |
@@ -206,6 +205,11 @@ The data derived from the ABI 3500xL was then processed with Epigenetic Sequenci
 ## Literay Research
 
 pubmed
+<!-- hello -->
+
+## Writing Guidelines
+
+JARS and CONSORT The wrting of this paper was guided by the APA journall Artivdle Reporting Standard for qnatuictave reaseach.
 
 ## Data Structuring and Statistical Analysis
 
@@ -223,62 +227,51 @@ Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZI
 
 ### Generall demographics {#sec-results-general}
 
-
 | Characteristic | Piano | Control | Overall |
-|---|---:|---:|---:|
+|------------------|-----------------:|-----------------:|-----------------:|
 | Participants (N) | 67 | 77 | 144 |
 | Mean age ± SD (years) | 69.45 ± 3.2 | 69.70 ± 3.8 | 69.58 ± 3.5 |
 | Median (IQR) age (years) | 69.00 (67.00, 71.00) | 69.00 (67.00, 73.00) | 69.00 (67.00, 71.25) |
 | Min / Max age (years) | 64 / 77 | 62 / 78 | 62 / 78 |
 | Female / Male (%) | 55.2 / 44.8 | 59.7 / 40.3 | 57.6 / 42.4 |
 
-: Demographics of the study cohort {#tbl-demographics}
-**(add BMI, CogTel, smoking, Standort later)**
+: Demographics of the study cohort {#tbl-demographics} **(add BMI, CogTel, smoking, Standort later)**
 
-Overall 144 participants were included in the study.
-Both groups were nearly equally distributed (46,5 % in the piano group).
-The mean age was 69.58 years (SD: 3.5 years) with a minimum of 62 and a maximum of 78 years.
-This was due to the desgin of the TBM study.
-
-
+Overall 144 participants were included in the study. Both groups were nearly equally distributed (46,5 % in the piano group). The mean age was 69.58 years (SD: 3.5 years) with a minimum of 62 and a maximum of 78 years. This was due to the desgin of the TBM study.
 
 ### Metadata sequencing
 
-1,078 blood samples have been sequenced from the participants for three different genes at three different time points (T0, T1, T2).
-A decline in the number of samples from T0 to T2 can be seen (@tbl-metadata-sequencing), because not every participant provided blood samples at every time point, because of loss to follow up.
-This is the reason for the difference between the time points.
+1,078 blood samples have been sequenced from the participants for three different genes at three different time points (T0, T1, T2). A decline in the number of samples from T0 to T2 can be seen (@tbl-metadata-sequencing), because not every participant provided blood samples at every time point, because of loss to follow up. This is the reason for the difference between the time points.
 
-Furthermore, not every blood sample could be analyzed successfully (cf. @tbl-metadata-sequencing-summary) due to some qualitative differences in the sequencing process.
-But in the end, a total of 359 BDNF, 362 Tau and 357 PSD95 samples could be successfully sequenced.
-This is the reason for the slight difference between genes. 
+Furthermore, not every blood sample could be analyzed successfully (cf. @tbl-metadata-sequencing-summary) due to some qualitative differences in the sequencing process. But in the end, a total of 359 BDNF, 362 Tau and 357 PSD95 samples could be successfully sequenced. This is the reason for the slight difference between genes.
 
 Two further Participants had to be excluded from the analysis, because somehow their methylationvalues for timepoints conflated, so they could not be differentiated anymore.
 
-| Characteristic | Piano | Control | Overall |
-|---|---:|---:|---:|
-| BDNF samples at T0 (n) | 65 | 75 | 140 |
-| BDNF samples at T1 (n) | 61 | 61 | 122 |
-| BDNF samples at T2 (n) | 50 | 47 | 97 |
-| BDNF missing T0, n (%) | 2 (3.0%) | 2 (2.6%) | 4 (2.8%) |
-| BDNF missing T1, n (%) | 6 (9.0%) | 16 (20.8%) | 22 (15.3%) |
-| BDNF missing T2, n (%) | 17 (25.4%) | 30 (39.0%) | 47 (32.6%) |
-| TAU samples at T0 (n) | 67 | 75 | 142 |
-| TAU samples at T1 (n) | 63 | 60 | 123 |
-| TAU samples at T2 (n) | 50 | 47 | 97 |
-| TAU missing T0, n (%) | 1 (1.5%) | 2 (2.6%) | 3 (2.1%) |
-| TAU missing T1, n (%) | 5 (7.4%) | 17 (22.1%) | 22 (15.2%) |
-| TAU missing T2, n (%) | 18 (26.5%) | 30 (39.0%) | 48 (33.1%) |
-| PSD95 samples at T0 (n) | 66 | 73 | 139 |
-| PSD95 samples at T1 (n) | 63 | 59 | 122 |
-| PSD95 samples at T2 (n) | 49 | 47 | 96 |
-| PSD95 missing T0, n (%) | 2 (2.9%) | 4 (5.2%) | 6 (4.1%) |
-| PSD95 missing T1, n (%) | 5 (7.4%) | 18 (23.4%) | 23 (15.9%) |
+| Characteristic          |      Piano |    Control |    Overall |
+|-------------------------|-----------:|-----------:|-----------:|
+| BDNF samples at T0 (n)  |         65 |         75 |        140 |
+| BDNF samples at T1 (n)  |         61 |         61 |        122 |
+| BDNF samples at T2 (n)  |         50 |         47 |         97 |
+| BDNF missing T0, n (%)  |   2 (3.0%) |   2 (2.6%) |   4 (2.8%) |
+| BDNF missing T1, n (%)  |   6 (9.0%) | 16 (20.8%) | 22 (15.3%) |
+| BDNF missing T2, n (%)  | 17 (25.4%) | 30 (39.0%) | 47 (32.6%) |
+| TAU samples at T0 (n)   |         67 |         75 |        142 |
+| TAU samples at T1 (n)   |         63 |         60 |        123 |
+| TAU samples at T2 (n)   |         50 |         47 |         97 |
+| TAU missing T0, n (%)   |   1 (1.5%) |   2 (2.6%) |   3 (2.1%) |
+| TAU missing T1, n (%)   |   5 (7.4%) | 17 (22.1%) | 22 (15.2%) |
+| TAU missing T2, n (%)   | 18 (26.5%) | 30 (39.0%) | 48 (33.1%) |
+| PSD95 samples at T0 (n) |         66 |         73 |        139 |
+| PSD95 samples at T1 (n) |         63 |         59 |        122 |
+| PSD95 samples at T2 (n) |         49 |         47 |         96 |
+| PSD95 missing T0, n (%) |   2 (2.9%) |   4 (5.2%) |   6 (4.1%) |
+| PSD95 missing T1, n (%) |   5 (7.4%) | 18 (23.4%) | 23 (15.9%) |
 | PSD95 missing T2, n (%) | 19 (27.9%) | 30 (39.0%) | 49 (33.8%) |
 
 : Metadata of successfully sequenced samples per gene and time point {#tbl-metadata-sequencing}
 
 | Marker | Piano T0 | Piano T1 | Piano T2 | Piano Total | Control T0 | Control T1 | Control T2 | Control Total | Overall T0 | Overall T1 | Overall T2 | Overall Total |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+|------|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|-----:|
 | BDNF | 65 | 61 | 50 | 176 | 75 | 61 | 47 | 183 | 140 | 122 | 97 | 359 |
 | TAU | 67 | 63 | 50 | 180 | 75 | 60 | 47 | 182 | 142 | 123 | 97 | 362 |
 | PSD95 | 66 | 63 | 49 | 178 | 73 | 59 | 47 | 179 | 139 | 122 | 96 | 357 |
@@ -287,71 +280,63 @@ Two further Participants had to be excluded from the analysis, because somehow t
 
 ### Methylation Level Analysis {#sec-results-methylation-level}
 
-#### Overall  and over time {#sec-results-methylation-overall}
+#### Overall and over time {#sec-results-methylation-overall}
 
-Overall the methlation of the three genes was low (Mean \< 0,08, Median \< 0,04).
-PSD95 had the lowest methylation values.
-
+Overall the methlation of the three genes was low (Mean \< 0,08, Median \< 0,04). PSD95 had the lowest methylation values.
 
 {{< embed notebooks/eda.qmd#fig-boxplots-genes >}}
 
 #### Per CpG and Gene {#sec-results-methylation-cpg-gene}
 
-Looking at the methlation patterns of every CpG per gene (@fig-boxplots-cpg-all),
-Tau showed a methylation pattern, that was largely limited to upstream region of the promoter, whereas further downstream CpGs were rarely methylated across individuals.
-In contrast, for PSD95, CpGs near the end of the promoter region showed notable methylation patterns, while most other sites where mostly none-methylated with little or no inter-individual variability.
-For BDNF, a comparably localized pattern was less pronounced but further downsstream the CpGs were also less methylated.
+Looking at the methlation patterns of every CpG per gene (@fig-boxplots-cpg-all), Tau showed a methylation pattern, that was largely limited to upstream region of the promoter, whereas further downstream CpGs were rarely methylated across individuals. In contrast, for PSD95, CpGs near the end of the promoter region showed notable methylation patterns, while most other sites where mostly none-methylated with little or no inter-individual variability. For BDNF, a comparably localized pattern was less pronounced but further downsstream the CpGs were also less methylated.
 
 {{< embed notebooks/eda.qmd#fig-boxplots-cpg-all >}}
 
 # Principal component analysis (PCA) {#sec-results-pca}
 
-We performed principal component analyses (PCA) separately for each gene, using the correlation matrix.
-Across genes, the first two principal components explained only a moderate proportion of total variance (BDNF: PC1 28.81%, PC2 16.84%; Tau: PC1 29.02%, PC2 9.22%; PSD95: PC1 17.10%, PC2 11.61%).
-Accordingly, the scree plots (@fig-scree-all) show only a gradual decrease of explained variance across subsequent components. **(Stimmt nicht für PSD95 und Tau)**
+We performed principal component analyses (PCA) separately for each gene, using the correlation matrix. Across genes, the first two principal components explained only a moderate proportion of total variance (BDNF: PC1 28.81%, PC2 16.84%; Tau: PC1 29.02%, PC2 9.22%; PSD95: PC1 17.10%, PC2 11.61%). Accordingly, the scree plots (@fig-scree-all) show only a gradual decrease of explained variance across subsequent components. **(Stimmt nicht für PSD95 und Tau)**
 
-Furthermore, biplots of the first two principal components did not indicate a differing clustering pattern between the two group at any timepoint (@fig-pca-genes).
-Although the apparent group-wise configuration for PSD95 varied somewhat across time points, this pattern did not amount to a consistent clustering difference.
+Furthermore, biplots of the first two principal components did not indicate a differing clustering pattern between the two group at any timepoint (@fig-pca-genes). Although the apparent group-wise configuration for PSD95 varied somewhat across time points, this pattern did not amount to a consistent clustering difference.
 
 {{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pca-genes >}}
 
-Noticably, inspecting the loadings revelaed that the variance explained by PC1 was driven primarily by a small fraction of CpGs in every gene (@fig-pc1-loadings).
-For BDNF, m148, m066, m111 and m058 have been the strongest contributors; for Tau, m331, m337, m310, m315 and m323; and for PSD95: "p95", "p60", "p23".
-By ranking the absolute PC1 loadings every gene showed an "elbow" pattern (BDNF: between the 4th and 5th CpG; Tau: between the 4th and 5th CpG; PSD95: after the 3rd CpG; @fig-pc1-loadings; see also @tbl-supp-pca-bdnf–@tbl-supp-pca-psd95 for loading ranks).
+Noticably, inspecting the loadings revelaed that the variance explained by PC1 was driven primarily by a small fraction of CpGs in every gene (@fig-pc1-loadings). For BDNF, m148, m066, m111 and m058 have been the strongest contributors; for Tau, m331, m337, m310, m315 and m323; and for PSD95: "p95", "p60", "p23". By ranking the absolute PC1 loadings every gene showed an "elbow" pattern (BDNF: between the 4th and 5th CpG; Tau: between the 4th and 5th CpG; PSD95: after the 3rd CpG; @fig-pc1-loadings; see also @tbl-supp-pca-bdnf–@tbl-supp-pca-psd95 for loading ranks).
 
-This concentration of variance is also evident in the methylation distributions across CpGs (@fig-boxplots-cpg-all) already mentioned above (#sec-results-methylation-cpg-gene).
-These observations motivated stratifying subsequent analyses by considering (i) all CpGs and (ii) only CpGs exhibiting higher inter-individual variability.
+This concentration of variance is also evident in the methylation distributions across CpGs (@fig-boxplots-cpg-all) already mentioned above (#sec-results-methylation-cpg-gene). These observations motivated stratifying subsequent analyses by considering (i) all CpGs and (ii) only CpGs exhibiting higher inter-individual variability.
 
 {{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pc1-loadings >}}
 
 ## Methylation differences {#sec-results-methylation-differences}
 
+Our null hypothesis was that there are no differences in methylation levels between groups (piano vs. control) and time points (T0, T1, T2) in the three target genes (BDNF, Tau, PSD95) or said differently that playing the piano has no effect on the methylation of neuroplasticity-associated genes like BDNF, PSD95 and Tau.
+
 ### All CpG-sites
 
 #### Overall methylation levels
 
-| Marker | Mean ± SD |
-|--------|-----------|
-| BDNF | 0.070 ± 0.034 |
-| Tau | 0.075 ± 0.020 |
-| PSD95 | 0.031 ± 0.014 |
+| Marker | Mean ± SD     |
+|--------|---------------|
+| BDNF   | 0.070 ± 0.034 |
+| Tau    | 0.075 ± 0.020 |
+| PSD95  | 0.031 ± 0.014 |
+
 : Mean methylation levels per gene {#tbl-mean-methylation-overall}
 
-| Gene | Group | N | Mean ± SD |
-|------|-------|---:|-----------|
-| BDNF | Controll | 183 | 0.073 ± 0.034 |
-| BDNF | Piano | 176 | 0.066 ± 0.033 |
+| Gene  | Group    |   N | Mean ± SD     |
+|-------|----------|----:|---------------|
+| BDNF  | Controll | 183 | 0.073 ± 0.034 |
+| BDNF  | Piano    | 176 | 0.066 ± 0.033 |
 | PSD95 | Controll | 179 | 0.031 ± 0.014 |
-| PSD95 | Piano | 178 | 0.030 ± 0.013 |
-| Tau | Controll | 182 | 0.075 ± 0.020 |
-| Tau | Piano | 180 | 0.075 ± 0.020 |
-: Mean methylation levels per gene and group {#tbl-mean-methylation-group}
+| PSD95 | Piano    | 178 | 0.030 ± 0.013 |
+| Tau   | Controll | 182 | 0.075 ± 0.020 |
+| Tau   | Piano    | 180 | 0.075 ± 0.020 |
 
+: Mean methylation levels per gene and group {#tbl-mean-methylation-group}
 
 #### Time difference overall
 
-| Marker | Time | Mean ± SD |
-|--------|------|-----------|
+| Marker | Time | Mean ± SD     |
+|--------|------|---------------|
 | BDNF   | T0   | 0.070 ± 0.033 |
 | BDNF   | T1   | 0.062 ± 0.029 |
 | BDNF   | T2   | 0.079 ± 0.037 |
@@ -361,23 +346,24 @@ These observations motivated stratifying subsequent analyses by considering (i) 
 | PSD95  | T0   | 0.030 ± 0.016 |
 | PSD95  | T1   | 0.032 ± 0.013 |
 | PSD95  | T2   | 0.031 ± 0.010 |
+
 : Mean methylation levels per gene and time point {#tbl-mean-methylation-time}
 
 ##### BDNF
+
 BDNF showed a decrease in methylation from T0 (0,07 ± 0,03) to T1 (0.062 ± 0.029), followed by an increase at T2 (0.079 ± 0.037) surpassing the initial levels at T0.
 
-
-
 ##### Tau
+
 Tau exhibited a slight increase in methylation from T0 to T1, which remained stable at T2.
 
 ##### PSD95
--   Bei PSD95 verbleibt der Median der Methylierung gleichbleibend bei 0, während das arithmetische Mittel der Methylierung von T0 zu T1 steigt aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
 
+-   Bei PSD95 verbleibt der Median der Methylierung gleichbleibend bei 0, während das arithmetische Mittel der Methylierung von T0 zu T1 steigt aber bei T2 wieder auf das Ausgangsniveau zurückfällt.
 
 PSD95 maintained a consistent median methylation level of 0, while the mean methylation increased from T0 to T1 but returned to baseline levels at T2.
 
-{{< embed notebooks/eda.qmd#fig-interactions-no-group-with-significance >}} 
+{{< embed notebooks/eda.qmd#fig-interactions-no-group-with-significance >}}
 
 #### Time difference per group
 
@@ -386,8 +372,6 @@ Our main goal we aimed to determine whether the degree of methylation differed b
 -   Bei BDNF zeigt sich eine leichte Differenz zwischen der Kontrollgruppe (Median: 0.07, Mean: 0.07326) und der Pianogruppe (Median: 0.064, Mean: 0.06598), welche eine niedrigere Metyhlierung (Median: -0.006, Mean: -0.00728) aufwies. **Streuungsmaße?**
 -   Weiterhin zeigen sich für die arithmetischen Mittel von BDNF und PSD95 zwei Modi.
 -   Tau war unimodal.
-
-
 
 {{< embed notebooks/eda.qmd#fig-interactions-by-gene-mean-with-significance >}}
 
@@ -407,8 +391,7 @@ according to @sec-results-pca we also filtered for the high variance CpGs.
 
 # Discussion {#sec-discussion}
 
-**Hohe Expressionsrate!** aller gene vor allem PSD95 und Tau.
-The null hypothesis of our study was that playing the piano has no effect on the methylation of neuroplasticity-associated genes like BDNF, PSD95 and Tau. Despite of Tau the null hypothesis could be rejected.
+**Hohe Expressionsrate!** aller gene vor allem PSD95 und Tau. The null hypothesis of our study was that playing the piano has no effect on the methylation of neuroplasticity-associated genes like BDNF, PSD95 and Tau. Despite of Tau the null hypothesis could be rejected.
 
 ## Limitations
 
@@ -418,8 +401,7 @@ The null hypothesis of our study was that playing the piano has no effect on the
 
 ## Ethics approval and consent to participate
 
-The study protocol was reviewed and approved by the Hannover Medical School ethics committee (approval number 3604-2017).
-All study participants gave their written informed consent to participate in the study.
+The study protocol was reviewed and approved by the Hannover Medical School ethics committee (approval number 3604-2017). All study participants gave their written informed consent to participate in the study.
 
 ## Consent for publication
 
@@ -435,8 +417,7 @@ The authors have no competing interests to declare.
 
 ## Funding
 
-This work was funded by the Swiss National Science Foundation (grant no. 100019E-170410 to Clara E. James) and the German Research Foundation (grant no. 323965454 to Eckart Altenmüller).
-Financial support in Switzerland was also provided by the Med. Kurt Fries Foundation, the Dalle Molle Foundation, and the Edith Maryon Foundation (to Clara E. James).
+This work was funded by the Swiss National Science Foundation (grant no. 100019E-170410 to Clara E. James) and the German Research Foundation (grant no. 323965454 to Eckart Altenmüller). Financial support in Switzerland was also provided by the Med. Kurt Fries Foundation, the Dalle Molle Foundation, and the Edith Maryon Foundation (to Clara E. James).
 
 ## Author Contributions
 
@@ -464,10 +445,7 @@ All authors have read and agreed to the published version of the manuscript.
 
 ## Use of AI tools
 
-ChatGPT (OpenAI) used to aid in draft preparation (particularly language and style), development of R code and summarizing/clarifying statistical output for reporting.
-All analyses, interpretations, and manuscript text were reviewed and verified by the authors.
-Also the Github Copilot was used to aid in R code development and writing the manuscript.
-The first author takes full responsibilty for the accuracy and integrity of the work.
+ChatGPT (OpenAI) used to aid in draft preparation (particularly language and style), development of R code and summarizing/clarifying statistical output for reporting. All analyses, interpretations, and manuscript text were reviewed and verified by the authors. Also the Github Copilot was used to aid in R code development and writing the manuscript. The first author takes full responsibilty for the accuracy and integrity of the work.
 
 ## Acknowledgement
 
