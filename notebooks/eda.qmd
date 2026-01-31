@@ -30,7 +30,7 @@ options(dplyr.summarise.inform = FALSE)
 ```
 
 
-<!-- ## Data import -->
+## Data import
 ```{r}
 #| label: data-import
 #| echo: true
@@ -516,6 +516,7 @@ print_marker_table(tau_median_wide,   "TAU")
 print_marker_table(psd95_median_wide, "PSD95")
 
 ```
+### Union demographics across all genes
 ```{r}
 #| label: table-union-demographics-genes
 #| results: asis

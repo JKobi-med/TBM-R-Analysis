@@ -1,0 +1,1238 @@
+---
+title: "Big Despcriptve statistics table"
+author: "Jonas J. R. Koberschinski"
+---
+
+```{r}
+#| echo: true
+#| include: false
+
+# Load required libraries
+library(tidyverse)
+library(tidyr)
+library(dplyr)
+#library(RColorBrewer) # Commented out unused libraries
+#library(lme4)
+
+# Load BDNF data from a text file and display the first few rows
+bdnf <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/bdnf.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(bdnf)
+
+
+# Load Tau data from a text file and display the first few rows
+tau <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/tau.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(tau)
+
+
+# Load PSD95 data from a text file and display the first few rows
+psd95 <- as_tibble(read.table('/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/psd95.txt', 
+                   sep = "\t", 
+                   header = TRUE, 
+                   row.names = NULL, 
+                   quote = ""))
+head(psd95)
+
+# Load CpG data from a text file and display the first few rows
+cpg <- as_tibble(read.table(file = '/home/kobi/Work/TBM-R-Analysis/tables/Ausgangstabellen/cpg.txt', 
+                  sep = "\t", 
+                  header = TRUE, 
+                  row.names = NULL, 
+                  quote = ""))
+head(cpg)
+
+```
+
+## Helper functions
+
+```{r}
+# Helper: select only columns that actually exist
+safe_select <- function(df, cols) {
+  cols <- cols[cols %in% names(df)]
+  df[, cols, drop = FALSE]
+}
+
+# Helper: create a unified smoking variable if either exists
+add_smoking <- function(df) {
+  if (!("rauchen" %in% names(df)) && ("B14a_rauchen" %in% names(df))) {
+    df$rauchen <- df$B14a_rauchen
+  }
+  df
+}
+
+# Baseline covariates you want in Table 1
+baseline_covars <- c(
+  "Gruppe", "Age_start", "Sex",
+  "B09a_groesse", "B09b_gewicht",
+  "rauchen", "B14a_rauchen",
+  "B15a_alkoholkonsum", "B16_nehmen_sie_medikamente", "B17a_nehmen_sie_drogen",
+  "C05_familienstatus", "C06_bildungsgrad"
+)
+
+```
+
+## Subset BNDF
+
+```{r}
+bdnf <- add_smoking(bdnf)
+
+bdnf_subset <- safe_select(
+  bdnf,
+  c("ID", "Standort", "Zeitpunkt", "Gruppe", "Sex", "Age_start", "CogTel", baseline_covars)
+)
+
+bdnf_methylation <- subset(bdnf, select = c(m148:p020))
+bdnf_methylation_mean   <- apply(bdnf_methylation, 1, mean, na.rm = TRUE)
+bdnf_methylation_median <- apply(bdnf_methylation, 1, median, na.rm = TRUE)
+
+bdnf_mean <- cbind(bdnf_subset, Mean = bdnf_methylation_mean)
+bdnf_median <- cbind(bdnf_subset, Median = bdnf_methylation_median)
+
+# remove problematic IDs
+bdnf_mean   <- bdnf_mean[!(bdnf_mean$ID %in% c(192, 193)), ]
+bdnf_median <- bdnf_median[!(bdnf_median$ID %in% c(192, 193)), ]
+```
+
+## Subset TAU
+
+```{r}
+tau <- add_smoking(tau)
+
+tau_subset <- safe_select(
+  tau,
+  c("ID", "standort_aus_andere_quelle", "Zeit", "Gruppe", "Sex", "Age_start", "CogTel", baseline_covars)
+)
+colnames(tau_subset)[match(c("standort_aus_andere_quelle","Zeit"), names(tau_subset))] <- c("Standort", "Zeitpunkt")
+
+tau_methylation <- subset(tau, select = c(m331:p27))
+tau_methylation_mean   <- apply(tau_methylation, 1, mean, na.rm = TRUE)
+tau_methylation_median <- apply(tau_methylation, 1, median, na.rm = TRUE)
+
+tau_mean   <- cbind(tau_subset, Mean = tau_methylation_mean)
+tau_median <- cbind(tau_subset, Median = tau_methylation_median)
+
+tau_mean   <- tau_mean[!(tau_mean$ID %in% c(192, 193)), ]
+tau_median <- tau_median[!(tau_median$ID %in% c(192, 193)), ]
+```
+
+## Subset PSD95
+
+```{r}
+psd95 <- add_smoking(psd95)
+
+psd95_subset <- safe_select(
+  psd95,
+  c("ID", "standort_aus_andere_quelle", "Zeitpunkt", "Gruppe", "Sex", "Age_start", "CogTel", baseline_covars)
+)
+# rename Standort if present
+if ("standort_aus_andere_quelle" %in% names(psd95_subset)) {
+  colnames(psd95_subset)[colnames(psd95_subset) == "standort_aus_andere_quelle"] <- "Standort"
+}
+
+psd95_methylation <- subset(psd95, select = c(m465:p122))
+psd95_methylation_mean   <- apply(psd95_methylation, 1, mean, na.rm = TRUE)
+psd95_methylation_median <- apply(psd95_methylation, 1, median, na.rm = TRUE)
+
+psd95_mean   <- cbind(psd95_subset, Mean = psd95_methylation_mean)
+psd95_median <- cbind(psd95_subset, Median = psd95_methylation_median)
+
+psd95_mean   <- psd95_mean[!(psd95_mean$ID %in% c(192, 193)), ]
+psd95_median <- psd95_median[!(psd95_median$ID %in% c(192, 193)), ]
+```
+
+## Check resulting data frames
+
+```{r}
+names(bdnf_mean)
+names(tau_mean)
+names(psd95_mean)
+
+bdnf_mean[1:5, ]
+tau_mean[1:5, ]
+psd95_mean[1:5, ]
+```
+
+```{r}
+library(dplyr)
+
+dedup_names_keep_first <- function(df) {
+  df[, !duplicated(names(df)), drop = FALSE]
+}
+
+bdnf_mean   <- dedup_names_keep_first(bdnf_mean)
+tau_mean    <- dedup_names_keep_first(tau_mean)
+psd95_mean  <- dedup_names_keep_first(psd95_mean)
+
+bdnf_median <- dedup_names_keep_first(bdnf_median)
+tau_median  <- dedup_names_keep_first(tau_median)
+psd95_median<- dedup_names_keep_first(psd95_median)
+```
+
+```{r}
+#| label: big-table-union-demographics-genes
+#| results: asis
+
+library(dplyr)
+
+g_piano   <- "Piano"
+g_control <- "Controll"
+
+# ---- helpers ----
+mean_sd <- function(x) sprintf("%.2f \u00B1 %.1f", mean(x, na.rm=TRUE), sd(x, na.rm=TRUE))
+median_iqr <- function(x) {
+  q <- quantile(x, c(.25,.5,.75), na.rm=TRUE, names = FALSE)
+  sprintf("%.2f (%.2f, %.2f)", q[2], q[1], q[3])
+}
+min_max <- function(x) sprintf("%.0f / %.0f", min(x, na.rm=TRUE), max(x, na.rm=TRUE))
+fmt_missing <- function(x) sprintf("%d (%.1f%%)", sum(is.na(x)), 100 * mean(is.na(x)))
+n_nonmiss <- function(x) sum(!is.na(x))
+
+fm_pct <- function(sex_vec) {
+  s <- toupper(trimws(sex_vec))
+  s[s %in% c("FEMALE")] <- "F"
+  s[s %in% c("MALE")]   <- "M"
+  tab <- prop.table(table(s)) * 100
+  f <- unname(tab["F"]); m <- unname(tab["M"])
+  if (is.na(f)) f <- 0
+  if (is.na(m)) m <- 0
+  sprintf("%.1f / %.1f", f, m)
+}
+
+calc_bmi <- function(height_cm, weight_kg) {
+  h_m <- height_cm / 100
+  bmi <- weight_kg / (h_m^2)
+  bmi[is.infinite(bmi)] <- NA
+  bmi
+}
+
+summ_cont <- function(x) list(
+  n     = n_nonmiss(x),
+  mean  = mean_sd(x),
+  med   = median_iqr(x),
+  minmx = min_max(x),
+  miss  = fmt_missing(x)
+)
+
+# Choose which biomarker summary column to use for "missing samples"
+# For *_median data, the column is "Median". (For *_mean it would be "Mean".)
+value_col <- "Median"
+
+# ---- UNION master for demographics (unique IDs across all genes) ----
+demo_union <- bind_rows(
+  bdnf_median  %>% select(ID, Gruppe, Sex, Age_start, B09a_groesse, B09b_gewicht),
+  tau_median   %>% select(ID, Gruppe, Sex, Age_start, B09a_groesse, B09b_gewicht),
+  psd95_median %>% select(ID, Gruppe, Sex, Age_start, B09a_groesse, B09b_gewicht)
+) %>%
+  mutate(
+    Gruppe = trimws(Gruppe),
+    Sex    = trimws(Sex)
+  ) %>%
+  group_by(ID) %>%
+  summarise(
+    Gruppe        = first(na.omit(Gruppe)),
+    Sex           = first(na.omit(Sex)),
+    Age_start     = first(na.omit(Age_start)),
+    B09a_groesse  = first(na.omit(B09a_groesse)),
+    B09b_gewicht  = first(na.omit(B09b_gewicht)),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    BMI = calc_bmi(B09a_groesse, B09b_gewicht)
+  )
+
+summ_demo <- function(d) {
+  age <- summ_cont(d$Age_start)
+  ht  <- summ_cont(d$B09a_groesse)
+  wt  <- summ_cont(d$B09b_gewicht)
+  bmi <- summ_cont(d$BMI)
+
+  list(
+    N = nrow(d),
+    age = age,
+    ht  = ht,
+    wt  = wt,
+    bmi = bmi,
+    fm = fm_pct(d$Sex),
+    sex_miss = fmt_missing(d$Sex)
+  )
+}
+
+P <- summ_demo(filter(demo_union, Gruppe == g_piano))
+C <- summ_demo(filter(demo_union, Gruppe == g_control))
+O <- summ_demo(demo_union)
+
+# ---- gene rows: n and missing per timepoint for each marker (LONG format: Zeitpunkt) ----
+prep_gene <- function(df) df %>%
+  mutate(
+    Gruppe    = trimws(Gruppe),
+    Zeitpunkt = trimws(as.character(Zeitpunkt))
+  )
+
+gene_stats <- function(df, marker, value_col = "Median") {
+  df <- prep_gene(df)
+  # split by group
+  P <- filter(df, Gruppe == g_piano)
+  C <- filter(df, Gruppe == g_control)
+  O <- df
+
+  # helper: for a given dataset + timepoint, count non-missing and missing for value_col
+  one_tp <- function(dat, tp) {
+    x <- dat[[value_col]][dat$Zeitpunkt == tp]
+    list(n = n_nonmiss(x), miss = fmt_missing(x))
+  }
+
+  tps <- c("T0", "T1", "T2")
+
+  list(
+    marker = marker,
+    P = setNames(lapply(tps, \(tp) one_tp(P, tp)), tps),
+    C = setNames(lapply(tps, \(tp) one_tp(C, tp)), tps),
+    O = setNames(lapply(tps, \(tp) one_tp(O, tp)), tps)
+  )
+}
+
+genes <- list(
+  gene_stats(bdnf_median,  "BDNF",  value_col),
+  gene_stats(tau_median,   "TAU",   value_col),
+  gene_stats(psd95_median, "PSD95", value_col)
+)
+
+# ---- print unified table ----
+cat(paste0(
+  "| Characteristic | Piano | Control | Overall |\n",
+  "|---|---:|---:|---:|\n",
+
+  "| Participants (N) | ", P$N, " | ", C$N, " | ", O$N, " |\n",
+
+  "| Age non-missing (n) | ", P$age$n, " | ", C$age$n, " | ", O$age$n, " |\n",
+  "| Mean age \u00B1 SD (years) | ", P$age$mean, " | ", C$age$mean, " | ", O$age$mean, " |\n",
+  "| Median (IQR) age (years) | ", P$age$med, " | ", C$age$med, " | ", O$age$med, " |\n",
+  "| Min / Max age (years) | ", P$age$minmx, " | ", C$age$minmx, " | ", O$age$minmx, " |\n",
+
+  "| Height non-missing (n) | ", P$ht$n, " | ", C$ht$n, " | ", O$ht$n, " |\n",
+  "| Mean height \u00B1 SD (cm) | ", P$ht$mean, " | ", C$ht$mean, " | ", O$ht$mean, " |\n",
+  "| Median (IQR) height (cm) | ", P$ht$med, " | ", C$ht$med, " | ", O$ht$med, " |\n",
+  "| Min / Max height (cm) | ", P$ht$minmx, " | ", C$ht$minmx, " | ", O$ht$minmx, " |\n",
+  "| Height missing, n (%) | ", P$ht$miss, " | ", C$ht$miss, " | ", O$ht$miss, " |\n",
+
+  "| Weight non-missing (n) | ", P$wt$n, " | ", C$wt$n, " | ", O$wt$n, " |\n",
+  "| Mean weight \u00B1 SD (kg) | ", P$wt$mean, " | ", C$wt$mean, " | ", O$wt$mean, " |\n",
+  "| Median (IQR) weight (kg) | ", P$wt$med, " | ", C$wt$med, " | ", O$wt$med, " |\n",
+  "| Min / Max weight (kg) | ", P$wt$minmx, " | ", C$wt$minmx, " | ", O$wt$minmx, " |\n",
+  "| Weight missing, n (%) | ", P$wt$miss, " | ", C$wt$miss, " | ", O$wt$miss, " |\n",
+
+  "| BMI non-missing (n) | ", P$bmi$n, " | ", C$bmi$n, " | ", O$bmi$n, " |\n",
+  "| Mean BMI \u00B1 SD (kg/m\u00B2) | ", P$bmi$mean, " | ", C$bmi$mean, " | ", O$bmi$mean, " |\n",
+  "| Median (IQR) BMI (kg/m\u00B2) | ", P$bmi$med, " | ", C$bmi$med, " | ", O$bmi$med, " |\n",
+  "| Min / Max BMI (kg/m\u00B2) | ", P$bmi$minmx, " | ", C$bmi$minmx, " | ", O$bmi$minmx, " |\n",
+  "| BMI missing, n (%) | ", P$bmi$miss, " | ", C$bmi$miss, " | ", O$bmi$miss, " |\n",
+
+  "| Female / Male (%) | ", P$fm, " | ", C$fm, " | ", O$fm, " |\n",
+  "| Sex missing, n (%) | ", P$sex_miss, " | ", C$sex_miss, " | ", O$sex_miss, " |\n"
+))
+
+for (r in genes) {
+  cat(paste0(
+    "| ", r$marker, " samples at T0 (n) | ", r$P$T0$n, " | ", r$C$T0$n, " | ", r$O$T0$n, " |\n",
+    "| ", r$marker, " samples at T1 (n) | ", r$P$T1$n, " | ", r$C$T1$n, " | ", r$O$T1$n, " |\n",
+    "| ", r$marker, " samples at T2 (n) | ", r$P$T2$n, " | ", r$C$T2$n, " | ", r$O$T2$n, " |\n",
+    "| ", r$marker, " missing T0, n (%) | ", r$P$T0$miss, " | ", r$C$T0$miss, " | ", r$O$T0$miss, " |\n",
+    "| ", r$marker, " missing T1, n (%) | ", r$P$T1$miss, " | ", r$C$T1$miss, " | ", r$O$T1$miss, " |\n",
+    "| ", r$marker, " missing T2, n (%) | ", r$P$T2$miss, " | ", r$C$T2$miss, " | ", r$O$T2$miss, " |\n"
+  ))
+}
+
+
+```
+
+## Baseline characteristics table (mean ± SD)
+
+Cave! ID 141 is missing because they have no T0 record in any of the three gene datasets (bdnf\_*, tau\_*, psd95\_\*). So:
+
+Your union table (all IDs across all timepoints) = 144
+
+Your NEJM baseline_df filtered to Zeitpunkt == "T0" = 143
+
+The “missing one” is exactly ID 141.
+
+That’s not a bug — it’s a definition issue: “baseline” = T0 excludes people without T0.
+
+### Mean
+
+```{r}
+#| label: tbl-nejm
+#| tbl-cap: "Baseline characteristics (Mean [SD])"
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(forcats)
+library(gtsummary)
+library(gt)
+
+# ---- helpers ----
+first_nonmiss <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) NA else x[1]
+}
+
+calc_bmi <- function(height_cm, weight_kg) {
+  h_m <- height_cm / 100
+  bmi <- weight_kg / (h_m^2)
+  bmi[is.infinite(bmi)] <- NA
+  bmi
+}
+
+# ---- UNION baseline dataset (T0, one row per ID) ----
+baseline_df <- bind_rows(
+  bdnf_mean  %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad"))),
+  tau_mean   %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad"))),
+  psd95_mean %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad")))
+) %>%
+  mutate(
+    Zeitpunkt = trimws(as.character(Zeitpunkt)),
+    Gruppe    = trimws(Gruppe),
+    Sex       = trimws(Sex)
+  ) %>%
+  filter(Zeitpunkt == "T0") %>%
+  group_by(ID) %>%
+  summarise(across(everything(), first_nonmiss), .groups = "drop") %>%
+  mutate(
+    BMI = calc_bmi(B09a_groesse, B09b_gewicht),
+    rauchen2 = coalesce(rauchen, B14a_rauchen),
+    Site = case_when(
+      Standort == 0 ~ "Geneva",
+      Standort == 1 ~ "Hannover",
+      TRUE ~ as.character(Standort)
+    )
+  ) %>%
+  # NEJM: keep only participants with known group assignment
+  filter(!is.na(Gruppe)) %>%
+  mutate(
+    Gruppe = factor(Gruppe, levels = c("Piano", "Controll")),
+    Site   = factor(Site, levels = c("Hannover", "Geneva")),  # display order
+
+    # Sex -> Female/Male
+    Sex = factor(Sex),
+    Sex = fct_recode(Sex,
+      "Female" = "F", "Female" = "female", "Female" = "FEMALE",
+      "Male"   = "M", "Male"   = "male",   "Male"   = "MALE"
+    ),
+
+    rauchen2 = factor(rauchen2),
+    B15a_alkoholkonsum = factor(B15a_alkoholkonsum),
+    B16_nehmen_sie_medikamente = factor(B16_nehmen_sie_medikamente),
+    B17a_nehmen_sie_drogen = factor(B17a_nehmen_sie_drogen),
+    C05_familienstatus = factor(C05_familienstatus),
+    C06_bildungsgrad = factor(C06_bildungsgrad)
+  )
+
+# ---- variables shown (Site placed after Sex) ----
+table1_vars <- c(
+  "Age_start", "Sex", "Site",
+  "B09a_groesse", "B09b_gewicht", "BMI",
+  "rauchen2",
+  "B15a_alkoholkonsum",
+  "B16_nehmen_sie_medikamente",
+  "B17a_nehmen_sie_drogen",
+  "C05_familienstatus",
+  "C06_bildungsgrad",
+  "CogTel"
+)
+
+t1_mean <- baseline_df %>%
+  select(Gruppe, all_of(table1_vars)) %>%
+  tbl_summary(
+    by = Gruppe,
+    label = list(
+      Age_start ~ "Age, years",
+      Sex ~ "Sex",
+      Site ~ "Study site",
+      B09a_groesse ~ "Height, cm",
+      B09b_gewicht ~ "Weight, kg",
+      BMI ~ "Body-mass index, kg/m\u00B2",
+      rauchen2 ~ "Smoking status",
+      B15a_alkoholkonsum ~ "Alcohol use",
+      B16_nehmen_sie_medikamente ~ "Prescription medication use",
+      B17a_nehmen_sie_drogen ~ "Illicit drug use",
+      C05_familienstatus ~ "Family status",
+      C06_bildungsgrad ~ "Educational attainment",
+      CogTel ~ "Cognitive score (CogTel)"
+    ),
+    statistic = list(
+      all_continuous() ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    digits = all_continuous() ~ 2,
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p() %>%
+  bold_labels() %>%
+  modify_header(label ~ "**Characteristic**") %>%
+  modify_spanning_header(all_stat_cols() ~ "**Group**") %>%
+  #modify_caption("**Table 1a. Baseline Characteristics (Mean [SD])**")
+
+t1_mean %>% as_gt()
+
+```
+
+```{r}
+#| label: tbl-demo-nejm-mean
+#| tbl-cap: "Baseline characteristics (Mean [SD])"
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(gtsummary)
+library(gt)
+
+# t1_mean is your gtsummary object (from tbl_summary()...)
+gt_mean <- t1_mean %>%
+  as_gt() %>%
+  tab_options(
+    table.width = pct(100),          # <-- makes it responsive / full width
+    table.layout = "fixed",          # <-- prevents weird resizing
+    data_row.padding = px(2),
+    heading.padding = px(2)
+  ) %>%
+  cols_width(
+    everything() ~ pct(20),          # simple equal widths (adjust if needed)
+    1 ~ pct(40)                      # Characteristic column wider
+  ) %>%
+  tab_style(
+    style = cell_text(whitespace = "normal"),  # <-- enables wrapping
+    locations = cells_body(columns = everything())
+  ) %>%
+  tab_style(
+    style = cell_text(whitespace = "normal"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  tab_source_note(
+    md("Values are mean (SD) for continuous variables and no. (%) for categorical variables. \
+P values are from the Wilcoxon rank-sum test for continuous variables and Pearson’s chi-squared test or Fisher’s exact test for categorical variables, as appropriate. \
+Baseline characteristics were taken from the earliest available assessment (T0 preferred); one participant had no T0 sample (ID 141).")
+  )
+
+gt_mean
+
+```
+
+```{r}
+#| label: save-tbl-demo-nejm-mean
+#| message: false
+#| warning: false
+
+gt_tbl <- t1_meanu %>% as_gt()
+gt::gtsave(gt_tbl, "_rendered/tbl-demo-nejm-mean.html")
+```
+
+## mit ID 144 who had no T0 record in any gene dataset
+
+```{r}
+#| label: baseline-df-earliest
+#| message: false
+#| warning: false
+
+library(dplyr)
+
+first_nonmiss <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) NA else x[1]
+}
+
+calc_bmi <- function(height_cm, weight_kg) {
+  h_m <- height_cm / 100
+  bmi <- weight_kg / (h_m^2)
+  bmi[is.infinite(bmi)] <- NA
+  bmi
+}
+
+tp_order <- c("T0","T1","T2")
+
+baseline_df <- bind_rows(
+  bdnf_mean  %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad"))),
+  tau_mean   %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad"))),
+  psd95_mean %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad")))
+) %>%
+  mutate(
+    Zeitpunkt = trimws(as.character(Zeitpunkt)),
+    Zeitpunkt = factor(Zeitpunkt, levels = tp_order, ordered = TRUE),
+    Gruppe    = trimws(Gruppe),
+    Sex       = trimws(Sex)
+  ) %>%
+  arrange(ID, Zeitpunkt) %>%
+  group_by(ID) %>%
+  slice(1) %>%                 # earliest available row per ID (T0 preferred)
+  ungroup() %>%
+  group_by(ID) %>%
+  summarise(across(everything(), first_nonmiss), .groups = "drop") %>%
+  mutate(
+    BMI = calc_bmi(B09a_groesse, B09b_gewicht),
+    rauchen2 = coalesce(rauchen, B14a_rauchen),
+    Site = case_when(
+      Standort == 0 ~ "Geneva",
+      Standort == 1 ~ "Hannover",
+      TRUE ~ as.character(Standort)
+    )
+  ) %>%
+  filter(!is.na(Gruppe))
+
+# sanity check
+nrow(baseline_df)
+table(baseline_df$Zeitpunkt, useNA = "ifany")  # should show 1 person at T1 (ID 141)
+```
+
+### Median
+
+```{r}
+#| label: tbl1-nejm-median
+#| results: asis
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(forcats)
+library(gtsummary)
+library(gt)
+
+# baseline_df is rebuilt here so the chunk is standalone.
+first_nonmiss <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) NA else x[1]
+}
+calc_bmi <- function(height_cm, weight_kg) {
+  h_m <- height_cm / 100
+  bmi <- weight_kg / (h_m^2)
+  bmi[is.infinite(bmi)] <- NA
+  bmi
+}
+
+baseline_df <- bind_rows(
+  bdnf_mean  %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad"))),
+  tau_mean   %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad"))),
+  psd95_mean %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad")))
+) %>%
+  mutate(
+    Zeitpunkt = trimws(as.character(Zeitpunkt)),
+    Gruppe    = trimws(Gruppe),
+    Sex       = trimws(Sex)
+  ) %>%
+  filter(Zeitpunkt == "T0") %>%
+  group_by(ID) %>%
+  summarise(across(everything(), first_nonmiss), .groups = "drop") %>%
+  mutate(
+    BMI = calc_bmi(B09a_groesse, B09b_gewicht),
+    rauchen2 = coalesce(rauchen, B14a_rauchen),
+    Site = case_when(
+      Standort == 0 ~ "Geneva",
+      Standort == 1 ~ "Hannover",
+      TRUE ~ as.character(Standort)
+    )
+  ) %>%
+  filter(!is.na(Gruppe)) %>%
+  mutate(
+    Gruppe = factor(Gruppe, levels = c("Piano", "Controll")),
+    Site   = factor(Site, levels = c("Hannover", "Geneva")),
+    Sex = factor(Sex),
+    Sex = fct_recode(Sex,
+      "Female" = "F", "Female" = "female", "Female" = "FEMALE",
+      "Male"   = "M", "Male"   = "male",   "Male"   = "MALE"
+    ),
+    rauchen2 = factor(rauchen2),
+    B15a_alkoholkonsum = factor(B15a_alkoholkonsum),
+    B16_nehmen_sie_medikamente = factor(B16_nehmen_sie_medikamente),
+    B17a_nehmen_sie_drogen = factor(B17a_nehmen_sie_drogen),
+    C05_familienstatus = factor(C05_familienstatus),
+    C06_bildungsgrad = factor(C06_bildungsgrad)
+  )
+
+table1_vars <- c(
+  "Age_start", "Sex", "Site",
+  "B09a_groesse", "B09b_gewicht", "BMI",
+  "rauchen2",
+  "B15a_alkoholkonsum",
+  "B16_nehmen_sie_medikamente",
+  "B17a_nehmen_sie_drogen",
+  "C05_familienstatus",
+  "C06_bildungsgrad",
+  "CogTel"
+)
+
+t1_median <- baseline_df %>%
+  select(Gruppe, all_of(table1_vars)) %>%
+  tbl_summary(
+    by = Gruppe,
+    label = list(
+      Age_start ~ "Age, years",
+      Sex ~ "Sex",
+      Site ~ "Study site",
+      B09a_groesse ~ "Height, cm",
+      B09b_gewicht ~ "Weight, kg",
+      BMI ~ "Body-mass index, kg/m\u00B2",
+      rauchen2 ~ "Smoking status",
+      B15a_alkoholkonsum ~ "Alcohol use",
+      B16_nehmen_sie_medikamente ~ "Prescription medication use",
+      B17a_nehmen_sie_drogen ~ "Illicit drug use",
+      C05_familienstatus ~ "Family status",
+      C06_bildungsgrad ~ "Educational attainment",
+      CogTel ~ "Cognitive score (CogTel)"
+    ),
+    statistic = list(
+      all_continuous() ~ "{median} [{p25}, {p75}]",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    digits = all_continuous() ~ 2,
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(test = all_continuous() ~ "wilcox.test") %>%  # typical with medians
+  bold_labels() %>%
+  modify_header(label ~ "**Characteristic**") %>%
+  modify_spanning_header(all_stat_cols() ~ "**Group**") %>%
+  modify_caption("**Table 1b. Baseline Characteristics (Median [IQR])**")
+
+t1_median %>% as_gt()
+
+```
+
+## Markdown-Nejm
+
+### mean
+
+```{r}
+#| label: tbl1-nejm-mean-md
+#| results: asis
+#| message: false
+#| warning: false
+
+library(dplyr)
+
+# ---- helpers ----
+first_nonmiss <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) NA else x[1]
+}
+
+calc_bmi <- function(height_cm, weight_kg) {
+  h_m <- height_cm / 100
+  bmi <- weight_kg / (h_m^2)
+  bmi[is.infinite(bmi)] <- NA
+  bmi
+}
+
+fmt_mean_sd <- function(x, digits = 2) {
+  m <- mean(x, na.rm = TRUE); s <- sd(x, na.rm = TRUE)
+  if (is.nan(m) || is.nan(s)) return("")
+  sprintf(paste0("%.",digits,"f (%.",digits,"f)"), m, s)
+}
+
+fmt_n_pct_levels <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return("")
+  tab <- table(x)
+  n <- sum(tab)
+  paste(sprintf("%s: %d (%.1f%%)", names(tab), as.integer(tab), 100*as.integer(tab)/n), collapse="; ")
+}
+
+fmt_p <- function(p) {
+  if (is.na(p)) return("")
+  if (p < 0.001) "<0.001" else sprintf("%.3f", p)
+}
+
+p_ttest <- function(x, g) {
+  ok <- !is.na(x) & !is.na(g)
+  if (sum(ok) < 3) return(NA_real_)
+  tryCatch(t.test(x[ok] ~ g[ok])$p.value, error = function(e) NA_real_)
+}
+
+p_wilcox <- function(x, g) {
+  ok <- !is.na(x) & !is.na(g)
+  if (sum(ok) < 3) return(NA_real_)
+  tryCatch(wilcox.test(x[ok] ~ g[ok], exact = FALSE)$p.value, error = function(e) NA_real_)
+}
+
+p_cat <- function(x, g) {
+  ok <- !is.na(x) & !is.na(g)
+  if (sum(ok) < 3) return(NA_real_)
+  tab <- table(x[ok], g[ok])
+  # Fisher if any expected small / sparse
+  if (any(tab < 5)) {
+    tryCatch(fisher.test(tab)$p.value, error = function(e) NA_real_)
+  } else {
+    tryCatch(chisq.test(tab, correct = FALSE)$p.value, error = function(e) NA_real_)
+  }
+}
+
+tp_order <- c("T0","T1","T2")
+
+# ---- UNION baseline dataset (earliest available per ID) ----
+baseline_df <- bind_rows(
+  bdnf_mean  %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad"))),
+  tau_mean   %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad"))),
+  psd95_mean %>% select(any_of(c("ID","Standort","Zeitpunkt","Gruppe","Sex","Age_start","CogTel",
+                                "B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+                                "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+                                "C05_familienstatus","C06_bildungsgrad")))
+) %>%
+  mutate(
+    Zeitpunkt = trimws(as.character(Zeitpunkt)),
+    Zeitpunkt = factor(Zeitpunkt, levels = tp_order, ordered = TRUE),
+    Gruppe    = trimws(Gruppe),
+    Sex       = trimws(Sex)
+  ) %>%
+  arrange(ID, Zeitpunkt) %>%
+  group_by(ID) %>%
+  slice(1) %>%
+  ungroup() %>%
+  group_by(ID) %>%
+  summarise(across(everything(), first_nonmiss), .groups = "drop") %>%
+  mutate(
+    BMI = calc_bmi(B09a_groesse, B09b_gewicht),
+    rauchen2 = coalesce(rauchen, B14a_rauchen),
+    Site = case_when(
+      Standort == 0 ~ "Geneva",
+      Standort == 1 ~ "Hannover",
+      TRUE ~ as.character(Standort)
+    ),
+    Sex = toupper(Sex),
+    Sex = ifelse(Sex %in% c("F","FEMALE"), "Female",
+                 ifelse(Sex %in% c("M","MALE"), "Male", Sex))
+  ) %>%
+  filter(!is.na(Gruppe)) %>%
+  mutate(
+    Gruppe = factor(Gruppe, levels = c("Piano","Controll")),
+    Site   = factor(Site, levels = c("Hannover","Geneva"))
+  )
+
+# ---- build markdown table ----
+P <- baseline_df %>% filter(Gruppe == "Piano")
+C <- baseline_df %>% filter(Gruppe == "Controll")
+
+rows <- tibble::tibble(
+  Characteristic = character(),
+  Piano = character(),
+  Control = character(),
+  Overall = character(),
+  `P value` = character()
+)
+
+add_row_cont <- function(label, var, digits = 2) {
+  x <- baseline_df[[var]]
+  g <- baseline_df$Gruppe
+  tibble::tibble(
+    Characteristic = label,
+    Piano   = fmt_mean_sd(P[[var]], digits),
+    Control = fmt_mean_sd(C[[var]], digits),
+    Overall = fmt_mean_sd(x, digits),
+    `P value` = fmt_p(p_ttest(x, g))
+  )
+}
+
+add_row_cat <- function(label, var) {
+  x <- baseline_df[[var]]
+  g <- baseline_df$Gruppe
+  tibble::tibble(
+    Characteristic = label,
+    Piano   = fmt_n_pct_levels(P[[var]]),
+    Control = fmt_n_pct_levels(C[[var]]),
+    Overall = fmt_n_pct_levels(x),
+    `P value` = fmt_p(p_cat(x, g))
+  )
+}
+
+rows <- dplyr::bind_rows(
+  tibble::tibble(
+    Characteristic = "Participants (N)",
+    Piano = as.character(nrow(P)),
+    Control = as.character(nrow(C)),
+    Overall = as.character(nrow(baseline_df)),
+    `P value` = ""
+  ),
+  add_row_cont("Age, years — mean (SD)", "Age_start", 2),
+  add_row_cat("Sex — no. (%)", "Sex"),
+  add_row_cat("Study site — no. (%)", "Site"),
+  add_row_cont("Height, cm — mean (SD)", "B09a_groesse", 2),
+  add_row_cont("Weight, kg — mean (SD)", "B09b_gewicht", 2),
+  add_row_cont("Body-mass index, kg/m\u00B2 — mean (SD)", "BMI", 2),
+  add_row_cat("Smoking status — no. (%)", "rauchen2"),
+  add_row_cat("Alcohol use — no. (%)", "B15a_alkoholkonsum"),
+  add_row_cat("Prescription medication use — no. (%)", "B16_nehmen_sie_medikamente"),
+  add_row_cat("Illicit drug use — no. (%)", "B17a_nehmen_sie_drogen"),
+  add_row_cat("Family status — no. (%)", "C05_familienstatus"),
+  add_row_cat("Educational attainment — no. (%)", "C06_bildungsgrad"),
+  add_row_cont("Cognitive score (CogTel) — mean (SD)", "CogTel", 2)
+)
+
+# Print as markdown
+cat("| Characteristic | Piano | Control | Overall | P value |\n")
+cat("|---|---:|---:|---:|---:|\n")
+apply(rows, 1, function(r) {
+  cat("| ", paste(r, collapse=" | "), " |\n", sep="")
+})
+
+cat("\n*Values are mean (SD) for continuous variables and no. (%) for categorical variables. P values are from Student’s t test for continuous variables and Pearson’s chi-squared test or Fisher’s exact test for categorical variables, as appropriate. Baseline characteristics were taken from the earliest available assessment (T0 preferred); one participant had no T0 sample (ID 141).*\n")
+
+```
+
+### median
+
+```{r}
+#| label: tbl1-nejm-median-md
+#| results: asis
+#| message: false
+#| warning: false
+
+library(dplyr)
+
+# Reuse baseline_df from the previous chunk if it exists; otherwise rebuild quickly.
+if (!exists("baseline_df")) stop("Run tbl1-nejm-mean-md first, or copy the baseline_df builder here.")
+
+fmt_median_iqr <- function(x, digits = 2) {
+  q <- stats::quantile(x, probs = c(.25,.5,.75), na.rm = TRUE, names = FALSE)
+  if (any(is.nan(q))) return("")
+  sprintf(paste0("%.",digits,"f [%.",digits,"f, %.",digits,"f]"), q[2], q[1], q[3])
+}
+
+fmt_n_pct_levels <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) return("")
+  tab <- table(x)
+  n <- sum(tab)
+  paste(sprintf("%s: %d (%.1f%%)", names(tab), as.integer(tab), 100*as.integer(tab)/n), collapse="; ")
+}
+
+fmt_p <- function(p) {
+  if (is.na(p)) return("")
+  if (p < 0.001) "<0.001" else sprintf("%.3f", p)
+}
+
+p_wilcox <- function(x, g) {
+  ok <- !is.na(x) & !is.na(g)
+  if (sum(ok) < 3) return(NA_real_)
+  tryCatch(wilcox.test(x[ok] ~ g[ok], exact = FALSE)$p.value, error = function(e) NA_real_)
+}
+
+p_cat <- function(x, g) {
+  ok <- !is.na(x) & !is.na(g)
+  if (sum(ok) < 3) return(NA_real_)
+  tab <- table(x[ok], g[ok])
+  if (any(tab < 5)) {
+    tryCatch(fisher.test(tab)$p.value, error = function(e) NA_real_)
+  } else {
+    tryCatch(chisq.test(tab, correct = FALSE)$p.value, error = function(e) NA_real_)
+  }
+}
+
+P <- baseline_df %>% filter(Gruppe == "Piano")
+C <- baseline_df %>% filter(Gruppe == "Controll")
+
+add_row_cont <- function(label, var, digits = 2) {
+  x <- baseline_df[[var]]
+  g <- baseline_df$Gruppe
+  tibble::tibble(
+    Characteristic = label,
+    Piano   = fmt_median_iqr(P[[var]], digits),
+    Control = fmt_median_iqr(C[[var]], digits),
+    Overall = fmt_median_iqr(x, digits),
+    `P value` = fmt_p(p_wilcox(x, g))
+  )
+}
+
+add_row_cat <- function(label, var) {
+  x <- baseline_df[[var]]
+  g <- baseline_df$Gruppe
+  tibble::tibble(
+    Characteristic = label,
+    Piano   = fmt_n_pct_levels(P[[var]]),
+    Control = fmt_n_pct_levels(C[[var]]),
+    Overall = fmt_n_pct_levels(x),
+    `P value` = fmt_p(p_cat(x, g))
+  )
+}
+
+rows <- dplyr::bind_rows(
+  tibble::tibble(
+    Characteristic = "Participants (N)",
+    Piano = as.character(nrow(P)),
+    Control = as.character(nrow(C)),
+    Overall = as.character(nrow(baseline_df)),
+    `P value` = ""
+  ),
+  add_row_cont("Age, years — median [IQR]", "Age_start", 2),
+  add_row_cat("Sex — no. (%)", "Sex"),
+  add_row_cat("Study site — no. (%)", "Site"),
+  add_row_cont("Height, cm — median [IQR]", "B09a_groesse", 2),
+  add_row_cont("Weight, kg — median [IQR]", "B09b_gewicht", 2),
+  add_row_cont("Body-mass index, kg/m\u00B2 — median [IQR]", "BMI", 2),
+  add_row_cat("Smoking status — no. (%)", "rauchen2"),
+  add_row_cat("Alcohol use — no. (%)", "B15a_alkoholkonsum"),
+  add_row_cat("Prescription medication use — no. (%)", "B16_nehmen_sie_medikamente"),
+  add_row_cat("Illicit drug use — no. (%)", "B17a_nehmen_sie_drogen"),
+  add_row_cat("Family status — no. (%)", "C05_familienstatus"),
+  add_row_cat("Educational attainment — no. (%)", "C06_bildungsgrad"),
+  add_row_cont("Cognitive score (CogTel) — median [IQR]", "CogTel", 2)
+)
+
+cat("| Characteristic | Piano | Control | Overall | P value |\n")
+cat("|---|---:|---:|---:|---:|\n")
+apply(rows, 1, function(r) {
+  cat("| ", paste(r, collapse=" | "), " |\n", sep="")
+})
+
+cat("\n*Values are median [IQR] for continuous variables and no. (%) for categorical variables. P values are from the Wilcoxon rank-sum test for continuous variables and Pearson’s chi-squared test or Fisher’s exact test for categorical variables, as appropriate. Baseline characteristics were taken from the earliest available assessment (T0 preferred); one participant had no T0 sample (ID 141).*\n")
+
+```
+```{r}
+#| label: tbl1-nejm-median-knitr
+#| tbl-cap: "Table 1. Baseline characteristics (median [IQR])"
+#| results: asis
+#| message: false
+#| warning: false
+
+library(dplyr)
+library(knitr)
+
+# ---- helpers ----
+dash <- "\u2013"  # en dash
+
+fmt_med_iqr <- function(x, digits = 1) {
+  q <- quantile(x, c(.25,.5,.75), na.rm = TRUE, names = FALSE)
+  if (any(is.nan(q))) return("")
+  sprintf(paste0("%.",digits,"f (%.",digits,"f",dash,"%.",digits,"f)"), q[2], q[1], q[3])
+}
+
+fmt_n_pct <- function(n, denom) {
+  if (is.na(n) || is.na(denom) || denom == 0) return("")
+  sprintf("%d (%.1f)", n, 100*n/denom)
+}
+
+fmt_p <- function(p) {
+  if (is.na(p)) return("")
+  if (p < 0.001) "<0.001" else sprintf("%.3f", p)
+}
+
+p_wilcox <- function(x, g) {
+  ok <- !is.na(x) & !is.na(g)
+  if (sum(ok) < 3) return(NA_real_)
+  tryCatch(wilcox.test(x[ok] ~ g[ok], exact = FALSE)$p.value, error = function(e) NA_real_)
+}
+
+p_cat <- function(x, g) {
+  ok <- !is.na(x) & !is.na(g)
+  if (sum(ok) < 3) return(NA_real_)
+  tab <- table(x[ok], g[ok])
+  # NEJM-style: Fisher when sparse / small expected counts
+  if (any(tab < 5)) {
+    tryCatch(fisher.test(tab)$p.value, error = function(e) NA_real_)
+  } else {
+    tryCatch(chisq.test(tab, correct = FALSE)$p.value, error = function(e) NA_real_)
+  }
+}
+
+# ---- ensure Gruppe levels and site names ----
+baseline_df <- baseline_df %>%
+  mutate(
+    Gruppe = factor(trimws(Gruppe), levels = c("Piano","Controll")),
+    Site   = factor(Site, levels = c("Hannover","Geneva")),
+    Sex    = factor(Sex, levels = c("Female","Male"))
+  )
+
+P <- baseline_df %>% filter(Gruppe == "Piano")
+C <- baseline_df %>% filter(Gruppe == "Controll")
+
+nP <- nrow(P); nC <- nrow(C); nO <- nrow(baseline_df)
+
+# ---- recode categorical variables to NEJM-friendly labels ----
+# Adjust these label maps if your coding differs.
+baseline_df <- baseline_df %>%
+  mutate(
+    Smoking = case_when(
+      rauchen2 %in% c(1, "1", "Yes", "yes", "TRUE", TRUE) ~ "Current smoker",
+      rauchen2 %in% c(0, "0", "No", "no", "FALSE", FALSE) ~ "Not current smoker",
+      TRUE ~ as.character(rauchen2)
+    ),
+
+    Alcohol = dplyr::recode(as.character(B15a_alkoholkonsum),
+      `0` = "None",
+      `1` = "Occasional",
+      `2` = "Regular",
+      .default = as.character(B15a_alkoholkonsum)
+    ),
+
+    Meds = dplyr::recode(as.character(B16_nehmen_sie_medikamente),
+      `0` = "No",
+      `1` = "Yes",
+      .default = as.character(B16_nehmen_sie_medikamente)
+    ),
+
+    Illicit = dplyr::recode(as.character(B17a_nehmen_sie_drogen),
+      `0` = "No",
+      `1` = "Yes",
+      .default = as.character(B17a_nehmen_sie_drogen)
+    ),
+
+    Family = dplyr::recode(as.character(C05_familienstatus),
+      `1` = "Single",
+      `2` = "Married/Partnered",
+      `3` = "Divorced",
+      `4` = "Widowed",
+      .default = as.character(C05_familienstatus)
+    ),
+
+    Education = dplyr::recode(as.character(C06_bildungsgrad),
+      `1` = "Primary",
+      `2` = "Secondary",
+      `3` = "Vocational",
+      `4` = "Upper secondary",
+      `5` = "University",
+      `6` = "Postgraduate",
+      .default = as.character(C06_bildungsgrad)
+    )
+  )
+
+# helper: make a block (header row + subrows)
+block_cat <- function(df, var, header_label, level_order = NULL, show_levels = NULL) {
+  x <- df[[var]]
+  g <- df$Gruppe
+  p <- fmt_p(p_cat(x, g))
+
+  # levels to show
+  levs <- sort(unique(na.omit(as.character(x))))
+  if (!is.null(level_order)) levs <- intersect(level_order, levs)
+  if (!is.null(show_levels)) levs <- intersect(show_levels, levs)
+
+  # denominators per group for percents (non-missing)
+  denomP <- sum(!is.na(P[[var]]))
+  denomC <- sum(!is.na(C[[var]]))
+  denomO <- sum(!is.na(df[[var]]))
+
+  header <- tibble::tibble(
+    Characteristic = paste0("**", header_label, " — no. (%)**"),
+    Piano   = "",
+    Control = "",
+    Overall = "",
+    `P value` = p
+  )
+
+  subs <- lapply(levs, function(L) {
+    nP <- sum(as.character(P[[var]]) == L, na.rm = TRUE)
+    nC <- sum(as.character(C[[var]]) == L, na.rm = TRUE)
+    nO <- sum(as.character(df[[var]]) == L, na.rm = TRUE)
+    tibble::tibble(
+      Characteristic = paste0("&nbsp;&nbsp;", L),
+      Piano   = fmt_n_pct(nP, denomP),
+      Control = fmt_n_pct(nC, denomC),
+      Overall = fmt_n_pct(nO, denomO),
+      `P value` = ""
+    )
+  }) |> dplyr::bind_rows()
+
+  bind_rows(header, subs)
+}
+
+block_cont <- function(df, var, label, digits = 1) {
+  p <- fmt_p(p_wilcox(df[[var]], df$Gruppe))
+  tibble::tibble(
+    Characteristic = paste0("**", label, "**"),
+    Piano   = fmt_med_iqr(P[[var]], digits),
+    Control = fmt_med_iqr(C[[var]], digits),
+    Overall = fmt_med_iqr(df[[var]], digits),
+    `P value` = p
+  )
+}
+
+# ---- assemble NEJM-style table ----
+tbl <- bind_rows(
+  tibble::tibble(
+    Characteristic = "**Participants**",
+    Piano   = sprintf("%d", nP),
+    Control = sprintf("%d", nC),
+    Overall = sprintf("%d", nO),
+    `P value` = ""
+  ),
+
+  block_cont(baseline_df, "Age_start", "Age — yr", digits = 1),
+
+  block_cat(baseline_df, "Sex", "Sex", level_order = c("Female","Male")),
+
+  block_cat(baseline_df, "Site", "Study site", level_order = c("Hannover","Geneva")),
+
+  block_cont(baseline_df, "B09a_groesse", "Height — cm", digits = 0),
+  block_cont(baseline_df, "B09b_gewicht", "Weight — kg", digits = 0),
+  block_cont(baseline_df, "BMI", paste0("Body-mass index — kg/m\u00B2"), digits = 1),
+
+  # Smoking: NEJM usually shows only "Current smoker" row
+  block_cat(baseline_df, "Smoking", "Smoking status", show_levels = "Current smoker"),
+
+  block_cat(baseline_df, "Alcohol", "Alcohol use",
+            level_order = c("None","Occasional","Regular")),
+
+  # Binary: show only "Yes" row
+  block_cat(baseline_df, "Meds", "Prescription medication use", show_levels = "Yes"),
+  block_cat(baseline_df, "Illicit", "Illicit drug use", show_levels = "Yes"),
+
+  block_cat(baseline_df, "Family", "Family status",
+            level_order = c("Single","Married/Partnered","Divorced","Widowed")),
+
+  block_cat(baseline_df, "Education", "Educational attainment",
+            level_order = c("Primary","Secondary","Vocational","Upper secondary","University","Postgraduate")),
+
+  block_cont(baseline_df, "CogTel", "Cognitive score (CogTel)", digits = 1)
+)
+
+# Header includes group Ns (NEJM style)
+colnames(tbl) <- c(
+  "Characteristic",
+  sprintf("Piano (N=%d)", nP),
+  sprintf("Control (N=%d)", nC),
+  sprintf("Overall (N=%d)", nO),
+  "P value"
+)
+
+kable(tbl, format = "pipe", align = c("l","r","r","r","r"))
+
+cat("\n\n*Values are median (interquartile range) for continuous variables and no. (%) for categorical variables. P values were calculated with the Wilcoxon rank-sum test for continuous variables and Pearson’s chi-square test or Fisher’s exact test, as appropriate, for categorical variables. Percentages may not total 100 because of rounding.*\n")
+
+```
+

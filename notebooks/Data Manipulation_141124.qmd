@@ -156,56 +156,236 @@ psd95_median[psd95_median$ID >= 190 & psd95_median$ID <= 196, ]
 psd95_mean[1:5,]
 psd95_median[1:5,]
 ```
+```{r}
+#| label: make-gene-mean-median-clean
+#| message: false
+#| warning: false
+
+library(dplyr)
+
+# ---- utilities ----
+dedup_names_keep_first <- function(df) df[, !duplicated(names(df)), drop = FALSE]
+
+first_nonmiss <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) == 0) NA else x[1]
+}
+
+calc_bmi <- function(height_cm, weight_kg) {
+  h_m <- height_cm / 100
+  bmi <- weight_kg / (h_m^2)
+  bmi[is.infinite(bmi)] <- NA
+  bmi
+}
+
+# Select CpG columns safely between two names (inclusive)
+select_cpg_block <- function(df, start_name, end_name) {
+  i1 <- match(start_name, names(df))
+  i2 <- match(end_name, names(df))
+  stopifnot(!is.na(i1), !is.na(i2))
+  if (i1 > i2) { tmp <- i1; i1 <- i2; i2 <- tmp }
+  df[, i1:i2, drop = FALSE]
+}
+
+# Build mean/median table for one gene dataset
+make_gene_tables <- function(df,
+                             meta_cols,                # meta columns as they exist in df
+                             rename_map = NULL,        # named vector old->new
+                             cpg_start, cpg_end,
+                             drop_ids = integer(0)) {
+
+  df <- dedup_names_keep_first(df)
+
+  # meta
+  meta <- df[, meta_cols, drop = FALSE]
+  if (!is.null(rename_map)) {
+    # rename_map is c(old="new", ...)
+    for (old in names(rename_map)) {
+      if (old %in% names(meta)) names(meta)[names(meta) == old] <- rename_map[[old]]
+    }
+  }
+
+  # CpGs
+  cpg <- select_cpg_block(df, cpg_start, cpg_end)
+
+  # sanity: CpGs numeric
+  # (if some are character, coerce safely)
+  cpg_num <- suppressWarnings(as.data.frame(lapply(cpg, as.numeric)))
+  stopifnot(nrow(meta) == nrow(cpg_num))
+
+  out_mean <- meta
+  out_mean$Mean <- rowMeans(cpg_num, na.rm = TRUE)
+
+  out_median <- meta
+  out_median$Median <- apply(cpg_num, 1, median, na.rm = TRUE)
+
+  # drop problematic IDs everywhere (all timepoints)
+  if (length(drop_ids) > 0) {
+    out_mean   <- out_mean[!(out_mean$ID %in% drop_ids), , drop = FALSE]
+    out_median <- out_median[!(out_median$ID %in% drop_ids), , drop = FALSE]
+  }
+
+  list(mean = out_mean, median = out_median)
+}
+
+# ---- YOUR SETTINGS ----
+drop_ids <- c(192, 193)
+
+# ---- BDNF ----
+bdnf_tabs <- make_gene_tables(
+  df = bdnf,
+  meta_cols = c("ID", "Standort", "Zeitpunkt", "Gruppe", "Sex", "Age_start", "CogTel"),
+  rename_map = NULL,
+  cpg_start = "m148",
+  cpg_end   = "p020",
+  drop_ids  = drop_ids
+)
+bdnf_mean   <- bdnf_tabs$mean
+bdnf_median <- bdnf_tabs$median
+
+# ---- TAU ----
+tau_tabs <- make_gene_tables(
+  df = tau,
+  meta_cols = c("ID", "standort_aus_andere_quelle", "Zeit", "Gruppe", "Sex", "Age_start", "CogTel"),
+  rename_map = c("standort_aus_andere_quelle" = "Standort",
+                 "Zeit" = "Zeitpunkt"),
+  cpg_start = "m331",
+  cpg_end   = "p27",
+  drop_ids  = drop_ids
+)
+tau_mean   <- tau_tabs$mean
+tau_median <- tau_tabs$median
+
+# ---- PSD95 ----
+psd95_tabs <- make_gene_tables(
+  df = psd95,
+  meta_cols = c("ID", "standort_aus_andere_quelle", "Zeitpunkt", "Gruppe", "Sex", "Age_start", "CogTel"),
+  rename_map = c("standort_aus_andere_quelle" = "Standort"),
+  cpg_start = "m465",
+  cpg_end   = "p122",
+  drop_ids  = drop_ids
+)
+psd95_mean   <- psd95_tabs$mean
+psd95_median <- psd95_tabs$median
+
+# ---- OPTIONAL: add BMI + extra covariates if they exist in any df ----
+# If height/weight/smoking/etc are in the gene dfs (as in your later tables),
+# merge them in by ID+Zeitpunkt+Standort+Gruppe (or whichever keys you trust).
+# Example for BDNF only (adjust keys to your reality):
+
+time_to_char <- function(z) {
+  # converts 0/1/2 -> T0/T1/T2; keeps T0/T1/T2 as-is; otherwise plain character
+  if (is.numeric(z) || is.integer(z)) {
+    out <- paste0("T", as.integer(z))
+    return(out)
+  }
+  z <- as.character(z)
+  z <- trimws(z)
+  # if it's already like T0/T1/T2 keep it
+  z
+}
+
+add_covars_if_present <- function(gene_df, source_df) {
+  wanted <- c("B09a_groesse","B09b_gewicht","rauchen","B14a_rauchen",
+              "B15a_alkoholkonsum","B16_nehmen_sie_medikamente","B17a_nehmen_sie_drogen",
+              "C05_familienstatus","C06_bildungsgrad")
+  avail <- intersect(wanted, names(source_df))
+  if (length(avail) == 0) return(gene_df)
+
+  # ensure join keys exist
+  join_keys <- intersect(c("ID","Standort","Zeitpunkt"), names(gene_df))
+  join_keys <- intersect(join_keys, names(source_df))
+  if (!all(c("ID","Zeitpunkt") %in% join_keys)) return(gene_df)  # minimal keys
+
+  x <- gene_df %>%
+    mutate(
+      Zeitpunkt = time_to_char(Zeitpunkt)
+    )
+
+  y <- source_df %>%
+    mutate(
+      Zeitpunkt = time_to_char(Zeitpunkt)
+    ) %>%
+    select(any_of(c(join_keys, avail))) %>%
+    distinct()
+
+  out <- x %>% left_join(y, by = join_keys)
+
+  # BMI if possible
+  if (all(c("B09a_groesse","B09b_gewicht") %in% names(out))) {
+    out <- out %>% mutate(BMI = calc_bmi(B09a_groesse, B09b_gewicht))
+  }
+  out
+}
+
+# If your original dfs contain these covariates, you can do:
+bdnf_mean   <- add_covars_if_present(bdnf_mean, bdnf)
+bdnf_median <- add_covars_if_present(bdnf_median, bdnf)
+tau_mean    <- add_covars_if_present(tau_mean, tau)
+tau_median  <- add_covars_if_present(tau_median, tau)
+psd95_mean  <- add_covars_if_present(psd95_mean, psd95)
+psd95_median<- add_covars_if_present(psd95_median, psd95)
+
+# ---- quick checks ----
+stopifnot(!any(bdnf_mean$ID %in% drop_ids), !any(bdnf_median$ID %in% drop_ids))
+stopifnot(!any(tau_mean$ID %in% drop_ids),  !any(tau_median$ID %in% drop_ids))
+stopifnot(!any(psd95_mean$ID %in% drop_ids), !any(psd95_median$ID %in% drop_ids))
+
+dplyr::glimpse(bdnf_mean)
+dplyr::glimpse(tau_mean)
+dplyr::glimpse(psd95_mean)
+
+```
 
 ## Write mean and median Tables
 ```{r}
 # Save mean and median tables for BDNF
 
 # Save BDNF mean table
-#write.table(bdnf_mean, 
-#            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/bdnf_mean.txt", 
-#            sep = "\t", 
-#            row.names = FALSE, 
-#            quote = FALSE)
+write.table(bdnf_mean, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/bdnf_mean.txt", 
+            sep = "\t", 
+            row.names = FALSE, 
+            quote = FALSE)
 
 # Save BDNF median table
-#write.table(bdnf_median, 
-#            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/bdnf_median.txt", 
- #           sep = "\t",
- #           row.names = FALSE,
-   #         quote = FALSE)
-#
+write.table(bdnf_median, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/bdnf_median.txt", 
+            sep = "\t",
+            row.names = FALSE,
+            quote = FALSE)
+
 # Save mean and median tables for Tau
 
-# Save Tau mean table
-#write.table(tau_mean,
- #           file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/tau_mean.txt",
-#            sep = "\t",
- #           row.names = FALSE,
-#            quote = FALSE)
+#Save Tau mean table
+write.table(tau_mean,
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/tau_mean.txt",
+            sep = "\t",
+            row.names = FALSE,
+            quote = FALSE)
 
 # Save Tau median table
-#write.table(tau_median, 
- #           file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/tau_median.txt", 
-   #         sep = "\t",
-  #          row.names = FALSE,
-    #        quote = FALSE)
+write.table(tau_median, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/tau_median.txt", 
+            sep = "\t",
+            row.names = FALSE,
+            quote = FALSE)
 
 # Save mean and median tables for PSD95
 
 # Save PSD95 mean table
-#write.table(psd95_mean, 
- #           file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/psd95_mean.txt", 
-#            sep = "\t",
-#            row.names = FALSE,
-#            quote = FALSE)
+write.table(psd95_mean, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/psd95_mean.txt", 
+            sep = "\t",
+            row.names = FALSE,
+            quote = FALSE)
 
 # Save PSD95 median table
-#write.table(psd95_median, 
- #           file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/psd95_median.txt", 
-#            sep = "\t",
- #           row.names = FALSE,
- #           quote = FALSE)
+write.table(psd95_median, 
+            file = "/home/kobi/Work/TBM-R-Analysis/tables/mean&median_tables/psd95_median.txt", 
+            sep = "\t",
+            row.names = FALSE,
+            quote = FALSE)
 ```
 
 

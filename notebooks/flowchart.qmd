@@ -26,7 +26,7 @@ graph TB;
 ")
 
 ```
-```{dot fig-flowchart}
+```{dot}
 //| label: fig-flowchart
 //| fig-cap: "Study flowchart showing participant exclusion and availability of successfully sequenced samples across time points and genes."
 //| fig-width: 7

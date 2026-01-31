@@ -223,21 +223,53 @@ Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZI
 
 # Results {#sec-results}
 
-## EDA
+## Descriptive statistics {#sec-results-descriptive}
 
 ### Generall demographics {#sec-results-general}
 
-| Characteristic | Piano | Control | Overall |
-|------------------|-----------------:|-----------------:|-----------------:|
-| Participants (N) | 67 | 77 | 144 |
-| Mean age ± SD (years) | 69.45 ± 3.2 | 69.70 ± 3.8 | 69.58 ± 3.5 |
-| Median (IQR) age (years) | 69.00 (67.00, 71.00) | 69.00 (67.00, 73.00) | 69.00 (67.00, 71.25) |
-| Min / Max age (years) | 64 / 77 | 62 / 78 | 62 / 78 |
-| Female / Male (%) | 55.2 / 44.8 | 59.7 / 40.3 | 57.6 / 42.4 |
 
-: Demographics of the study cohort {#tbl-demographics} **(add BMI, CogTel, smoking, Standort later)**
+Overall 144 (one with missing T0! ID 141) participants were included in the study. Both groups were nearly equally distributed (46,5 % in the piano group). The mean age was 69.58 years (SD: 3.5 years) with a minimum of 62 and a maximum of 78 years. This was due to the desgin of the TBM study.
 
-Overall 144 participants were included in the study. Both groups were nearly equally distributed (46,5 % in the piano group). The mean age was 69.58 years (SD: 3.5 years) with a minimum of 62 and a maximum of 78 years. This was due to the desgin of the TBM study.
+Chat: *Continuous variables were compared using the Wilcoxon rank-sum test. Categorical variables were compared using Pearson’s chi-squared test or Fisher’s exact test, as appropriate.*
+
+| Characteristic | Piano (N=67) | Control (N=76) | Overall (N=143) | P value |
+|---|---:|---:|---:|---:|
+| **Age — yr** | 69.0 (67.0–71.0) | 69.0 (67.0–73.0) | 69.0 (67.0–71.5) | 0.96 |
+| **Sex — no. (%)** |  |  |  | 0.52 |
+| &nbsp;&nbsp;Female | 37 (55.2) | 46 (60.5) | 83 (58.0) |  |
+| &nbsp;&nbsp;Male | 30 (44.8) | 30 (39.5) | 60 (42.0) |  |
+| **Study site — no. (%)** |  |  |  | 0.56 |
+| &nbsp;&nbsp;Hannover | 40 (59.7) | 49 (64.5) | 89 (62.2) |  |
+| &nbsp;&nbsp;Geneva | 27 (40.3) | 27 (35.5) | 54 (37.8) |  |
+| **Height — cm** | 170 (163–177) | 168 (164–175) | 169 (163–176) | 0.25 |
+| **Weight — kg** | 71 (64–80) | 70 (60–77) | 71 (62–79) | 0.12 |
+| **Body-mass index — kg/m²** | 24.5 (22.5–26.3) | 24.1 (22.0–25.6) | 24.3 (22.2–26.1) | 0.20 |
+| **Smoking status — no. (%)** |  |  |  | 1.00 |
+| &nbsp;&nbsp;Current smoker | 4 (6.2) | 4 (5.5) | 8 (5.8) |  |
+| **Alcohol use — no. (%)** |  |  |  | 0.35 |
+| &nbsp;&nbsp;None | 19 (29.2) | 22 (31.0) | 41 (30.1) |  |
+| &nbsp;&nbsp;Occasional | 12 (18.5) | 7 (9.9) | 19 (14.0) |  |
+| &nbsp;&nbsp;Regular | 34 (52.3) | 42 (59.2) | 76 (55.9) |  |
+| **Prescription medication use — no. (%)** |  |  |  | 0.55 |
+| &nbsp;&nbsp;Yes | 35 (53.8) | 43 (58.9) | 78 (56.5) |  |
+| **Illicit drug use — no. (%)** |  |  |  | 1.00 |
+| &nbsp;&nbsp;Yes | 3 (4.6) | 3 (4.1) | 6 (4.3) |  |
+| **Family status — no. (%)** |  |  |  | 0.83 |
+| &nbsp;&nbsp;Single | 7 (10.8) | 11 (15.1) | 18 (13.0) |  |
+| &nbsp;&nbsp;Married/Partnered | 41 (63.1) | 41 (56.2) | 82 (59.4) |  |
+| &nbsp;&nbsp;Divorced | 10 (15.4) | 13 (17.8) | 23 (16.7) |  |
+| &nbsp;&nbsp;Widowed | 7 (10.8) | 8 (11.0) | 15 (10.9) |  |
+| **Educational attainment — no. (%)** |  |  |  | 0.94 |
+| &nbsp;&nbsp;Primary | 1 (1.5) | 0 (0.0) | 1 (0.7) |  |
+| &nbsp;&nbsp;Secondary | 13 (19.4) | 18 (23.7) | 31 (21.7) |  |
+| &nbsp;&nbsp;Vocational | 11 (16.4) | 12 (15.8) | 23 (16.1) |  |
+| &nbsp;&nbsp;Upper secondary | 10 (14.9) | 12 (15.8) | 22 (15.4) |  |
+| &nbsp;&nbsp;University | 27 (40.3) | 27 (35.5) | 54 (37.8) |  |
+| &nbsp;&nbsp;Postgraduate | 5 (7.5) | 7 (9.2) | 12 (8.4) |  |
+| **Cognitive score (CogTel)** | 31.4 (26.0–35.8) | 32.9 (26.0–38.3) | 31.9 (26.0–37.2) | 0.43 |
+
+: Values are median [IQR] for continuous variables and no. (%) for categorical variables. P values are from the Wilcoxon rank-sum test for continuous variables and Pearson’s chi-squared test or Fisher’s exact test for categorical variables, as appropriate. Baseline characteristics were taken from the earliest available assessment (T0 preferred); one participant had no T0 sample (ID 141). {#tbl-demographics} 
+
 
 ### Metadata sequencing
 
@@ -306,7 +338,7 @@ This concentration of variance is also evident in the methylation distributions 
 
 {{< embed notebooks/PCA/PCA_Covariance_161025.qmd#fig-pc1-loadings >}}
 
-## Methylation differences {#sec-results-methylation-differences}
+## Analysis of Methylation differences {#sec-results-methylation-differences}
 
 Our null hypothesis was that there are no differences in methylation levels between groups (piano vs. control) and time points (T0, T1, T2) in the three target genes (BDNF, Tau, PSD95) or said differently that playing the piano has no effect on the methylation of neuroplasticity-associated genes like BDNF, PSD95 and Tau.
 
@@ -388,6 +420,19 @@ according to @sec-results-pca we also filtered for the high variance CpGs.
 {{< embed notebooks/postpca_data_manipulation_201025.qmd#fig-interactions-by-group-filtered-cpg-with-significance >}}
 
 ## Models (LM, GLM, ZIBR) {#sec-results-models}
+### Linear Models (LM) {#sec-results-lm}
+#### BDNF
+#### Tau
+#### PSD95
+### Generalized Linear Models (GLM) {#sec-results-glm}
+#### BDNF
+#### Tau
+#### PSD95
+### Zero-Inflated Beta Regression Models (ZIBR) {#sec-results-zibr
+#### BDNF
+#### Tau
+#### PSD95
+<!-- Overdispersion! -->
 
 # Discussion {#sec-discussion}
 
