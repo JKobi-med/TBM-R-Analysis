@@ -36,7 +36,7 @@ tau_subset <- tau %>%
   select(
     ID,
     standort_aus_andere_quelle,
-    Zeit,
+    Zeit,                # or Zeitpunkt if that's your real time variable
     Gruppe,
     Sex,
     Age_start,
@@ -44,23 +44,64 @@ tau_subset <- tau %>%
     CpG_position,
     Psycholgical,
     rauchen,
-    methylation
+    methylation,
+
+    # ---- add these source columns if they exist ----
+    Zeitpunkt,
+    Piano_Fortschritt_Teacher_6Mon,
+    Piano_Fortschritt_Teacher_12Mon,
+
+    B09a_groesse,        # height
+    B09b_gewicht,        # weight
+
+    B14d_wie_viele_zigaretten,  # smoking amount (cigs/day)
+
+    B15d_wie_viel_alkohol       # alcohol amount
   ) %>%
   mutate(
     ID = as.factor(ID),
     standort_aus_andere_quelle = as.factor(standort_aus_andere_quelle),
+
+    # pick ONE time variable consistently:
     Zeit = as.factor(Zeit),
+    Zeitpunkt = as.character(Zeitpunkt),
+
     Gruppe = as.factor(Gruppe),
     Sex = as.factor(Sex),
     CpG_position = as.factor(CpG_position),
+
     CogTel = as.numeric(CogTel),
     Psycholgical = as.numeric(Psycholgical),
+
     rauchen = as.factor(rauchen),
-    methylation = as.numeric(methylation)
+    methylation = as.numeric(methylation),
+
+    # ---- Progress unified to T1/T2 ----
+    Progress_Teacher_T1T2 = dplyr::case_when(
+      Zeitpunkt == "T1" ~ as.numeric(Piano_Fortschritt_Teacher_6Mon),
+      Zeitpunkt == "T2" ~ as.numeric(Piano_Fortschritt_Teacher_12Mon),
+      TRUE ~ NA_real_
+    ),
+
+    # ---- BMI (robust to cm vs m) ----
+    height = as.numeric(B09a_groesse),
+    weight = as.numeric(B09b_gewicht),
+
+    height_m = dplyr::if_else(height > 3, height / 100, height),  # if >3 assume cm
+    bmi = weight / (height_m^2),
+
+    # ---- Smoking amount (cigs/day) ----
+    cigs_per_day = as.numeric(B14d_wie_viele_zigaretten),
+
+    # ---- Alcohol amount ----
+    alcohol_amount = as.numeric(B15d_wie_viel_alkohol)
+  ) %>%
+  select(
+    ID, standort_aus_andere_quelle, Zeit, Zeitpunkt, Gruppe, Sex, Age_start, CogTel,
+    CpG_position, Psycholgical, rauchen, cigs_per_day, alcohol_amount, bmi,
+    Progress_Teacher_T1T2, methylation
   ) %>%
   drop_na()
-
-str(tau_subset)
 ```
 
 

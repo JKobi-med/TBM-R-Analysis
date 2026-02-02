@@ -373,3 +373,109 @@ psd95_best <- glmmTMB(
 summary(psd95_best)
 ```
 
+```{r}
+report(psd95_best)
+```
+
+
+```{r}
+library(report)
+# 1) minimal subset + clean types
+dat <- psd95 %>% 
+  transmute(
+    ID = factor(ID),
+    Gruppe = factor(Gruppe),
+    Zeitpunkt = factor(Zeitpunkt),
+    CpG = factor(CpG_Position),                    # rename for convenience
+    progress = case_when(                          # uses your mapping idea
+      as.character(Zeitpunkt) == "T1" ~ as.numeric(Piano_Fortschritt_Teacher_6Mon),
+      as.character(Zeitpunkt) == "T2" ~ as.numeric(Piano_Fortschritt_Teacher_12Mon),
+      TRUE ~ NA_real_
+    ),
+    CogTel = suppressWarnings(as.numeric(CogTel)),
+    meth_raw = suppressWarnings(as.numeric(methylation))
+  ) %>%
+  filter(!is.na(ID), !is.na(Gruppe), !is.na(Zeitpunkt), !is.na(CpG), !is.na(meth_raw)) %>%
+  filter(!is.na(progress), !is.na(CogTel))         # keep only rows where you have progress + CogTel
+
+# 2) model-only copy in (0,1) for beta part (raw stays unchanged)
+eps <- 1e-6
+dat <- dat %>%
+  mutate(meth = pmin(pmax(meth_raw, eps), 1 - eps))
+
+# 3) ZIBR model (zero-inflated beta)
+m_zibr <- glmmTMB(
+  meth ~ Gruppe + Zeitpunkt + progress + CogTel + (1 | ID/CpG),
+  ziformula = ~ 1,
+  family = beta_family(link = "logit"),
+  data = dat
+)
+
+summary(m_zibr)
+car::Anova(m_zibr, type = 2)  # 
+report
+```
+
+```{r}
+library(dplyr)
+library(glmmTMB)
+
+dat <- psd95 %>% 
+  transmute(
+    ID = factor(ID),
+    Gruppe = factor(Gruppe),
+    Zeitpunkt = factor(Zeitpunkt),
+    CpG_Position = factor(CpG_Position),
+
+    progress = case_when(
+      as.character(Zeitpunkt) == "T1" ~ suppressWarnings(as.numeric(Piano_Fortschritt_Teacher_6Mon)),
+      as.character(Zeitpunkt) == "T2" ~ suppressWarnings(as.numeric(Piano_Fortschritt_Teacher_12Mon)),
+      TRUE ~ NA_real_
+    ),
+
+    CogTel = suppressWarnings(as.numeric(CogTel)),
+    meth_raw = suppressWarnings(as.numeric(methylation))
+  ) %>%
+  # keep only the CpGs you want
+  filter(CpG_Position %in% c("p95", "p60", "p23")) %>%
+  # keep essential rows
+  filter(!is.na(ID), !is.na(Gruppe), !is.na(Zeitpunkt), !is.na(CpG_Position), !is.na(meth_raw)) %>%
+  # progress only exists for T1/T2 with your mapping
+  filter(!is.na(progress), !is.na(CogTel))
+
+# model-only copy for beta likelihood (raw stays unchanged)
+eps <- 1e-6
+dat <- dat %>% mutate(meth = pmin(pmax(meth_raw, eps), 1 - eps))
+
+m_zibr <- glmmTMB(
+  meth ~ Gruppe * Zeitpunkt + progress + CogTel + (1 | ID/CpG_Position),
+  ziformula = ~ 1,
+  family = beta_family(link = "logit"),
+  data = dat
+)
+
+summary(m_zibr)
+anova(m_zibr)
+
+# sanity check
+c(
+  n = nrow(dat),
+  zeros = sum(dat$meth_raw == 0),
+  ones  = sum(dat$meth_raw == 1)
+)
+
+```
+
+# New
+
+```{r}
+library(dplyr)
+library(glmmTMB)
+library(report)
+library(performance)
+
+```
+performance)
+
+```
+

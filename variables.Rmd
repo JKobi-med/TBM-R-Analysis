@@ -1,0 +1,167 @@
+---
+title: "Untitled"
+output: html_document
+date: "2026-02-02"
+---
+1) Must-have design variables (structure)
+
+Use these to build repeated-measures / mixed models:
+
+ID (subject identifier)
+
+Zeit / Zeitpunkt (timepoint; pick one and standardize)
+
+Gruppe (piano vs active control)
+
+Platte (plate / array batch)
+
+Koordinate (often an array position / chip coordinate; batch-ish)
+
+TraceFileName (useful for QC / linking raw data)
+
+reihenfolge (measurement/order effects if relevant)
+
+VP_plus_zeitpunkt / ID_Pl4_Zeit (handy unique row keys, but don’t use instead of ID+time)
+
+Why: epigenetics is super sensitive to batch + repeated measures.
+
+2) The epigenetic outcomes (your “m…” and “p…” columns)
+
+These look like CpG sites (or methylation probes) around a locus:
+
+m337 … m1 and p3, p7, p11, p19, p23, p25, p27
+
+Model these as:
+
+either DV = methylation (one probe at a time, or PCA/mean score),
+
+or create a region score (e.g., mean/PC1 over a biologically defined set).
+
+Tip: don’t keep them as-is if you have dozens—use either multiple-testing correction (probe-wise) or dimensionality reduction.
+
+3) Music intervention exposure (dose)
+
+This is often more predictive than just Group:
+
+HomeworkD_0 / HomeworkW_0 … HomeworkD_1/W_1 … HomeworkD_2/W_2
+
+HomeworkD3 / HomeworkW3 / HomeworkD9 / HomeworkW9
+
+mean_homework_D / median_homework_D
+
+Presence_sum / Presence / Presence_3 (attendance)
+
+weeks_without_lessons_1 / weeks_without_lessons_2
+
+weeks_with_online_lessons_1 / weeks_with_online_lessons_2
+
+corona_1 / corona_2 (important disruption indicator)
+
+These are gold for modelling training intensity → epigenetic change.
+
+4) Music skill outcomes (what changed)
+
+You have both self/EA ratings and teacher ratings at multiple timepoints:
+
+Piano performance ratings
+
+Piano_Technik_…, Piano_Rhythmus_…, Piano_Expressivität_…
+
+Piano_Texttreue… (note reading / fidelity)
+
+Piano_Zusammenspiel… (interplay)
+
+Piano_Einsatz… (engagement/entry)
+
+Piano_Fortschritt… (progress)
+
+Aggregates: Technique_1/2, Rhythm_1/2, Expressivity_1/2, Notereading_1/2, Interplay_1/2, Engagement_1/2, Progress_1/2
+
+Plus combined: PP_Technique, PP_Rhythm, PP_Expressivity, PP_Notereading, PP_Interplay, all_Engagement, all_Progress
+
+Learning climate / experience (teacher + EA)
+
+MEUV_*_EA_3Mon/6Mon/12Mon
+
+MEUV_*_Teacher_3Mon/6Mon/9Mon/12Mon
+
+Aggregates: Climate_1/2, Participation_1/2, Interaction_1/2, Joy_1/2
+
+Combined: MC_Climate, MC_Participation, MC_Interaction, MC_Joy, MC_Engagement, MC_Progress
+
+These can be:
+
+outcomes (does methylation change track skill gains?)
+
+mediators (Group → motivation/engagement → methylation)
+
+5) Core epigenetic covariates (confounding control)
+
+Even if your story is “music affects methylation”, you should control for:
+
+Age_start
+
+Sex
+
+Platte (+ possibly Koordinate)
+
+Smoking/alcohol/drugs (big methylation drivers):
+
+rauchen (and B14* variables)
+
+B15 alcohol*
+
+B17 drugs*
+
+BMI-ish:
+
+B09a_groesse, B09b_gewicht
+
+Sleep:
+
+B03a_sleep_quality, B03b_sleep_duration, B03c_sleep_to_recover
+
+Education / SES-ish:
+
+C06_bildungsgrad, maybe cr_education, cr_work, cr_leisure_time, cr_total
+
+If you have cell-type proportions (I don’t see obvious ones), those are usually top priority too.
+
+6) “Nice to have” outcomes depending on your theory
+
+Cognitive, motor, auditory, MRI-derived metrics show up later in your list:
+
+gonogo_Err_, gonogo_RT_ (inhibition)
+
+DSP_*, DSY, DSY_errors (memory/processing)
+
+BAT_ , MDT_ , MSAPRO** (musical aptitude / perception-type measures)
+
+SRT / L_SRT / R_SRT / L_Dev / R_Dev (hearing?)
+
+MRI-ish volumes: TIV, LHIP/RHIP, Lput/Rput, LcbrMot/RcbrMot
+
+These are useful if your paper is “music → brain/cognition → methylation” or you want richer phenotypes.
+
+A good starting modelling plan (simple + defensible)
+A) Intervention effect on methylation (primary)
+
+Mixed model per CpG (or region score):
+
+methylation ~ Gruppe * Zeitpunkt + Age_start + Sex + Platte (+ Koordinate) + smoking + (1|ID)
+
+B) Dose–response
+
+methylation change ~ mean_homework_D + Presence_sum + confounders + (1|ID)
+
+C) Linking methylation to learning
+
+methylation change ~ PP_Progress (or teacher progress) + confounders + (1|ID)
+
+If you paste str(tau[, c("ID","Zeitpunkt","Gruppe","Platte","Sex","Age_start")]) (just that small subset), I can tell you exactly:
+
+which variable is safest for timepoint,
+
+whether Gruppe is coded cleanly,
+
+and how to reshape it for longitudinal modelling in R (wide → long) without breaking IDs.

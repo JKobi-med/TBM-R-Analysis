@@ -61,6 +61,19 @@ tau2 <- tau %>% drop_na(methylation)
 psd952  <- psd95  %>% drop_na(methylation)
 ```
 
+**BSCore epigenetic covariates (confounding control)**
+
+control for:
+- Age_start
+- Sex
+- Platte (+ possibly Koordinate)
+- Smoking/alcohol/drugs (big methylation drivers):
+  - rauchen (and B14* variables)
+  - B15 alcohol
+  - B17 drugs
+- BMI: B09a_groesse, B09b_gewicht
+- Sleep: B03a_sleep_quality, B03b_sleep_duration, B03c_sleep_to_recover
+- C06_bildungsgrad, maybe cr_education, cr_work, cr_leisure_time, cr_total
 
 ## BDNF
 ### GLM
@@ -74,7 +87,36 @@ bdnf_glm_nointeraction <- lme(
 
 summary(bdnf_glm_nointeraction)
 ```
+L
+### GLM with covariates
+```{r}
+BDNF2$height_m <- BDNF2$B09a_groesse / 100   # if cm
+BDNF2$bmi <- BDNF2$B09b_gewicht / (BDNF2$height_m^2)
 
+BDNF2$Zeit_num <- as.numeric(factor(BDNF2$Zeitpunkt, 
+                                   levels = c("T0","T1","T2")))  # adj
+
+bdnf_glm_nointeraction2 <- lme(
+  fixed = methylierung ~ 
+    as.factor(Group) * as.factor(Zeitpunkt) +
+    as.factor(Standort) +
+    as.factor(Geschlecht) +
+    Age_start + CogTel +
+    as.factor(rauchen) +
+    as.factor(B15a_alkoholkonsum) +
+    as.factor(B17a_nehmen_sie_drogen) +
+    bmi,
+  random = list(
+    id_umstrukturieren = ~ 1,
+    CpG_position = ~ 1
+  ),
+  correlation = corAR1(form = ~ Zeit_num | id_umstrukturieren),
+  method = "ML",
+  data = BDNF2,
+  na.action = na.omit
+)
+summary(bdnf_glm_nointeraction2)
+```
 Why your mixed model was actually OK
 
 Your LMM used CpG-level rows, but:
@@ -90,6 +132,24 @@ you don’t treat CpGs as independent in descriptives
 you explain that CpGs are repeated measures within person
 
 Your tables/plots must still reflect person-level summaries.
+
+```{r}
+m_lme2 <- nlme::lme(
+  fixed = methylierung ~ Group * Zeitpunkt +
+    Standort + Geschlecht + Age_start + CogTel +
+    B14d_wie_viele_zigaretten + B15d_wie_viel_alkohol + B17a_nehmen_sie_drogen + bmi,
+  random = ~ 1 | id_umstrukturieren,
+  method = "ML",
+  data = BDNF2,
+  na.action = na.omit,
+  control = nlme::lmeControl(returnObject = TRUE)
+)
+
+summary(m_lme2)
+anova(m_lme2)
+```
+
+
 ### Model for group
 ```{r}
 # Split the data by group

@@ -1,0 +1,683 @@
+---
+title: "Linear models (PostPCA)"
+author: "Jonas J.R. Koberschinski"
+date: "20-10-2025"
+lastmod: "25-10-2025"
+output: html
+---
+
+## Data import
+
+```{r}
+#| echo: true
+#| include: false
+
+# List of file names (without paths and extension)
+file_names <- c(
+  "bdnf_mean_T2T0.txt",
+  "bdnf_mean_T1T0.txt",
+  "bdnf_mean_T2T1.txt",
+  
+  "bdnf_median_T2T0.txt",
+  "bdnf_median_T1T0.txt",
+  "bdnf_median_T2T1.txt",
+  
+  "tau_mean_T2T0.txt",
+  "tau_mean_T1T0.txt",
+  "tau_mean_T2T1.txt",
+  
+  "tau_median_T2T0.txt",
+  "tau_median_T1T0.txt",
+  "tau_median_T2T1.txt",
+  
+  "psd95_mean_T2T0.txt",
+  "psd95_mean_T1T0.txt",
+  "psd95_mean_T2T1.txt",
+  
+  "psd95_median_T2T0.txt",
+  "psd95_median_T1T0.txt",
+  "psd95_median_T2T1.txt"
+)
+
+# Folder where the files are located
+subfolder <- "/home/kobi/Work/TBM-R-Analysis/tables/timepoint_tables"
+
+# Loop through the file names, read each table, and assign it to a variable
+for (file_name in file_names) {
+  # Construct the full file path by combining the subfolder and file name
+  file_path <- file.path(subfolder, file_name)
+  
+  # Remove the .txt extension to get the base name for the variable
+  var_name <- tools::file_path_sans_ext(file_name)
+  
+  # Read the table and assign it to a variable with the same name
+  assign(var_name, read.table(file_path, sep = "\t", header = TRUE, row.names = NULL, quote = ""))
+}
+
+# Example: access the 'bdnf_mean_T2T0' table
+head(bdnf_mean_T2T0)
+
+```
+
+## LM: Regression analysis (Bivariate/multivariate)
+
+### BDNF
+
+#### T2-T0
+
+##### mean
+
+```{r}
+lm_bdnf_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_mean_T2T0)
+
+summary(lm_bdnf_mean_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_mean_T2T0)
+```
+
+##### median
+
+```{r}
+lm_bdnf_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_median_T2T0)
+
+summary(lm_bdnf_median_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_median_T2T0)
+```
+
+#### T1 - T0
+
+##### mean
+
+```{r}
+lm_bdnf_mean_T1T0 <- lm(T1_T0 ~ as.factor(Standort) + as.factor(Gruppe) + as.factor(Sex) + Age_start + CogTel + T0, 
+                  data = bdnf_mean_T1T0)
+
+summary(lm_bdnf_mean_T1T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_mean_T1T0)
+```
+
+Gruppendifferenz!
+
+##### median
+
+Gruppendifferenz bei mean nicht mehr vorhanden beim Median
+
+```{r}
+lm_bdnf_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = bdnf_median_T1T0)
+
+summary(lm_bdnf_median_T1T0)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_median_T1T0)
+```
+
+#### T2 - T1
+
+##### mean
+
+```{r}
+lm_bdnf_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = bdnf_mean_T2T1)
+
+summary(lm_bdnf_mean_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_mean_T2T1)
+```
+
+##### median
+
+```{r}
+lm_bdnf_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = bdnf_median_T2T1)
+
+summary(lm_bdnf_median_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_bdnf_median_T2T1)
+```
+
+### Tau
+
+#### T2-T0
+
+##### mean
+
+```{r}
+lm_tau_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_mean_T2T0)
+
+summary(lm_tau_mean_T2T0)
+
+
+par(mfrow = c(2,2))
+plot(lm_tau_mean_T2T0)
+```
+
+##### median
+
+```{r}
+lm_tau_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_median_T2T0)
+
+summary(lm_tau_median_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_tau_median_T2T0)
+```
+
+#### T1 - T0
+
+##### mean
+
+```{r}
+lm_tau_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_mean_T1T0)
+
+summary(lm_tau_mean_T1T0)
+
+par(mfrow = c(2,2))
+plot(lm_tau_mean_T1T0)
+```
+
+##### median
+
+```{r}
+lm_tau_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = tau_median_T1T0)
+
+summary(lm_tau_median_T1T0)
+
+par(mfrow = c(2,2))
+plot(lm_tau_median_T1T0)
+```
+
+Standortdifferenz im Median?
+
+#### T2 - T1
+
+##### mean
+
+```{r}
+lm_tau_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = tau_mean_T2T1)
+
+summary(lm_tau_mean_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_tau_mean_T2T1)
+```
+
+##### median
+
+```{r}
+lm_tau_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = tau_median_T2T1)
+
+summary(lm_tau_median_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_tau_median_T2T1)
+```
+
+### PSD95
+
+#### T2-T0
+
+##### mean
+
+```{r}
+lm_psd95_mean_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_mean_T2T0)
+
+summary(lm_psd95_mean_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_mean_T2T0)
+```
+
+##### median
+
+```{r}
+lm_psd95_median_T2T0 <- lm(T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_median_T2T0)
+
+summary(lm_psd95_median_T2T0)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_median_T2T0)
+```
+
+#### T1 - T0
+
+##### mean
+
+```{r}
+lm_psd95_mean_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_mean_T1T0)
+
+summary(lm_psd95_mean_T1T0)
+```
+
+Standortdifferenz im Mean? \##### median
+
+```{r}
+lm_psd95_median_T1T0 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0, 
+                  data = psd95_median_T1T0)
+
+summary(lm_psd95_median_T1T0)
+```
+
+Keine Standortdifferenz im Mean? Dafür Geschlechtsdifferenz?!
+
+#### T2 - T1
+
+##### mean
+
+```{r}
+lm_psd95_mean_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = psd95_mean_T2T1)
+
+summary(lm_psd95_mean_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_mean_T2T1)
+
+```
+
+##### median
+
+```{r}
+lm_psd95_median_T2T1 <- lm(T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1, 
+                  data = psd95_median_T2T1)
+
+summary(lm_psd95_median_T2T1)
+
+par(mfrow = c(2,2))
+plot(lm_psd95_median_T2T1)
+```
+
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+library(report)
+library(broom)
+library(dplyr)
+library(ggplot2)
+
+# --------------------------
+# 1) Collect models
+# --------------------------
+
+mean_models <- list(
+  bdnf_T2T0  = lm_bdnf_mean_T2T0,
+  bdnf_T1T0  = lm_bdnf_mean_T1T0,
+  bdnf_T2T1  = lm_bdnf_mean_T2T1,
+
+  tau_T2T0   = lm_tau_mean_T2T0,
+  tau_T1T0   = lm_tau_mean_T1T0,
+  tau_T2T1   = lm_tau_mean_T2T1,
+
+  psd95_T2T0 = lm_psd95_mean_T2T0,
+  psd95_T1T0 = lm_psd95_mean_T1T0,
+  psd95_T2T1 = lm_psd95_mean_T2T1
+)
+
+median_models <- list(
+  bdnf_T2T0  = lm_bdnf_median_T2T0,
+  bdnf_T1T0  = lm_bdnf_median_T1T0,
+  bdnf_T2T1  = lm_bdnf_median_T2T1,
+
+  tau_T2T0   = lm_tau_median_T2T0,
+  tau_T1T0   = lm_tau_median_T1T0,
+  tau_T2T1   = lm_tau_median_T2T1,
+
+  psd95_T2T0 = lm_psd95_median_T2T0,
+  psd95_T1T0 = lm_psd95_median_T1T0,
+  psd95_T2T1 = lm_psd95_median_T2T1
+)
+
+# --------------------------
+# 2) Narrative reports
+# --------------------------
+
+cat("\n\n# Report: Mean models\n\n")
+for (nm in names(mean_models)) {
+  cat("\n\n", "## Mean model:", nm, "\n\n")
+  cat(as.character(report(mean_models[[nm]])))
+  cat("\n")
+}
+
+cat("\n\n# Report: Median models\n\n")
+for (nm in names(median_models)) {
+  cat("\n\n", "## Median model:", nm, "\n\n")
+  cat(as.character(report(median_models[[nm]])))
+  cat("\n")
+}
+
+# --------------------------
+# 3) Helper: tidy all models into one df
+# --------------------------
+
+tidy_models <- function(model_list, stat_label = c("mean", "median")) {
+  stat_label <- match.arg(stat_label)
+  bind_rows(lapply(names(model_list), function(nm) {
+    broom::tidy(model_list[[nm]], conf.int = TRUE) |>
+      mutate(
+        model = nm,
+        stat  = stat_label,
+        biomarker = sub("_.*", "", nm),
+        contrast  = sub("^[^_]+_", "", nm)
+      )
+  }))
+}
+
+coef_df <- bind_rows(
+  tidy_models(mean_models, "mean"),
+  tidy_models(median_models, "median")
+)
+
+# --------------------------
+# 4) Plot A: Group effect across contrasts
+# --------------------------
+# Group term can appear in different encodings depending on factor handling
+group_terms <- c("GruppePiano", "as.factor(Gruppe)Piano")
+
+group_df <- coef_df |>
+  filter(term %in% group_terms)
+
+if (nrow(group_df) > 0) {
+  p_group <- ggplot(group_df, aes(x = contrast, y = estimate, ymin = conf.low, ymax = conf.high)) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    geom_pointrange() +
+    facet_grid(stat ~ biomarker, scales = "free_y") +
+    labs(
+      title = "Group effect (Piano vs Control) across time contrasts",
+      x = "Time contrast",
+      y = "Coefficient estimate (95% CI)"
+    )
+  print(p_group)
+} else {
+  message("No group terms found in model coefficients (check variable coding of Gruppe).")
+}
+
+# --------------------------
+# 5) Plot B: Baseline effect across contrasts (T0/T1)
+# --------------------------
+baseline_terms <- c("T0", "T1")
+
+baseline_df <- coef_df |>
+  filter(term %in% baseline_terms) |>
+  mutate(baseline = term)
+
+if (nrow(baseline_df) > 0) {
+  p_base <- ggplot(baseline_df, aes(x = contrast, y = estimate, ymin = conf.low, ymax = conf.high)) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    geom_pointrange() +
+    facet_grid(stat + baseline ~ biomarker, scales = "free_y") +
+    labs(
+      title = "Baseline effect (T0 / T1) across time contrasts",
+      x = "Time contrast",
+      y = "Coefficient estimate (95% CI)"
+    )
+  print(p_base)
+} else {
+  message("No baseline terms found (expected terms T0 or T1).")
+}
+
+```
+
+
+
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+library(report)
+library(broom)
+library(dplyr)
+library(ggplot2)
+
+# --------------------------
+# 1) Collect MEAN models only
+# --------------------------
+
+mean_models <- list(
+  bdnf_T2T0  = lm_bdnf_mean_T2T0,
+  bdnf_T1T0  = lm_bdnf_mean_T1T0,
+  bdnf_T2T1  = lm_bdnf_mean_T2T1,
+
+  tau_T2T0   = lm_tau_mean_T2T0,
+  tau_T1T0   = lm_tau_mean_T1T0,
+  tau_T2T1   = lm_tau_mean_T2T1,
+
+  psd95_T2T0 = lm_psd95_mean_T2T0,
+  psd95_T1T0 = lm_psd95_mean_T1T0,
+  psd95_T2T1 = lm_psd95_mean_T2T1
+)
+
+# --------------------------
+# 2) Narrative reports (MEAN only)
+# --------------------------
+
+cat("\n\n# Report: Mean models\n\n")
+for (nm in names(mean_models)) {
+  cat("\n\n", "## Mean model:", nm, "\n\n")
+  cat(as.character(report(mean_models[[nm]])))
+  cat("\n")
+}
+
+# --------------------------
+# 3) Helper: tidy MEAN models into one df
+# --------------------------
+
+coef_df <- bind_rows(lapply(names(mean_models), function(nm) {
+  broom::tidy(mean_models[[nm]], conf.int = TRUE) |>
+    mutate(
+      model = nm,
+      biomarker = sub("_.*", "", nm),
+      contrast  = sub("^[^_]+_", "", nm)
+    )
+}))
+```
+
+
+```{r}
+#| label: fig-lm-group-effect-filtered
+#| fig-cap: "Group effect (Piano vs Control) across time contrasts (mean models). Points are coefficients; bars are 95% CIs."
+# --------------------------
+# 4) Plot A: Group effect across contrasts (MEAN only)
+# --------------------------
+
+# Group term can appear in different encodings depending on factor handling
+group_terms <- c("GruppePiano", "as.factor(Gruppe)Piano")
+
+group_df <- coef_df |>
+  filter(term %in% group_terms)
+
+if (nrow(group_df) > 0) {
+  p_group <- ggplot(group_df, aes(x = contrast, y = estimate, ymin = conf.low, ymax = conf.high)) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    geom_pointrange() +
+    facet_wrap(~ biomarker, scales = "free_y") +
+    labs(
+      title = "Group effect (Piano vs Control) across time contrasts (Mean models)",
+      x = "Time contrast",
+      y = "Coefficient estimate (95% CI)"
+    )
+  print(p_group)
+} else {
+  message("No group terms found in model coefficients (check variable coding of Gruppe).")
+}
+```
+
+
+```{r}
+# --------------------------
+# 5) Plot B: Baseline effect across contrasts (T0/T1) (MEAN only)
+# --------------------------
+
+baseline_terms <- c("T0", "T1")
+
+baseline_df <- coef_df |>
+  filter(term %in% baseline_terms) |>
+  mutate(baseline = term)
+
+if (nrow(baseline_df) > 0) {
+  p_base <- ggplot(baseline_df, aes(x = contrast, y = estimate, ymin = conf.low, ymax = conf.high)) +
+    geom_hline(yintercept = 0, linetype = 2) +
+    geom_pointrange() +
+    facet_grid(baseline ~ biomarker, scales = "free_y") +
+    labs(
+      title = "Baseline effect (T0 / T1) across time contrasts (Mean models)",
+      x = "Time contrast",
+      y = "Coefficient estimate (95% CI)"
+    )
+  print(p_base)
+} else {
+  message("No baseline terms found (expected terms T0 or T1).")
+}
+
+```
+
+
+
+```{r}
+
+modelsummary(
+  meanmodels,
+  statistic = c("({std.error})", "p={p.value}"),
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  output = "markdown"
+)
+```
+
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+library(modelsummary)
+
+# 1) Rename models for readable column headers (optional but nice)
+names(mean_models) <- c(
+  "BDNF T2–T0", "BDNF T1–T0", "BDNF T2–T1",
+  "Tau T2–T0",  "Tau T1–T0",  "Tau T2–T1",
+  "PSD95 T2–T0","PSD95 T1–T0","PSD95 T2–T1"
+)
+
+# 2) Keep only Group and baseline timepoint terms
+# (handles both "GruppePiano" and "as.factor(Gruppe)Piano")
+coef_keep <- c(
+  "GruppePiano"             = "Group: Piano vs Control",
+  "as.factor(Gruppe)Piano"  = "Group: Piano vs Control",
+  "T0"                      = "Baseline (T0 or T1)",
+  "T1"                      = "Baseline (T0 or T1)"
+)
+
+modelsummary(
+  mean_models,
+  coef_map = coef_keep,
+  estimate = "{estimate} ({std.error})",
+  statistic = "p.value",
+  fmt = 3,
+  stars = TRUE,
+  gof_omit = "IC|Log|Adj|RMSE|AIC|BIC|Deviance|Std.Errors"
+)
+
+```
+
+
+
+
+
+## Summary of results
+```{r}
+library(report)
+report(lm_bdnf_mean_T1T0)
+#report(lm_bdnf_median_T1T0)
+report(lm_tau_mean_T1T0)
+#report(lm_tau_median_T1T0)
+report(lm_psd95_mean_T1T0)
+#report(lm_psd95_median_T1T0)
+summary(CogTel)
+```
+
+```{r}
+report(lm_bdnf_mean_T2T0)
+#report(lm_bdnf_median_T2T0)
+report(lm_tau_mean_T2T0)
+#report(lm_tau_median_T2T0)
+report(lm_psd95_mean_T2T0)
+#report(lm_psd95_median_T2T0)
+```
+
+```{r}
+library(dplyr)
+library(report)
+library(parameters)
+library(modelsummary)
+
+# --- helper: center continuous covariates for interpretable intercepts & stability ---
+prep_change <- function(df) {
+  df %>%
+    mutate(
+      Standort = as.factor(Standort),
+      Gruppe   = as.factor(Gruppe),
+      Sex      = as.factor(Sex),
+      Age_start = as.numeric(Age_start),
+      CogTel    = as.numeric(CogTel),
+      T0        = as.numeric(T0),
+      T1_T0     = as.numeric(T1_T0),
+      Age_start_c = scale(Age_start, scale = FALSE),
+      CogTel_c    = scale(CogTel, scale = FALSE),
+      T0_c        = scale(T0, scale = FALSE)
+    )
+}
+
+bdnf_dat  <- prep_change(bdnf_mean_T1T0)
+tau_dat   <- prep_change(tau_mean_T1T0)
+psd95_dat <- prep_change(psd95_mean_T1T0)
+
+lm_bdnf  <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start_c + CogTel_c + T0_c, data = bdnf_dat)
+lm_tau   <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start_c + CogTel_c + T0_c, data = tau_dat)
+lm_psd95 <- lm(T1_T0 ~ Standort + Gruppe + Sex + Age_start_c + CogTel_c + T0_c, data = psd95_dat)
+
+# --- 1) REPORT text blocks (like you showed, but now with centered covariates)
+cat(report(lm_bdnf), "\n\n")
+cat(report(lm_tau), "\n\n")
+cat(report(lm_psd95), "\n\n")
+
+# --- 2) One combined regression table (publication friendly)
+models <- list(
+  "BDNF (T1-T0)"  = lm_bdnf,
+  "TAU (T1-T0)"   = lm_tau,
+  "PSD95 (T1-T0)" = lm_psd95
+)
+
+modelsummary(
+  models,
+  statistic = c("({std.error})", "p={p.value}"),
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  output = "markdown"
+)
+
+```
+
+

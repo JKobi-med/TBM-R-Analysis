@@ -3,11 +3,11 @@ project:
   output-dir: _manuscript
   render:
     - "index.qmd"
-    - "notebooks/*.qmd"
+    - "!notebooks/*.qmd"
     - "!*.Rmd"
 
 execute:
-  enabled: false
+  enabled: true
   freeze: true
   warning: false
   message: false

@@ -2,7 +2,7 @@
 title: "Linear Models (Short Version)"
 author: "Jonas J.R. Koberschinski"
 date: "21-11-2024"
-
+last_modified: "2026-02-02"
 output: html
 ---
 
@@ -316,7 +316,148 @@ par(mfrow = c(2,2))
 plot(lm_psd95_median_T2T1)
 ```
 
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+library(report)
+
+# Collect ONLY the mean models
+mean_models <- list(
+  bdnf_T2T0  = lm_bdnf_mean_T2T0,
+  bdnf_T1T0  = lm_bdnf_mean_T1T0,
+  bdnf_T2T1  = lm_bdnf_mean_T2T1,
+  
+  tau_T2T0   = lm_tau_mean_T2T0,
+  tau_T1T0   = lm_tau_mean_T1T0,
+  tau_T2T1   = lm_tau_mean_T2T1,
+  
+  psd95_T2T0 = lm_psd95_mean_T2T0,
+  psd95_T1T0 = lm_psd95_mean_T1T0,
+  psd95_T2T1 = lm_psd95_mean_T2T1
+)
+
+# ---- 1) Narrative reports (most common use) ----
+# Print each report under a header
+for (nm in names(mean_models)) {
+  cat("\n\n", "## Mean model:", nm, "\n\n")
+  cat(as.character(report(mean_models[[nm]])))
+  cat("\n")
+}
+
+# ---- 2) Optional: Tables produced by {report} ----
+# If you want model tables as well (one table per model), see:
+# for (nm in names(mean_models)) {
+#   cat("\n\n", "### Table:", nm, "\n\n")
+#   print(report_table(mean_models[[nm]]))
+# }
+
+```
+
+```{r}
+
+library(report)
+
+all_reports <- lapply(names(mean_models), function(nm) {
+  paste0("## Mean model: ", nm, "\n\n", as.character(report(mean_models[[nm]])))
+})
+
+cat(paste(all_reports, collapse = "\n\n"))
+```
+
+```{r}
+# Check the actual coefficient table
+summary(lm_bdnf_mean_T1T0)$coefficients
+
+# Confirm which columns are numeric and their ranges
+str(bdnf_mean_T1T0[, c("Age_start", "CogTel", "T0", "T1_T0")])
+summary(bdnf_mean_T1T0[, c("Age_start", "CogTel", "T0", "T1_T0")])
+
+# Check correlations to see what "should" be the strong negative predictor
+cor(bdnf_mean_T1T0[, c("T1_T0", "T0", "CogTel")], use = "pairwise.complete.obs")
+
+```
+
+```{r}
+#| echo: true
+#| message: false
+#| warning: false
+
+library(broom)
+library(dplyr)
+library(ggplot2)
+
+# Put your mean models in a named list (as before)
+mean_models <- list(
+  bdnf_T2T0  = lm_bdnf_mean_T2T0,
+  bdnf_T1T0  = lm_bdnf_mean_T1T0,
+  bdnf_T2T1  = lm_bdnf_mean_T2T1,
+  tau_T2T0   = lm_tau_mean_T2T0,
+  tau_T1T0   = lm_tau_mean_T1T0,
+  tau_T2T1   = lm_tau_mean_T2T1,
+  psd95_T2T0 = lm_psd95_mean_T2T0,
+  psd95_T1T0 = lm_psd95_mean_T1T0,
+  psd95_T2T1 = lm_psd95_mean_T2T1
+)
+
+coef_df <- bind_rows(lapply(names(mean_models), function(nm) {
+  tidy(mean_models[[nm]], conf.int = TRUE) |>
+    mutate(model = nm)
+}))
+
+# Helper columns: biomarker and contrast from the model name
+coef_df <- coef_df |>
+  mutate(
+    biomarker = sub("_.*", "", model),
+    contrast  = sub("^[^_]+_", "", model)
+  )
+
+# Group term can appear as "GruppePiano" or "as.factor(Gruppe)Piano"
+group_terms <- c("GruppePiano", "as.factor(Gruppe)Piano")
+
+group_df <- coef_df |>
+  filter(term %in% group_terms) |>
+  mutate(term_pretty = "Group: Piano vs Control")
+```
 
 
+```{r}
+#| label: fig-lm-coef-plots
+#| fig-cap: "Coefficient plots …"
+#| echo: false
+#| message: false
+#| warning: false
 
+lm_coef_plots <- ggplot(group_df, aes(x = contrast, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_hline(yintercept = 0, linetype = 2) +
+  geom_pointrange() +
+  facet_wrap(~ biomarker, scales = "free_y") +
+  labs(
+    title = "Group effect (Piano vs Control) across time contrasts",
+    x = "Time contrast",
+    y = "Coefficient estimate (95% CI)"
+  )
+
+lm_coef_plots
+```
+
+```{r}
+baseline_terms <- c("T0", "T1")
+
+baseline_df <- coef_df |>
+  filter(term %in% baseline_terms) |>
+  mutate(term_pretty = paste0("Baseline: ", term))
+
+ggplot(baseline_df, aes(x = contrast, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_hline(yintercept = 0, linetype = 2) +
+  geom_pointrange() +
+  facet_grid(biomarker ~ term_pretty, scales = "free_y") +
+  labs(
+    title = "Baseline (T0/T1) effect across time contrasts",
+    x = "Time contrast",
+    y = "Coefficient estimate (95% CI)"
+  )
+
+```
 

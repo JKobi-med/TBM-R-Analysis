@@ -1,0 +1,188 @@
+---
+title: "Linear Mixed Models for M-values of DNA Methylation"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: html_document
+---
+# Linear Mixed Models for M-values of DNA Methylation
+
+  
+```{r}
+# ============================
+# 1. Load packages
+# ============================
+library(dplyr)
+library(lme4)
+library(lmerTest)      # adds p-values
+library(emmeans)       # for post-hoc contrasts
+library(ggplot2)
+library(broom.mixed)
+library(readxl)
+```
+
+
+```{r}
+# ============================
+# 2. Example data structure (adjust to your data)
+# ============================
+# Assume your long-format dataframe looks like this:
+# columns: subject_id, time_point, group, gene, avg_beta
+#
+# time_point = "baseline", "t2", "t3"   (or 0,1,2)
+# group      = "Randomized", "ActiveControl"
+# avg_beta   = average methylation proportion (0–1) across CpGs for that gene
+
+bdnf <- read_excel("~/Work/TBM-R-Analysis/tables/Rohdaten/BDNF_Neuroplastizität_Alter_CpGs_ohne_m11_und_p36_mit_verhalten_vollständig_umstrukturiert.xlsx")
+
+tau <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/TAU_CpGs_mit_verhalten_ohne_p61_p59_p34_p29_umstruk.xlsx"))
+
+psd95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+
+ ##first look at BDNF data
+head(bdnf)
+summary(bdnf)
+ ## Check the structure of the dataset
+str(bdnf)
+
+```
+```{r}
+# Compute summary stats per CpG across ALL samples (not per subject)
+cpg_summary <- bdnf %>%
+  group_by(CpG_position) %>%
+  summarise(
+    mean_meth = mean(methylierung, na.rm = TRUE),
+    sd_meth = sd(methylierung, na.rm = TRUE),
+    min_meth = min(methylierung, na.rm = TRUE),
+    max_meth = max(methylierung, na.rm = TRUE),
+    n = n()
+  ) %>%
+  mutate(
+    range_meth = max_meth - min_meth,
+    is_invariant = (sd_meth == 0 | range_meth < 0.05)  # Threshold: SD=0 or range<5% (common in targeted methylation)
+  )
+
+# Print to inspect - exclude if invariant or low var
+print(cpg_summary)
+
+# Filter data to exclude invariant CpGs
+bdnf_filtered <- bdnf %>%
+  inner_join(cpg_summary %>% filter(!is_invariant) %>% select(CpG_position), by = "CpG_position")
+```
+```{r}
+cpg_summary <- psd95 %>%
+  group_by(CpG_Position) %>%
+  summarise(
+    mean_meth = mean(methylation, na.rm = TRUE),
+    sd_meth = sd(methylation, na.rm = TRUE),
+    min_meth = min(methylation, na.rm = TRUE),
+    max_meth = max(methylation, na.rm = TRUE),
+    n = n()
+  ) %>%
+  mutate(
+    range_meth = max_meth - min_meth,
+    is_invariant = (sd_meth == 0 | range_meth < 0.05)  # Threshold: SD=0 or range<5% (common in targeted methylation)
+  )
+
+# Print to inspect - exclude if invariant or low var
+print(cpg_summary)
+
+# Filter data to exclude invariant CpGs
+psd95_filtered <- psd95 %>%
+  inner_join(cpg_summary %>% filter(!is_invariant) %>% select(CpG_Position), by = "CpG_position")
+```
+```{r}
+bdnf_avg <- bdnf_filtered %>%
+  group_by(ID, Zeitpunkt, Gruppe, Gruppe_als_zahl, Age_start, Geschlecht) %>%  # Include key covariates
+  summarise(
+    avg_meth = mean(methylierung, na.rm = TRUE),  # Average across remaining CpGs
+    n_CpG = n(),                                  # Count of CpGs used (for QC)
+    .groups = "drop"
+  ) %>%
+  mutate(
+    # Ensure proportion 0-1 (assuming methylierung is 0-1; if %, divide by 100)
+    avg_prop = avg_meth,  # If already 0-1; else avg_meth / 100
+    
+    # M-value transformation with pseudocount (0.01 is robust for skewed data)
+    M_value = log2( (avg_prop + 0.01) / (1 - avg_prop + 0.01) )
+  ) %>%
+  filter(n_CpG >= 1)  # Ensure at least 1 CpG per average (should be all)
+
+# Inspect the averaged data
+summary(bdnf_avg)
+head(bdnf_avg)
+```
+
+
+```{r}
+# Basic model: time * group + random intercept for subject
+model_basic <- lmer(M_value ~ Zeitpunkt * Gruppe + (1 | ID), 
+                    data = bdnf_avg)
+
+# Summary and ANOVA
+summary(model_basic)
+anova(model_basic)  # Type III with Satterthwaite
+
+# Adjusted model: Add covariates like age and sex (common in epigenetics)
+model_adjusted <- lmer(M_value ~ Zeitpunkt * Gruppe + Age_start + Geschlecht + (1 | ID), 
+                       data = bdnf_avg)
+
+# Summary and ANOVA for adjusted model
+summary(model_adjusted)
+anova(model_adjusted)
+
+# Compare models (if needed)
+anova(model_basic, model_adjusted)  # Use AIC/BIC to choose
+```
+
+```{r}
+# Interaction effects: Changes over time within groups
+emmeans(model_adjusted, pairwise ~ Zeitpunkt | Gruppe)
+
+# Group differences at each time point
+emmeans(model_adjusted, pairwise ~ Gruppe | Zeitpunkt)
+```
+```{r}
+library(report)
+report(model_basic)
+```
+
+```{r}
+# Residual plots
+plot(model_adjusted)  # Basic residual vs fitted
+
+# QQ plot for normality
+qqnorm(resid(model_adjusted))
+qqline(resid(model_adjusted))
+
+# If residuals look bad (still skewed), consider beta GLMM alternative b
+```
+
+```{r}
+
+library(glmmTMB)
+
+# Adjust prop for beta: Smithson-Verkuilen transformation
+bdnf_avg <- bdnf_avg %>%
+  mutate(
+    prop_adj = (avg_prop * (n_CpG - 1) + 0.5) / n_CpG  # Handles 0/1 exactly
+  )
+
+model_beta <- glmmTMB(prop_adj ~ Zeitpunkt * Gruppe + Age_start + Geschlecht + (1 | ID),
+                      family = beta_family(link = "logit"),
+                      data = bdnf_avg)
+
+summary(model_beta)
+
+# Post-hoc similar to above with emmeans (works with glmmTMB)
+```
+```{r}
+report(model_beta)
+```
+
+## PSD95
+```{r}
+# str(psd95)
+str(psd95$methylation)
+str(psd95$CpG_Position)
+```
+
