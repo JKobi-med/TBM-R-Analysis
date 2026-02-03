@@ -555,16 +555,6 @@ if (nrow(baseline_df) > 0) {
 
 
 
-```{r}
-
-modelsummary(
-  meanmodels,
-  statistic = c("({std.error})", "p={p.value}"),
-  stars = TRUE,
-  gof_map = c("nobs", "r.squared", "adj.r.squared"),
-  output = "markdown"
-)
-```
 
 
 ```{r}
@@ -602,6 +592,16 @@ modelsummary(
 
 ```
 
+```{r}
+library(modelsummary)
+modelsummary(
+  mean_models,
+  statistic = c("({std.error})", "p={p.value}"),
+  stars = TRUE,
+  gof_map = c("nobs", "r.squared", "adj.r.squared"),
+  output = "markdown"
+)
+```
 
 
 
@@ -615,7 +615,6 @@ report(lm_tau_mean_T1T0)
 #report(lm_tau_median_T1T0)
 report(lm_psd95_mean_T1T0)
 #report(lm_psd95_median_T1T0)
-summary(CogTel)
 ```
 
 ```{r}

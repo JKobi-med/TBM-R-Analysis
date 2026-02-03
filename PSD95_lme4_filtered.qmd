@@ -1,0 +1,165 @@
+---
+title: "PSD-95 Methylation Analysis: Specific CpGs with Nested Random Effects - lme4 and M-values"
+---
+
+```{r}
+library(lme4)
+library(lmerTest)
+library(dplyr)
+library(emmeans)
+```
+
+```{r}
+# ==============================================================
+# Load Data (as in your code - assuming already run)
+ psd95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+# ==============================================================
+```
+
+
+```{r}
+# ==============================================================
+# 1. Filter to Specific CpGs of Interest
+# ==============================================================
+# Assuming "filter for" means keep only these CpGs (e.g., for focused analysis)
+# If you meant exclude them, change to !CpG_Position %in% ...
+psd95_specific <- psd95 %>%
+  filter(CpG_Position %in% c("p95", "p60", "p23"))
+```
+
+
+```{r}
+# ==============================================================
+# 2. Preprocessing: Identify and Exclude Invariant/Low-Variability CpGs (among the specific ones)
+# ==============================================================
+
+# Compute summary stats per CpG across ALL samples
+cpg_summary <- psd95_specific %>%
+  group_by(CpG_Position) %>%
+  summarise(
+    mean_meth = mean(methylation, na.rm = TRUE),
+    sd_meth = sd(methylation, na.rm = TRUE),
+    min_meth = min(methylation, na.rm = TRUE),
+    max_meth = max(methylation, na.rm = TRUE),
+    n = n()
+  ) %>%
+  mutate(
+    range_meth = max_meth - min_meth,
+    is_invariant = (sd_meth == 0 | range_meth < 0.05)  # Threshold: SD=0 or range<5%
+  )
+
+# Print to inspect
+print(cpg_summary)
+
+# Filter data to exclude invariant CpGs (if any among the 3)
+psd95_filtered <- psd95_specific %>%
+  inner_join(cpg_summary %>% filter(!is_invariant) %>% select(CpG_Position), by = "CpG_Position")
+```
+
+
+```{r}
+# ==============================================================
+# Additional Preprocessing for CpG-Level Models
+# ==============================================================
+# Compute M-value at individual CpG level (instead of average)
+psd95_filtered <- psd95_filtered %>%
+  mutate(
+    prop = methylation,  # Assume methylation is already in 0-1 proportion; adjust if %
+    M_value = log2((prop + 0.01) / (1 - prop + 0.01))  # Pseudocount for stability
+  ) %>%
+  mutate(
+    Zeitpunkt = factor(Zeitpunkt, levels = c("T0", "T1", "T2")),
+    Gruppe = factor(Gruppe, levels = c("Controll", "Piano")),  # Reference: Controll
+    CpG_Position = factor(CpG_Position),  # Ensure factor for random effects
+    ID = factor(ID),  # Ensure factor
+    Sex = factor(Sex)  # Assume M/F or similar
+  )
+
+# Inspect
+summary(psd95_filtered)
+head(psd95_filtered)
+```
+
+```{r}
+# ==============================================================
+# Fit Nested Linear Mixed Model (CpG-Level, Nested Random Effects)
+# ==============================================================
+# Model: Group * Time + covariates + random intercept for ID + random intercept for CpG within ID
+model_nested <- lmer(
+  M_value ~ Gruppe * Zeitpunkt + Age_start + Sex + 
+            (1 | ID) + 
+            (1 | ID:CpG_Position),  # CpG-specific deviation within each individual
+  data = psd95_filtered
+)
+
+# Alternative notation (exactly the same meaning)
+# model_nested_alt <- lmer(
+#   M_value ~ Gruppe * Zeitpunkt + Age_start + Sex + (1 | ID / CpG_Position),
+#   data = psd95_filtered
+# )
+
+# Summary and ANOVA
+summary(model_nested)
+anova(model_nested)  # Type III with Satterthwaite
+
+# Post-hoc comparisons (e.g., group differences at each time point)
+emmeans(model_nested, pairwise ~ Gruppe | Zeitpunkt)
+emmeans(model_nested, pairwise ~ Zeitpunkt | Gruppe)
+```
+```{r}
+library(report)
+report(model_nested)
+```
+```{r}
+model_simplified <- lmer(M_value ~ Gruppe * Zeitpunkt + Age_start + Sex + (1 | ID:CpG_Position),
+                         data = psd95_filtered)
+summary(model_simplified)
+```
+```{r}
+report(model_simplified)
+```
+
+```{r}
+# ==============================================================
+# Per-CpG Modeling with FDR Adjustment
+# ==============================================================
+library(broom.mixed)  # For tidy()
+
+# Fit separate model per CpG_Position
+results_per_cpg <- psd95_filtered %>%
+  group_by(CpG_Position) %>%
+  do(tidy(lmer(M_value ~ Gruppe * Zeitpunkt + Age_start + Sex + (1 | ID), data = .))) %>%
+  ungroup() %>%
+  # Filter to relevant terms (adjust based on your factor levels; assuming GruppePiano is the treatment level)
+  filter(term %in% c("GruppePiano", "ZeitpunktT1", "ZeitpunktT2", 
+                     "GruppePiano:ZeitpunktT1", "GruppePiano:ZeitpunktT2",
+                     "Age_start", "SexM")) %>%  # Adjust "SexM" if levels differ (e.g., Sexmale)
+  mutate(p_adj = p.adjust(p.value, method = "fdr"))  # FDR across all tests
+
+# Print results
+print(results_per_cpg)
+
+# Look for significant CpGs (e.g., p_adj < 0.05)
+significant <- results_per_cpg %>%
+  filter(p_adj < 0.05)
+print(significant)
+```
+```{r}
+library(ggplot2)
+library(emmeans)
+
+# Interaction plot
+emmip(model_nested, Gruppe ~ Zeitpunkt, CIs = TRUE) +
+  theme_minimal() + labs(y = "Estimated M_value (higher = lower methylation)", title = "PSD-95 Promoter Methylation Trajectories")
+
+# Or spaghetti plot of individual trajectories (if desired)
+ggplot(psd95_filtered, aes(x = Zeitpunkt, y = M_value, group = ID, color = Gruppe)) +
+  geom_line(alpha = 0.3) + facet_wrap(~ Gruppe) + theme_minimal()
+```
+
+```{r}
+library(brms)
+fit_beta <- brm(methylation ~ Gruppe * Zeitpunkt + Age_start + Sex + (1 | ID/CpG_Position),
+                data = psd95_filtered, family = Beta())
+```
+

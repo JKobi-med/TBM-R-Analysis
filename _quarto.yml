@@ -3,14 +3,14 @@ project:
   output-dir: _manuscript
   render:
     - "index.qmd"
-    - "!notebooks/*.qmd"
     - "!*.Rmd"
 
 execute:
-  enabled: true
+  enabled: false
   freeze: true
   warning: false
   message: false
+
 
 format:
   html:
@@ -28,3 +28,4 @@ format:
 
 bibliography: references.bib
 # cite-method: natbib
+# 

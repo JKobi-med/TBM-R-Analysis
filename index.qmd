@@ -122,14 +122,15 @@ editor:
 
 # Background {#sec-background}
 
+## Background and Rationale {#sec-background-rationale}
 To make music is a compllex higly sophisticated activity that reuqires our brain to use of all of his faculties.
+
+
+## Objectives {#sec-objectives}
 
 # Methods {#sec-data-methods}
 
-## Study flowchart
-
-{{< embed notebooks/flowchart.qmd#fig-flowchart >}}
-
+## Patient and Public Involvement {#sec-methods-ppi}
 
 
 ## Study design
@@ -232,9 +233,11 @@ Lastly Zero-Inflated Beta Distribution Regression Models with random effects (ZI
 
 # Results {#sec-results}
 
-## Descriptive statistics {#sec-results-descriptive}
+## Recruitment and participant flow {#sec-results-recruitment}
 
-### Generall demographics {#sec-results-general}
+**flow diagram missing**
+
+## Baseline data {#sec-results-baseline}
 
 
 Overall 144 (one with missing T0! ID 141) participants were included in the study. Both groups were nearly equally distributed (46,5 % in the piano group). The mean age was 69.58 years (SD: 3.5 years) with a minimum of 62 and a maximum of 78 years. This was due to the desgin of the TBM study.
@@ -280,8 +283,7 @@ Chat: *Continuous variables were compared using the Wilcoxon rank-sum test. Cate
 : Values are median [IQR] for continuous variables and no. (%) for categorical variables. P values are from the Wilcoxon rank-sum test for continuous variables and Pearson’s chi-squared test or Fisher’s exact test for categorical variables, as appropriate. Baseline characteristics were taken from the earliest available assessment (T0 preferred); one participant had no T0 sample (ID 141). {#tbl-demographics} 
 
 
-### Metadata sequencing
-
+## Numbers analyzed {#sec-results-numbers-analyzed}
 1,078 blood samples have been sequenced from the participants for three different genes at three different time points (T0, T1, T2). A decline in the number of samples from T0 to T2 can be seen (@tbl-metadata-sequencing-summary), because not every participant provided blood samples at every time point, because of loss to follow up. This is the reason for the difference between the time points.
 
 Furthermore, not every blood sample could be analyzed successfully (cf. @tbl-metadata-sequencing-summary) due to some qualitative differences in the sequencing process. But in the end, a total of 359 BDNF, 362 Tau and 357 PSD95 samples could be successfully sequenced. This is the reason for the slight difference between genes.
@@ -311,6 +313,7 @@ Two further Participants had to be excluded from the analysis, because somehow t
 
 : Metadata of successfully sequenced samples per gene and time point {#tbl-metadata-sequencing-summary}
 
+## Outcomes {#sec-results-outcomes}
 
 ### Methylation Level Analysis {#sec-results-methylation-level}
 
@@ -423,261 +426,60 @@ according to @sec-results-pca we also filtered for the high variance CpGs.
 
 ## Models (LM, GLM, ZIBR) {#sec-results-models}
 ### Linear Models (LM) {#sec-results-lm}
-Across biomarkers and time contrasts, change scores were mainly explained by the biomarker’s prior level (strong negative association), while group, sex, age, and CogTel showed no robust associations, and site effects appeared only sporadically (notably PSD95 T1–T0 and borderline BDNF T1–T0).
 
-#### All CpG-sites
-##### BDNF
-###### Mean model: bdnf_T2T0
-
-We fitted a linear model (estimated using OLS) to predict T2_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.46, F(6, 88) = 12.33, p < .001, adj. R2 = 0.42). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.14 (95% CI [-0.03, 0.30], t(88) = 1.60, p = 0.113). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -7.21e-03, 95% CI [-0.03, 0.01], t(88) = -0.78, p = 0.440; Std. beta = -0.07, 95% CI [-0.24, 0.10])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -5.00e-03, 95% CI [-0.02, 0.01], t(88) = -0.62, p = 0.535; Std. beta = -0.10, 95% CI [-0.42, 0.22])
-  - The effect of Sex [M] is statistically non-significant and positive (beta = 2.13e-03, 95% CI [-0.02, 0.02], t(88) = 0.25, p = 0.805; Std. beta = 0.04, 95% CI [-0.30, 0.38])
-  - The effect of Age start is statistically non-significant and negative (beta = -4.66e-04, 95% CI [-2.65e-03, 1.72e-03], t(88) = -0.42, p = 0.673; Std. beta = -0.03, 95% CI [-0.20, 0.13])
-  - The effect of CogTel is statistically non-significant and negative (beta = -5.86e-04, 95% CI [-1.76e-03, 5.91e-04], t(88) = -0.99, p = 0.325; Std. beta = -0.08, 95% CI [-0.25, 0.08])
-  - The effect of T0 is statistically significant and negative (beta = -0.99, 95% CI [-1.23, -0.75], t(88) = -8.10, p < .001; Std. beta = -0.65, 95% CI [-0.81, -0.49])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-###### Mean model: bdnf_T1T0
-
-We fitted a linear model (estimated using OLS) to predict T1_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T1_T0 ~ as.factor(Standort) + as.factor(Gruppe) + as.factor(Sex) + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.58, F(6, 112) = 25.97, p < .001, adj. R2 = 0.56). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.11 (95% CI [-8.25e-03, 0.22], t(112) = 1.84, p = 0.068). Within this model:
-
-  - The effect of Standort [1] is statistically significant and negative (beta = -0.01, 95% CI [-0.02, -4.36e-05], t(112) = -1.99, p = 0.049; Std. beta = 0.15, 95% CI [-0.11, 0.42])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -1.35e-03, 95% CI [-0.01, 0.01], t(112) = -0.23, p = 0.816; Std. beta = -0.25, 95% CI [-0.49, -9.94e-04])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -5.60e-04, 95% CI [-2.10e-03, 9.79e-04], t(112) = -0.72, p = 0.473; Std. beta = -0.03, 95% CI [-0.29, 0.23])
-  - The effect of Age start is statistically non-significant and negative (beta = -2.03e-04, 95% CI [-9.82e-04, 5.76e-04], t(112) = -0.52, p = 0.607; Std. beta = -0.05, 95% CI [-0.17, 0.08])
-  - The effect of CogTel is statistically significant and negative (beta = -0.99, 95% CI [-1.15, -0.82], t(112) = -11.84, p < .001; Std. beta = -0.03, 95% CI [-0.16, 0.09])
-  - The effect of T0 is statistically non-significant and positive (beta = 6.76e-03, 95% CI [-4.87e-03, 0.02], t(112) = 1.15, p = 0.252; Std. beta = -0.74, 95% CI [-0.87, -0.62])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-###### Mean model: bdnf_T2T1
-
-We fitted a linear model (estimated using OLS) to predict T2_T1 with Standort, Gruppe, Sex, Age_start, CogTel and T1 (formula: T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1). The model explains a statistically significant and substantial proportion of variance (R2 = 0.39, F(6, 85) = 9.21, p < .001, adj. R2 = 0.35). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T1 = 0, is at 0.14 (95% CI [-0.04, 0.31], t(85) = 1.58, p = 0.118). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -8.87e-03, 95% CI [-0.03, 0.01], t(85) = -0.93, p = 0.357; Std. beta = -0.09, 95% CI [-0.27, 0.10])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -6.80e-03, 95% CI [-0.02, 0.01], t(85) = -0.80, p = 0.425; Std. beta = -0.14, 95% CI [-0.49, 0.21])
-  - The effect of Sex [M] is statistically non-significant and positive (beta = 4.15e-03, 95% CI [-0.01, 0.02], t(85) = 0.47, p = 0.638; Std. beta = 0.09, 95% CI [-0.28, 0.45])
-  - The effect of Age start is statistically non-significant and negative (beta = -4.29e-04, 95% CI [-2.66e-03, 1.80e-03], t(85) = -0.38, p = 0.703; Std. beta = -0.03, 95% CI [-0.21, 0.14])
-  - The effect of CogTel is statistically non-significant and negative (beta = -6.25e-04, 95% CI [-1.81e-03, 5.60e-04], t(85) = -1.05, p = 0.297; Std. beta = -0.09, 95% CI [-0.27, 0.08])
-  - The effect of T1 is statistically significant and negative (beta = -1.01, 95% CI [-1.31, -0.72], t(85) = -6.93, p < .001; Std. beta = -0.61, 95% CI [-0.78, -0.43])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-##### Tau
-###### Mean model: tau_T2T0
-
-We fitted a linear model (estimated using OLS) to predict T2_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.40, F(6, 88) = 9.66, p < .001, adj. R2 = 0.36). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.10 (95% CI [9.52e-03, 0.19], t(88) = 2.20, p = 0.030). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -1.73e-04, 95% CI [-9.57e-03, 9.22e-03], t(88) = -0.04, p = 0.971; Std. beta = -3.34e-03, 95% CI [-0.18, 0.18])
-  - The effect of Gruppe [Piano] is statistically non-significant and positive (beta = 7.58e-05, 95% CI [-8.02e-03, 8.17e-03], t(88) = 0.02, p = 0.985; Std. beta = 3.13e-03, 95% CI [-0.33, 0.34])
-  - The effect of Sex [M] is statistically non-significant and positive (beta = 1.69e-05, 95% CI [-8.74e-03, 8.78e-03], t(88) = 3.83e-03, p = 0.997; Std. beta = 6.97e-04, 95% CI [-0.36, 0.36])
-  - The effect of Age start is statistically non-significant and negative (beta = -5.02e-04, 95% CI [-1.63e-03, 6.22e-04], t(88) = -0.89, p = 0.377; Std. beta = -0.08, 95% CI [-0.25, 0.10])
-  - The effect of CogTel is statistically non-significant and negative (beta = -1.60e-04, 95% CI [-7.43e-04, 4.24e-04], t(88) = -0.54, p = 0.588; Std. beta = -0.05, 95% CI [-0.22, 0.13])
-  - The effect of T0 is statistically significant and negative (beta = -0.75, 95% CI [-0.95, -0.54], t(88) = -7.28, p < .001; Std. beta = -0.61, 95% CI [-0.78, -0.45])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-###### Mean model: tau_T1T0
-
-We fitted a linear model (estimated using OLS) to predict T1_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.36, F(6, 114) = 10.54, p < .001, adj. R2 = 0.32). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 5.13e-03 (95% CI [-0.07, 0.08], t(114) = 0.13, p = 0.897). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -1.28e-03, 95% CI [-8.94e-03, 6.38e-03], t(114) = -0.33, p = 0.741; Std. beta = -0.03, 95% CI [-0.18, 0.13])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -2.78e-03, 95% CI [-9.89e-03, 4.34e-03], t(114) = -0.77, p = 0.441; Std. beta = -0.12, 95% CI [-0.42, 0.18])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -4.86e-03, 95% CI [-0.01, 2.71e-03], t(114) = -1.27, p = 0.206; Std. beta = -0.21, 95% CI [-0.53, 0.11])
-  - The effect of Age start is statistically non-significant and positive (beta = 7.57e-04, 95% CI [-2.68e-04, 1.78e-03], t(114) = 1.46, p = 0.146; Std. beta = 0.11, 95% CI [-0.04, 0.27])
-  - The effect of CogTel is statistically non-significant and positive (beta = 6.37e-05, 95% CI [-4.46e-04, 5.73e-04], t(114) = 0.25, p = 0.805; Std. beta = 0.02, 95% CI [-0.14, 0.18])
-  - The effect of T0 is statistically significant and negative (beta = -0.71, 95% CI [-0.89, -0.53], t(114) = -7.72, p < .001; Std. beta = -0.59, 95% CI [-0.74, -0.44])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-###### Mean model: tau_T2T1
-
-We fitted a linear model (estimated using OLS) to predict T2_T1 with Standort, Gruppe, Sex, Age_start, CogTel and T1 (formula: T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1). The model explains a statistically significant and substantial proportion of variance (R2 = 0.45, F(6, 84) = 11.52, p < .001, adj. R2 = 0.41). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T1 = 0, is at 0.10 (95% CI [6.53e-03, 0.19], t(84) = 2.13, p = 0.036). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -2.03e-04, 95% CI [-0.01, 9.62e-03], t(84) = -0.04, p = 0.967; Std. beta = -3.63e-03, 95% CI [-0.18, 0.17])
-  - The effect of Gruppe [Piano] is statistically non-significant and positive (beta = 5.40e-04, 95% CI [-8.21e-03, 9.29e-03], t(84) = 0.12, p = 0.903; Std. beta = 0.02, 95% CI [-0.31, 0.35])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -2.53e-04, 95% CI [-9.46e-03, 8.96e-03], t(84) = -0.05, p = 0.957; Std. beta = -9.66e-03, 95% CI [-0.36, 0.34])
-  - The effect of Age start is statistically non-significant and negative (beta = -4.09e-04, 95% CI [-1.60e-03, 7.86e-04], t(84) = -0.68, p = 0.498; Std. beta = -0.06, 95% CI [-0.23, 0.11])
-  - The effect of CogTel is statistically non-significant and negative (beta = -1.65e-04, 95% CI [-7.77e-04, 4.48e-04], t(84) = -0.53, p = 0.595; Std. beta = -0.05, 95% CI [-0.22, 0.12])
-  - The effect of T1 is statistically significant and negative (beta = -0.85, 95% CI [-1.07, -0.63], t(84) = -7.68, p < .001; Std. beta = -0.65, 95% CI [-0.82, -0.48])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-##### PSD95
-###### Mean model: psd95_T2T0
-
-We fitted a linear model (estimated using OLS) to predict T2_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.74, F(6, 86) = 39.83, p < .001, adj. R2 = 0.72). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.05 (95% CI [6.10e-03, 0.10], t(86) = 2.24, p = 0.027). Within this model:
-
-  - The effect of Standort is statistically non-significant and positive (beta = 7.98e-04, 95% CI [-4.31e-03, 5.90e-03], t(86) = 0.31, p = 0.757; Std. beta = 0.02, 95% CI [-0.10, 0.14])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -2.68e-03, 95% CI [-6.93e-03, 1.56e-03], t(86) = -1.26, p = 0.213; Std. beta = -0.14, 95% CI [-0.36, 0.08])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -3.06e-03, 95% CI [-7.71e-03, 1.58e-03], t(86) = -1.31, p = 0.193; Std. beta = -0.16, 95% CI [-0.40, 0.08])
-  - The effect of Age start is statistically non-significant and negative (beta = -1.68e-04, 95% CI [-7.63e-04, 4.27e-04], t(86) = -0.56, p = 0.576; Std. beta = -0.03, 95% CI [-0.15, 0.08])
-  - The effect of CogTel is statistically non-significant and negative (beta = -1.50e-04, 95% CI [-4.62e-04, 1.61e-04], t(86) = -0.96, p = 0.339; Std. beta = -0.06, 95% CI [-0.17, 0.06])
-  - The effect of T0 is statistically significant and negative (beta = -1.16, 95% CI [-1.31, -1.01], t(86) = -15.26, p < .001; Std. beta = -0.86, 95% CI [-0.97, -0.75])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-###### Mean model: psd95_T1T0
-
-We fitted a linear model (estimated using OLS) to predict T1_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.62, F(6, 111) = 30.21, p < .001, adj. R2 = 0.60). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.06 (95% CI [3.00e-03, 0.11], t(111) = 2.10, p = 0.038). Within this model:
-
-  - The effect of Standort is statistically significant and positive (beta = 5.81e-03, 95% CI [6.91e-04, 0.01], t(111) = 2.25, p = 0.026; Std. beta = 0.14, 95% CI [0.02, 0.26])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -2.87e-03, 95% CI [-7.61e-03, 1.87e-03], t(111) = -1.20, p = 0.233; Std. beta = -0.14, 95% CI [-0.38, 0.09])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -4.63e-03, 95% CI [-9.73e-03, 4.70e-04], t(111) = -1.80, p = 0.075; Std. beta = -0.23, 95% CI [-0.48, 0.02])
-  - The effect of Age start is statistically non-significant and negative (beta = -3.66e-04, 95% CI [-1.05e-03, 3.15e-04], t(111) = -1.07, p = 0.289; Std. beta = -0.06, 95% CI [-0.18, 0.06])
-  - The effect of CogTel is statistically non-significant and negative (beta = -1.52e-04, 95% CI [-4.92e-04, 1.88e-04], t(111) = -0.89, p = 0.378; Std. beta = -0.05, 95% CI [-0.18, 0.07])
-  - The effect of T0 is statistically significant and negative (beta = -0.97, 95% CI [-1.12, -0.83], t(111) = -13.09, p < .001; Std. beta = -0.78, 95% CI [-0.90, -0.66])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-###### Mean model: psd95_T2T1
-
-We fitted a linear model (estimated using OLS) to predict T2_T1 with Standort, Gruppe, Sex, Age_start, CogTel and T1 (formula: T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1). The model explains a statistically significant and substantial proportion of variance (R2 = 0.64, F(6, 82) = 24.47, p < .001, adj. R2 = 0.62). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T1 = 0, is at 0.05 (95% CI [-1.42e-03, 0.10], t(82) = 1.93, p = 0.057). Within this model:
-
-  - The effect of Standort is statistically non-significant and positive (beta = 3.25e-04, 95% CI [-4.94e-03, 5.59e-03], t(82) = 0.12, p = 0.902; Std. beta = 8.92e-03, 95% CI [-0.14, 0.15])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -3.68e-03, 95% CI [-8.19e-03, 8.29e-04], t(82) = -1.62, p = 0.108; Std. beta = -0.22, 95% CI [-0.49, 0.05])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -3.61e-03, 95% CI [-8.41e-03, 1.20e-03], t(82) = -1.49, p = 0.139; Std. beta = -0.21, 95% CI [-0.50, 0.07])
-  - The effect of Age start is statistically non-significant and negative (beta = -1.12e-04, 95% CI [-7.35e-04, 5.11e-04], t(82) = -0.36, p = 0.720; Std. beta = -0.02, 95% CI [-0.16, 0.11])
-  - The effect of CogTel is statistically non-significant and negative (beta = -2.18e-04, 95% CI [-5.41e-04, 1.06e-04], t(82) = -1.34, p = 0.184; Std. beta = -0.09, 95% CI [-0.23, 0.05])
-  - The effect of T1 is statistically significant and negative (beta = -1.01, 95% CI [-1.18, -0.84], t(82) = -11.81, p < .001; Std. beta = -0.80, 95% CI [-0.94, -0.67])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-{{< embed notebooks/LM_no_step()_101224.qmd#fig-lm-coef-plots >}}
-
-#### filtered CpGs
-
-##### BDNF
-
-
-###### Mean model: bdnf_T2T0 
-
-We fitted a linear model (estimated using OLS) to predict T2_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.46, F(6, 88) = 12.33, p < .001, adj. R2 = 0.42). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.14 (95% CI [-0.03, 0.30], t(88) = 1.60, p = 0.113). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -7.21e-03, 95% CI [-0.03, 0.01], t(88) = -0.78, p = 0.440; Std. beta = -0.07, 95% CI [-0.24, 0.10])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -5.00e-03, 95% CI [-0.02, 0.01], t(88) = -0.62, p = 0.535; Std. beta = -0.10, 95% CI [-0.42, 0.22])
-  - The effect of Sex [M] is statistically non-significant and positive (beta = 2.13e-03, 95% CI [-0.02, 0.02], t(88) = 0.25, p = 0.805; Std. beta = 0.04, 95% CI [-0.30, 0.38])
-  - The effect of Age start is statistically non-significant and negative (beta = -4.66e-04, 95% CI [-2.65e-03, 1.72e-03], t(88) = -0.42, p = 0.673; Std. beta = -0.03, 95% CI [-0.20, 0.13])
-  - The effect of CogTel is statistically non-significant and negative (beta = -5.86e-04, 95% CI [-1.76e-03, 5.91e-04], t(88) = -0.99, p = 0.325; Std. beta = -0.08, 95% CI [-0.25, 0.08])
-  - The effect of T0 is statistically significant and negative (beta = -0.99, 95% CI [-1.23, -0.75], t(88) = -8.10, p < .001; Std. beta = -0.65, 95% CI [-0.81, -0.49])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-
-###### Mean model: bdnf_T1T0 
-
-We fitted a linear model (estimated using OLS) to predict T1_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T1_T0 ~ as.factor(Standort) + as.factor(Gruppe) + as.factor(Sex) + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.58, F(6, 112) = 25.97, p < .001, adj. R2 = 0.56). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.11 (95% CI [-8.25e-03, 0.22], t(112) = 1.84, p = 0.068). Within this model:
-
-  - The effect of Standort [1] is statistically significant and negative (beta = -0.01, 95% CI [-0.02, -4.36e-05], t(112) = -1.99, p = 0.049; Std. beta = 0.15, 95% CI [-0.11, 0.42])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -1.35e-03, 95% CI [-0.01, 0.01], t(112) = -0.23, p = 0.816; Std. beta = -0.25, 95% CI [-0.49, -9.94e-04])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -5.60e-04, 95% CI [-2.10e-03, 9.79e-04], t(112) = -0.72, p = 0.473; Std. beta = -0.03, 95% CI [-0.29, 0.23])
-  - The effect of Age start is statistically non-significant and negative (beta = -2.03e-04, 95% CI [-9.82e-04, 5.76e-04], t(112) = -0.52, p = 0.607; Std. beta = -0.05, 95% CI [-0.17, 0.08])
-  - The effect of CogTel is statistically significant and negative (beta = -0.99, 95% CI [-1.15, -0.82], t(112) = -11.84, p < .001; Std. beta = -0.03, 95% CI [-0.16, 0.09])
-  - The effect of T0 is statistically non-significant and positive (beta = 6.76e-03, 95% CI [-4.87e-03, 0.02], t(112) = 1.15, p = 0.252; Std. beta = -0.74, 95% CI [-0.87, -0.62])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-
-###### Mean model: bdnf_T2T1 
-
-We fitted a linear model (estimated using OLS) to predict T2_T1 with Standort, Gruppe, Sex, Age_start, CogTel and T1 (formula: T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1). The model explains a statistically significant and substantial proportion of variance (R2 = 0.39, F(6, 85) = 9.21, p < .001, adj. R2 = 0.35). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T1 = 0, is at 0.14 (95% CI [-0.04, 0.31], t(85) = 1.58, p = 0.118). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -8.87e-03, 95% CI [-0.03, 0.01], t(85) = -0.93, p = 0.357; Std. beta = -0.09, 95% CI [-0.27, 0.10])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -6.80e-03, 95% CI [-0.02, 0.01], t(85) = -0.80, p = 0.425; Std. beta = -0.14, 95% CI [-0.49, 0.21])
-  - The effect of Sex [M] is statistically non-significant and positive (beta = 4.15e-03, 95% CI [-0.01, 0.02], t(85) = 0.47, p = 0.638; Std. beta = 0.09, 95% CI [-0.28, 0.45])
-  - The effect of Age start is statistically non-significant and negative (beta = -4.29e-04, 95% CI [-2.66e-03, 1.80e-03], t(85) = -0.38, p = 0.703; Std. beta = -0.03, 95% CI [-0.21, 0.14])
-  - The effect of CogTel is statistically non-significant and negative (beta = -6.25e-04, 95% CI [-1.81e-03, 5.60e-04], t(85) = -1.05, p = 0.297; Std. beta = -0.09, 95% CI [-0.27, 0.08])
-  - The effect of T1 is statistically significant and negative (beta = -1.01, 95% CI [-1.31, -0.72], t(85) = -6.93, p < .001; Std. beta = -0.61, 95% CI [-0.78, -0.43])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-##### Tau
-###### Mean model: tau_T2T0 
-
-We fitted a linear model (estimated using OLS) to predict T2_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.40, F(6, 88) = 9.66, p < .001, adj. R2 = 0.36). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.10 (95% CI [9.52e-03, 0.19], t(88) = 2.20, p = 0.030). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -1.73e-04, 95% CI [-9.57e-03, 9.22e-03], t(88) = -0.04, p = 0.971; Std. beta = -3.34e-03, 95% CI [-0.18, 0.18])
-  - The effect of Gruppe [Piano] is statistically non-significant and positive (beta = 7.58e-05, 95% CI [-8.02e-03, 8.17e-03], t(88) = 0.02, p = 0.985; Std. beta = 3.13e-03, 95% CI [-0.33, 0.34])
-  - The effect of Sex [M] is statistically non-significant and positive (beta = 1.69e-05, 95% CI [-8.74e-03, 8.78e-03], t(88) = 3.83e-03, p = 0.997; Std. beta = 6.97e-04, 95% CI [-0.36, 0.36])
-  - The effect of Age start is statistically non-significant and negative (beta = -5.02e-04, 95% CI [-1.63e-03, 6.22e-04], t(88) = -0.89, p = 0.377; Std. beta = -0.08, 95% CI [-0.25, 0.10])
-  - The effect of CogTel is statistically non-significant and negative (beta = -1.60e-04, 95% CI [-7.43e-04, 4.24e-04], t(88) = -0.54, p = 0.588; Std. beta = -0.05, 95% CI [-0.22, 0.13])
-  - The effect of T0 is statistically significant and negative (beta = -0.75, 95% CI [-0.95, -0.54], t(88) = -7.28, p < .001; Std. beta = -0.61, 95% CI [-0.78, -0.45])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-
-###### Mean model: tau_T1T0 
-
-We fitted a linear model (estimated using OLS) to predict T1_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.36, F(6, 114) = 10.54, p < .001, adj. R2 = 0.32). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 5.13e-03 (95% CI [-0.07, 0.08], t(114) = 0.13, p = 0.897). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -1.28e-03, 95% CI [-8.94e-03, 6.38e-03], t(114) = -0.33, p = 0.741; Std. beta = -0.03, 95% CI [-0.18, 0.13])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -2.78e-03, 95% CI [-9.89e-03, 4.34e-03], t(114) = -0.77, p = 0.441; Std. beta = -0.12, 95% CI [-0.42, 0.18])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -4.86e-03, 95% CI [-0.01, 2.71e-03], t(114) = -1.27, p = 0.206; Std. beta = -0.21, 95% CI [-0.53, 0.11])
-  - The effect of Age start is statistically non-significant and positive (beta = 7.57e-04, 95% CI [-2.68e-04, 1.78e-03], t(114) = 1.46, p = 0.146; Std. beta = 0.11, 95% CI [-0.04, 0.27])
-  - The effect of CogTel is statistically non-significant and positive (beta = 6.37e-05, 95% CI [-4.46e-04, 5.73e-04], t(114) = 0.25, p = 0.805; Std. beta = 0.02, 95% CI [-0.14, 0.18])
-  - The effect of T0 is statistically significant and negative (beta = -0.71, 95% CI [-0.89, -0.53], t(114) = -7.72, p < .001; Std. beta = -0.59, 95% CI [-0.74, -0.44])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-
-###### Mean model: tau_T2T1 
-
-We fitted a linear model (estimated using OLS) to predict T2_T1 with Standort, Gruppe, Sex, Age_start, CogTel and T1 (formula: T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1). The model explains a statistically significant and substantial proportion of variance (R2 = 0.45, F(6, 84) = 11.52, p < .001, adj. R2 = 0.41). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T1 = 0, is at 0.10 (95% CI [6.53e-03, 0.19], t(84) = 2.13, p = 0.036). Within this model:
-
-  - The effect of Standort is statistically non-significant and negative (beta = -2.03e-04, 95% CI [-0.01, 9.62e-03], t(84) = -0.04, p = 0.967; Std. beta = -3.63e-03, 95% CI [-0.18, 0.17])
-  - The effect of Gruppe [Piano] is statistically non-significant and positive (beta = 5.40e-04, 95% CI [-8.21e-03, 9.29e-03], t(84) = 0.12, p = 0.903; Std. beta = 0.02, 95% CI [-0.31, 0.35])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -2.53e-04, 95% CI [-9.46e-03, 8.96e-03], t(84) = -0.05, p = 0.957; Std. beta = -9.66e-03, 95% CI [-0.36, 0.34])
-  - The effect of Age start is statistically non-significant and negative (beta = -4.09e-04, 95% CI [-1.60e-03, 7.86e-04], t(84) = -0.68, p = 0.498; Std. beta = -0.06, 95% CI [-0.23, 0.11])
-  - The effect of CogTel is statistically non-significant and negative (beta = -1.65e-04, 95% CI [-7.77e-04, 4.48e-04], t(84) = -0.53, p = 0.595; Std. beta = -0.05, 95% CI [-0.22, 0.12])
-  - The effect of T1 is statistically significant and negative (beta = -0.85, 95% CI [-1.07, -0.63], t(84) = -7.68, p < .001; Std. beta = -0.65, 95% CI [-0.82, -0.48])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-##### PSD95
-###### Mean model: psd95_T2T0 
-
-We fitted a linear model (estimated using OLS) to predict T2_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T2_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.74, F(6, 86) = 39.83, p < .001, adj. R2 = 0.72). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.05 (95% CI [6.10e-03, 0.10], t(86) = 2.24, p = 0.027). Within this model:
-
-  - The effect of Standort is statistically non-significant and positive (beta = 7.98e-04, 95% CI [-4.31e-03, 5.90e-03], t(86) = 0.31, p = 0.757; Std. beta = 0.02, 95% CI [-0.10, 0.14])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -2.68e-03, 95% CI [-6.93e-03, 1.56e-03], t(86) = -1.26, p = 0.213; Std. beta = -0.14, 95% CI [-0.36, 0.08])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -3.06e-03, 95% CI [-7.71e-03, 1.58e-03], t(86) = -1.31, p = 0.193; Std. beta = -0.16, 95% CI [-0.40, 0.08])
-  - The effect of Age start is statistically non-significant and negative (beta = -1.68e-04, 95% CI [-7.63e-04, 4.27e-04], t(86) = -0.56, p = 0.576; Std. beta = -0.03, 95% CI [-0.15, 0.08])
-  - The effect of CogTel is statistically non-significant and negative (beta = -1.50e-04, 95% CI [-4.62e-04, 1.61e-04], t(86) = -0.96, p = 0.339; Std. beta = -0.06, 95% CI [-0.17, 0.06])
-  - The effect of T0 is statistically significant and negative (beta = -1.16, 95% CI [-1.31, -1.01], t(86) = -15.26, p < .001; Std. beta = -0.86, 95% CI [-0.97, -0.75])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-
-###### Mean model: psd95_T1T0 
-
-We fitted a linear model (estimated using OLS) to predict T1_T0 with Standort, Gruppe, Sex, Age_start, CogTel and T0 (formula: T1_T0 ~ Standort + Gruppe + Sex + Age_start + CogTel + T0). The model explains a statistically significant and substantial proportion of variance (R2 = 0.62, F(6, 111) = 30.21, p < .001, adj. R2 = 0.60). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T0 = 0, is at 0.06 (95% CI [3.00e-03, 0.11], t(111) = 2.10, p = 0.038). Within this model:
-
-  - The effect of Standort is statistically significant and positive (beta = 5.81e-03, 95% CI [6.91e-04, 0.01], t(111) = 2.25, p = 0.026; Std. beta = 0.14, 95% CI [0.02, 0.26])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -2.87e-03, 95% CI [-7.61e-03, 1.87e-03], t(111) = -1.20, p = 0.233; Std. beta = -0.14, 95% CI [-0.38, 0.09])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -4.63e-03, 95% CI [-9.73e-03, 4.70e-04], t(111) = -1.80, p = 0.075; Std. beta = -0.23, 95% CI [-0.48, 0.02])
-  - The effect of Age start is statistically non-significant and negative (beta = -3.66e-04, 95% CI [-1.05e-03, 3.15e-04], t(111) = -1.07, p = 0.289; Std. beta = -0.06, 95% CI [-0.18, 0.06])
-  - The effect of CogTel is statistically non-significant and negative (beta = -1.52e-04, 95% CI [-4.92e-04, 1.88e-04], t(111) = -0.89, p = 0.378; Std. beta = -0.05, 95% CI [-0.18, 0.07])
-  - The effect of T0 is statistically significant and negative (beta = -0.97, 95% CI [-1.12, -0.83], t(111) = -13.09, p < .001; Std. beta = -0.78, 95% CI [-0.90, -0.66])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-
-
-###### Mean model: psd95_T2T1 
-
-We fitted a linear model (estimated using OLS) to predict T2_T1 with Standort, Gruppe, Sex, Age_start, CogTel and T1 (formula: T2_T1 ~ Standort + Gruppe + Sex + Age_start + CogTel + T1). The model explains a statistically significant and substantial proportion of variance (R2 = 0.64, F(6, 82) = 24.47, p < .001, adj. R2 = 0.62). The model's intercept, corresponding to Standort = 0, Gruppe = Controll, Sex = F, Age_start = 0, CogTel = 0 and T1 = 0, is at 0.05 (95% CI [-1.42e-03, 0.10], t(82) = 1.93, p = 0.057). Within this model:
-
-  - The effect of Standort is statistically non-significant and positive (beta = 3.25e-04, 95% CI [-4.94e-03, 5.59e-03], t(82) = 0.12, p = 0.902; Std. beta = 8.92e-03, 95% CI [-0.14, 0.15])
-  - The effect of Gruppe [Piano] is statistically non-significant and negative (beta = -3.68e-03, 95% CI [-8.19e-03, 8.29e-04], t(82) = -1.62, p = 0.108; Std. beta = -0.22, 95% CI [-0.49, 0.05])
-  - The effect of Sex [M] is statistically non-significant and negative (beta = -3.61e-03, 95% CI [-8.41e-03, 1.20e-03], t(82) = -1.49, p = 0.139; Std. beta = -0.21, 95% CI [-0.50, 0.07])
-  - The effect of Age start is statistically non-significant and negative (beta = -1.12e-04, 95% CI [-7.35e-04, 5.11e-04], t(82) = -0.36, p = 0.720; Std. beta = -0.02, 95% CI [-0.16, 0.11])
-  - The effect of CogTel is statistically non-significant and negative (beta = -2.18e-04, 95% CI [-5.41e-04, 1.06e-04], t(82) = -1.34, p = 0.184; Std. beta = -0.09, 95% CI [-0.23, 0.05])
-  - The effect of T1 is statistically significant and negative (beta = -1.01, 95% CI [-1.18, -0.84], t(82) = -11.81, p < .001; Std. beta = -0.80, 95% CI [-0.94, -0.67])
-
-Standardized parameters were obtained by fitting the model on a standardized version of the dataset. 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
-R Console
+*Across all mean linear models predicting change scores (T1–T0, T2–T0, T2–T1) for BDNF, Tau, and PSD95, model fit was moderate to high (R² ≈ 0.36–0.74). The baseline biomarker at the earlier timepoint was the dominant predictor in every model, showing a strong negative association with subsequent change (all p < .001). This pattern is consistent with change-score modeling and reflects “room to change” / regression-to-the-mean effects.
+
+In contrast, the group effect (Piano vs Control) was small and not significant in 8 out of 9 models. A single nominal group difference emerged for BDNF T1–T0 (b ≈ −0.011, p ≈ .049), but it was not supported consistently across other contrasts or biomarkers and is likely not robust under multiple-testing control.
+
+Site (Standort), sex, age, and CogTel showed no consistent effects across biomarkers and contrasts.*
+
+### Linear model specification (change-score models)
+
+We modeled biomarker change scores using ordinary least squares regression with baseline adjustment:
+
+$$
+Y_{i}^{(b,\Delta)} \;=\; \beta_{0}^{(b,\Delta)}
+\;+\; \beta_{1}^{(b,\Delta)}\,\mathrm{Standort}_{i}
+\;+\; \beta_{2}^{(b,\Delta)}\,\mathrm{Gruppe}_{i}
+\;+\; \beta_{3}^{(b,\Delta)}\,\mathrm{Sex}_{i}
+\;+\; \beta_{4}^{(b,\Delta)}\,\mathrm{AgeStart}_{i}
+\;+\; \beta_{5}^{(b,\Delta)}\,\mathrm{CogTel}_{i}
+\;+\; \beta_{6}^{(b,\Delta)}\,B_{i,t_0}^{(b)}
+\;+\; \varepsilon_{i}^{(b,\Delta)},
+\qquad
+\varepsilon_{i}^{(b,\Delta)} \sim \mathcal{N}(0,\sigma_{b,\Delta}^{2}).
+$$
+
+The outcome is defined as the change score
+
+$$
+
+Y_{i}^{(b,\Delta)} \;=\; B_{i,t_1}^{(b)} - B_{i,t_0}^{(b)}.
+$$
+
+For each contrast $\Delta$, the baseline timepoint $t_0$ is:
+
+$$
+t_0 =
+\begin{cases}
+T0, & \Delta \in \{T1{-}T0,\; T2{-}T0\}\\
+T1, & \Delta = T2{-}T1
+\end{cases}
+\qquad
+\text{and}
+\qquad
+t_1 =
+\begin{cases}
+T1, & \Delta = T1{-}T0\\
+T2, & \Delta \in \{T2{-}T0,\; T2{-}T1\}.
+\end{cases}
+$$
+
+#### CogTel vs BDNF T1–T0 model correction
+*“An automated narrative output initially mis-assigned the coefficient labels for the BDNF T1–T0 model; therefore, coefficients were verified and reported based on the underlying summary(lm) output. The corrected results indicate that baseline BDNF (T0), not CogTel, was the strong predictor of change.”*
+
+#### Limitations
+*Results should be interpreted in light of (i) multiple testing across biomarkers and time contrasts, such that isolated nominal p-values near .05 may not be robust; (ii) the use of change-score outcomes together with baseline adjustment, which induces strong negative baseline coefficients and can reflect regression-to-the-mean; and (iii) inconsistent factor coding across some models. Additionally, an automated narrative summary initially mis-assigned coefficient labels in the BDNF T1–T0 model; all coefficients were therefore verified against the underlying model summaries, confirming that baseline BDNF (T0), not CogTel, was the dominant predictor of change.*
 
 ##### Plot
 {{< embed notebooks/LM_PostPCA_201025.qmd#fig-lm-group-effect-filtered >}}
@@ -738,13 +540,32 @@ Standardized parameters were obtained by fitting the model on a standardized ver
 Intervals (CIs) and p-values were computed using a Wald z-distribution approximation.
 <!-- Overdispersion! -->
 
+
+
+**Grok: Best model for reporting:
+Your original filtered 3 CpGs (p23, p60, p95): Strongest signal, highest biological plausibility (likely regulatory sites), significant interaction.
+Or the moderately filtered variable CpGs where interaction survived (previous run with marginal R² 0.001 but p=0.012).
+
+Full dataset as supplementary: Shows effect is CpG-specific, not global (good for discussion: "targeted modulation at dynamic sites").
+
+Reporting Tips
+
+State: "Fixed effects explained ~0.1–2% variance (marginal R²), typical for subtle epigenetic changes at specific promoter CpGs amid high site-specific variation."
+Visualize trajectories (emmeans plots)—reviewers love figures over R² numbers.
+Compare to literature: PSD-95 methylation changes in interventions are often small but linked to expression/plasticity.**
+
+## Bayesian analyses {#sec-results-bayesian}
+
+## Ancillary analyses {#sec-results-ancillary}
+
 # Discussion {#sec-discussion}
 
 **Hohe Expressionsrate!** aller gene vor allem PSD95 und Tau. The null hypothesis of our study was that playing the piano has no effect on the methylation of neuroplasticity-associated genes like BDNF, PSD95 and Tau. Despite of Tau the null hypothesis could be rejected.
 
+## Interpretation of findings
+
 ## Limitations
 
-# Conclusion
 
 # Declarations
 
@@ -794,7 +615,7 @@ All authors have read and agreed to the published version of the manuscript.
 
 ## Use of AI tools
 
-ChatGPT (OpenAI) was used to assist with draft preparation (particularly language and style), development of R code, construction of well-structured tables, and summarizing and clarifying statistical output for reporting.
+AI (ChatGPT, Grok, Github copilot) was used to assist with draft preparation (particularly language and style), development of R code, construction of well-structured tables, and summarizing and clarifying statistical output for reporting.
 All analyses, interpretations, and manuscript text were reviewed and verified by the authors.
 GitHub Copilot was also used to assist with R code development and manuscript writing.
 The first author takes full responsibility for the accuracy and integrity of the work.

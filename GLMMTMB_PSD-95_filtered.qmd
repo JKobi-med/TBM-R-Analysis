@@ -1,0 +1,168 @@
+---
+title: "GLMMTMB Analysis for PSD-95 Methylation Data (filtered)"
+---
+
+```{r}
+# ==============================================================
+# switch to glmmtmb for more flexible modeling
+# ==============================================================
+# glmmTMB advantages for your methylation data:
+# - Direct Beta family on raw proportions (0-1) → no need for M-values
+# - Better convergence on complex structures
+# - Handles zero/one-inflation if present (common in methylation)
+# - Similar syntax to lme4
+
+# Install if needed (once): install.packages("glmmTMB")
+library(glmmTMB)
+library(DHARMa)      # For better residuals diagnostics
+library(performance) # For R2, ICC, etc.
+library(emmeans)     # Post-hoc (works with glmmTMB)
+```
+
+
+```{r}
+# ==============================================================
+# Load Data (as in your code - assuming already run)
+ psd95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+# ==============================================================
+```
+
+
+```{r}
+# ==============================================================
+# 1. Filter to Specific CpGs of Interest
+# ==============================================================
+# Assuming "filter for" means keep only these CpGs (e.g., for focused analysis)
+# If you meant exclude them, change to !CpG_Position %in% ...
+psd95_specific <- psd95 %>%
+  filter(CpG_Position %in% c("p95", "p60", "p23"))
+```
+
+
+```{r}
+# ==============================================================
+# 2. Preprocessing: Identify and Exclude Invariant/Low-Variability CpGs (among the specific ones)
+# ==============================================================
+
+# Compute summary stats per CpG across ALL samples
+cpg_summary <- psd95_specific %>%
+  group_by(CpG_Position) %>%
+  summarise(
+    mean_meth = mean(methylation, na.rm = TRUE),
+    sd_meth = sd(methylation, na.rm = TRUE),
+    min_meth = min(methylation, na.rm = TRUE),
+    max_meth = max(methylation, na.rm = TRUE),
+    n = n()
+  ) %>%
+  mutate(
+    range_meth = max_meth - min_meth,
+    is_invariant = (sd_meth == 0 | range_meth < 0.05)  # Threshold: SD=0 or range<5%
+  )
+
+# Print to inspect
+print(cpg_summary)
+
+# Filter data to exclude invariant CpGs (if any among the 3)
+psd95_filtered <- psd95_specific %>%
+  inner_join(cpg_summary %>% filter(!is_invariant) %>% select(CpG_Position), by = "CpG_Position")
+```
+
+```{r}
+# ==============================================================
+# Prepare Raw Proportion (Ensure Strictly (0,1) for Beta Family)
+# ==============================================================
+# Beta family requires 0 < y < 1. If any exact 0 or 1, add small epsilon or use zero_one_inflated_beta
+psd95_beta <- psd95_filtered %>%
+  mutate(
+    meth_prop = methylation,  # Assume already 0-1 proportion
+    # Adjust extremes if needed (common safe practice)
+    meth_prop_adj = case_when(
+      meth_prop == 0 ~ 0.0001,
+      meth_prop == 1 ~ 0.9999,
+      TRUE ~ meth_prop
+    )
+  )
+
+# Check for exact 0/1
+table(psd95_beta$meth_prop == 0 | psd95_beta$meth_prop == 1)
+```
+
+```{r}
+# ==============================================================
+# 1. Beta Model (Recommended: Proper Distribution for Proportions)
+# ==============================================================
+model_beta <- glmmTMB(
+  meth_prop_adj ~ Gruppe * Zeitpunkt + Age_start + Sex +
+                  (1 | ID:CpG_Position),   # Nested random intercept (your best structure)
+  data = psd95_beta,
+  family = beta_family(link = "logit")     # Logit link for proportions
+)
+
+# Summary
+summary(model_beta)
+
+# Performance metrics (R2 equivalent for GLMM)
+r2(model_beta)           # Nakagawa R2 (marginal/conditional)
+icc(model_beta)          # Intraclass correlation
+
+# Residual diagnostics (better than base plot)
+sim_resid <- simulateResiduals(model_beta)
+plot(sim_resid)          # Check for normality, heteroscedasticity, zero-inflation
+testDispersion(sim_resid)
+testZeroInflation(sim_resid)
+```
+```{r}
+library(report)
+report(model_beta)
+```
+
+```{r}
+# ==============================================================
+# 2. Post-Hoc on Response Scale (Methylation Proportion)
+# ==============================================================
+# Marginal means and contrasts on original proportion scale
+emm_beta <- emmeans(model_beta, ~ Gruppe | Zeitpunkt, type = "response")
+emm_beta                     # Means (proportions)
+pairs(emm_beta)              # Group differences per time
+
+emm_time <- emmeans(model_beta, ~ Zeitpunkt | Gruppe, type = "response")
+pairs(emm_time, adjust = "tukey")
+
+# Interaction plot
+emmip(model_beta, Gruppe ~ Zeitpunkt, CIs = TRUE, type = "response") +
+  labs(y = "Predicted Methylation Proportion", title = "PSD-95 Promoter (Beta Model)")
+```
+
+```{r}
+# ==============================================================
+# 3. Alternative: Zero-One-Inflated Beta (If Diagnostics Show Excess 0/1)
+# ==============================================================
+# If testZeroInflation() significant or many extremes
+model_zoi <- glmmTMB(
+  meth_prop ~ Gruppe * Zeitpunkt + Age_start + Sex +
+              (1 | ID:CpG_Position),
+  ziformula = ~ Gruppe * Zeitpunkt,   # Predictors for zero/one inflation
+  data = psd95_beta,
+  family = beta_family(link = "logit")
+  # Or use ziGamma if needed, but beta is best
+)
+
+summary(model_zoi)
+plot(simulateResiduals(model_zoi))
+```
+
+```{r}
+# ==============================================================
+# 4. Gaussian on M-Values (For Direct Comparison to Your lmer)
+# ==============================================================
+model_gaussian_tmb <- glmmTMB(
+  M_value ~ Gruppe * Zeitpunkt + Age_start + Sex +
+            (1 | ID:CpG_Position),
+  data = psd95_filtered,
+  family = gaussian()
+)
+
+summary(model_gaussian_tmb)
+r2(model_gaussian_tmb)   # Should match your lmer closely
+```
+

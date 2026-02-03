@@ -173,7 +173,9 @@ for (cpg in unique(psd95_filtered$CpG_Position)) {
                     data = df_cpg)
   
   print(paste("Model for CpG:", cpg))
-  print(summary(model_cpg))
+  print(summary(model_cpg))rm -rf .quarto _manuscript
+quarto preview
+
   print(anova(model_cpg))
 }
 ```
@@ -204,3 +206,21 @@ summary(model_beta)
 report(model_beta)
 ```
 
+```{r}
+# ==============================================================
+# Alternative: Beta Mixed Model (if M-value residuals are poor)
+# ==============================================================
+library(glmmTMB)
+
+# For average (adjust prop for beta)
+psd95_avg <- psd95_avg %>%
+  mutate(
+    prop_adj = (avg_prop * (n_CpG - 1) + 0.5) / n_CpG
+  )
+
+model_beta <- glmmTMB(prop_adj ~ Zeitpunkt * Gruppe + Age_start + Sex + (1 + Time | ID) ,
+                      family = beta_family(link = "logit"),
+                      data = psd95_avg)
+
+summary(model_beta)
+```

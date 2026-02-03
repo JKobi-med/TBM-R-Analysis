@@ -1,0 +1,95 @@
+---
+title: "psd95 ZIBR glmmtmb"
+---
+
+
+```{r}
+# ==============================================================
+# Load Data (as in your code - assuming already run)
+ psd95 <- suppressWarnings(read_xlsx("~/Work/TBM-R-Analysis/tables/Rohdaten/PSD95_CpGs_mit_verhalten_größer_umstrukturiert.xlsx"))
+# ==============================================================
+```
+
+
+```{r}
+# ==============================================================
+# 1. Filter to Specific CpGs of Interest
+# ==============================================================
+# Assuming "filter for" means keep only these CpGs (e.g., for focused analysis)
+# If you meant exclude them, change to !CpG_Position %in% ...
+psd95_specific <- psd95 %>%
+  filter(CpG_Position %in% c("p95", "p60", "p23"))
+```
+
+
+```{r}
+# ==============================================================
+# 2. Preprocessing: Identify and Exclude Invariant/Low-Variability CpGs (among the specific ones)
+# ==============================================================
+
+# Compute summary stats per CpG across ALL samples
+cpg_summary <- psd95_specific %>%
+  group_by(CpG_Position) %>%
+  summarise(
+    mean_meth = mean(methylation, na.rm = TRUE),
+    sd_meth = sd(methylation, na.rm = TRUE),
+    min_meth = min(methylation, na.rm = TRUE),
+    max_meth = max(methylation, na.rm = TRUE),
+    n = n()
+  ) %>%
+  mutate(
+    range_meth = max_meth - min_meth,
+    is_invariant = (sd_meth == 0 | range_meth < 0.05)  # Threshold: SD=0 or range<5%
+  )
+
+# Print to inspect
+print(cpg_summary)
+
+# Filter data to exclude invariant CpGs (if any among the 3)
+psd95_filtered <- psd95_filtered %>%
+  mutate(
+    meth_zi = if_else(methylation == 1, 0.9999, methylation)  # Adjust only 1's
+  )
+table(psd95_filtered$methylation == 0 | psd95_filtered$methylation == 1)
+```
+
+```{r}
+# ==============================================================
+# 1. ZI-Beta Model on Filtered Data (3 Specific CpGs)
+# ==============================================================
+library(glmmTMB)
+library(DHARMa)
+library(emmeans)
+
+model_zi_filtered <- glmmTMB(
+  meth_zi ~ Gruppe * Zeitpunkt + Age_start + Sex +
+            (1 | ID:CpG_Position),
+  ziformula = ~ Gruppe * Zeitpunkt,   # Let inflation (excess zeros) depend on predictors
+  # ziformula = ~1,                   # Alternative: constant inflation prob
+  family = beta_family(link = "logit"),
+  data = psd95_filtered
+)
+
+summary(model_zi_filtered)
+r2(model_zi_filtered)               # Marginal/conditional R2
+icc(model_zi_filtered)
+
+# Diagnostics
+sim_res_zi_f <- simulateResiduals(model_zi_filtered)
+plot(sim_res_zi_f)
+testDispersion(sim_res_zi_f)
+testZeroInflation(sim_res_zi_f)     # Should improve vs plain beta
+
+# Post-hoc on proportion scale
+emm_zi_f <- emmeans(model_zi_filtered, ~ Gruppe | Zeitpunkt, type = "response")
+emm_zi_f
+pairs(emm_zi_f)
+
+emm_time_f <- emmeans(model_zi_filtered, ~ Zeitpunkt | Gruppe, type = "response")
+pairs(emm_time_f, adjust = "tukey")
+
+# Plot
+emmip(model_zi_filtered, Gruppe ~ Zeitpunkt, type = "response", CIs = TRUE) +
+  labs(y = "Predicted Methylation Proportion", title = "PSD-95 Filtered: ZI-Beta")
+```
+
